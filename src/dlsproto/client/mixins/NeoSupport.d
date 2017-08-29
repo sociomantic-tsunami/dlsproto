@@ -182,18 +182,20 @@ template NeoSupport ()
             static assert(is(C: Const!(void)[]),"value must be implicitly castable to" ~
                     " Const!(void)[]");
 
-            Internals.Put.UserSpecifiedParams params;
-            params.args.channel = channel;
-            params.args.timestamp = timestamp;
-            params.args.value = value;
-            params.notifier.set(notifier);
-
+            RequestContext context;
             setupOptionalArgs!(options.length)(options,
-                    (RequestContext context)
+                    (RequestContext context_)
                     {
-                        params.args.context = context;
+                        context = context_;
                     }
             );
+
+            auto params = Const!(Internals.Put.UserSpecifiedParams)(
+                    Const!(Put.Args)(channel, timestamp, value, context),
+                    Const!(Internals.Put.UserSpecifiedParams.SerializedNotifier)(
+                        *(cast(Const!(ubyte[notifier.sizeof])*)&notifier)
+                    )
+                );
 
             auto id = this.assign!(Internals.Put)(params);
             return id;
@@ -226,23 +228,28 @@ template NeoSupport ()
         public RequestId getRange (Options...) ( cstring channel, time_t low, time_t high,
             GetRange.Notifier notifier, Options options )
         {
-            Internals.GetRange.UserSpecifiedParams params;
-            params.args.channel = channel;
-            params.args.lower_bound = low;
-            params.args.upper_bound = high;
-            params.notifier.set(notifier);
-
+            cstring filter_string;
+            Filter.FilterMode filter_mode;
+            RequestContext context;
             setupOptionalArgs!(options.length)(options,
                     (GetRange.Filter filter)
                     {
-                        params.args.filter_string = filter.filter_string;
-                        params.args.filter_mode = filter.filter_mode;
+                        filter_string = filter.filter_string;
+                        filter_mode = filter.filter_mode;
                     },
-                    (RequestContext context)
+                    (RequestContext context_)
                     {
-                        params.args.context = context;
+                        context = context_;
                     }
             );
+
+            auto params = Const!(Internals.GetRange.UserSpecifiedParams)(
+                        Const!(GetRange.Args)(channel, low, high,
+                            filter_string, filter_mode, context),
+                        Const!(Internals.GetRange.UserSpecifiedParams.SerializedNotifier)(
+                            *(cast(Const!(ubyte[notifier.sizeof])*)&notifier)
+                        )
+                    );
 
             auto id = this.assign!(Internals.GetRange)(params);
             return id;
