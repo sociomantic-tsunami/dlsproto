@@ -73,10 +73,10 @@ public struct Filter
 
 public struct Args
 {
-    cstring channel;
+    mstring channel;
     time_t lower_bound;
     time_t upper_bound;
-    cstring filter_string;
+    mstring filter_string;
     Filter.FilterMode filter_mode;
     RequestContext context;
 }

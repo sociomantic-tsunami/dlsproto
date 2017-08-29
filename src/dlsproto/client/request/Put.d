@@ -33,9 +33,9 @@ public struct Args
 {
     import core.stdc.time;
 
-    cstring channel;
+    mstring channel;
     time_t timestamp;
-    Const!(void)[] value;
+    void[] value;
     RequestContext context;
 }
 
