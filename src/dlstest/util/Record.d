@@ -18,7 +18,7 @@ module dlstest.util.Record;
 public struct Record
 {
     import ocean.io.digest.Fnv1;
-    import ocean.text.convert.Format;
+    import ocean.text.convert.Formatter;
     import ocean.transition;
 
     /***************************************************************************
@@ -114,11 +114,11 @@ public struct Record
 
         if (value_index == 0)
         {
-            Format.format(r.val, "{}", r.key);
+            sformat(r.val, "{}", r.key);
         }
         else
         {
-            Format.format(r.val, "{}{}", r.key, value_index);
+            sformat(r.val, "{}{}", r.key, value_index);
         }
 
         return r;

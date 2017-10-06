@@ -19,7 +19,7 @@ module dlsproto.client.request.internal.GetRange;
 *******************************************************************************/
 
 import ocean.transition;
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import core.stdc.time;
 import dlsproto.client.internal.SharedResources;
 
