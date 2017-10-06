@@ -24,7 +24,7 @@ import ocean.transition;
 
 import dlsproto.node.request.model.SingleChannel;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 /*******************************************************************************
 

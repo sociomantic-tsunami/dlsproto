@@ -22,7 +22,7 @@ import ocean.transition;
 
 import dlsproto.node.request.model.DlsCommand;
 import ocean.transition;
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import dlsproto.client.legacy.DlsConst;
 
 static if (!is(typeof(DlsConst.Command.E.Redistribute))) {}

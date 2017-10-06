@@ -21,6 +21,7 @@ module dlsproto.node.request.model.SingleChannel;
 import ocean.transition;
 
 import dlsproto.node.request.model.DlsCommand;
+import ocean.text.convert.Formatter;
 
 /*******************************************************************************
 
@@ -32,8 +33,6 @@ public abstract scope class SingleChannel : DlsCommand
 {
     import dlsproto.client.legacy.DlsConst;
     import swarm.Const : validateChannelName;
-
-    import ocean.text.convert.Format;
 
     /***************************************************************************
 
@@ -186,7 +185,7 @@ public abstract scope class SingleChannel : DlsCommand
         super.description(dst);
 
         auto channel = *this.channel_buffer;
-        Format.format(dst, " on channel '{}'", channel.length ? channel : "?");
+        sformat(dst, " on channel '{}'", channel.length ? channel : "?");
         return dst;
     }
 }
