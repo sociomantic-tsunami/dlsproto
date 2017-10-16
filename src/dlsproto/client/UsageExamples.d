@@ -305,7 +305,87 @@ unittest
     }
 }
 
-/// Example of task-blocking neo Put request.
+/// Example of Task-blocking neo Put request usage with a notifier
+unittest
+{
+    // An example of handling a Put request
+    class BlockingPutExample: ExampleApp
+    {
+        override protected void example ()
+        {
+            // Assign a neo Put request. Note that the channel and value
+            // are copied inside the client -- the user does not need to
+            // maintain them after calling this method.
+            this.dls_client.blocking.put("channel", 0x12345678, "value_to_put",
+                    &this.putNotifier);
+        }
+
+        // Notifier which is called when something of interest happens to
+        // the Put request. See dlsproto.client.request.Put for
+        // details of the parameters of the notifier. (Each request has a
+        // module like this, defining its public API.)
+        private void putNotifier ( DlsClient.Neo.Put.Notification info,
+            DlsClient.Neo.Put.Args args )
+        {
+            // `info` is a smart union, where each member of the union
+            // represents one possible notification. `info.active` denotes
+            // the type of the current notification. Some notifications
+            // have fields containing more information:
+            with ( info.Active ) switch ( info.active )
+            {
+                case success:
+                    this.log.trace("The request succeeded!");
+                    break;
+
+                case failure:
+                    this.log.trace("The request failed on all nodes.");
+                    break;
+
+                case node_disconnected:
+                    this.log.trace("The request failed due to connection "
+                        "error {} on {}:{}",
+                        getMsg(info.node_disconnected.e),
+                        info.node_disconnected.node_addr.address_bytes,
+                        info.node_disconnected.node_addr.port);
+                    // If there are more nodes left to try, the request will
+                    // be retried automatically.
+                    break;
+
+                case node_error:
+                    this.log.error("The request failed due to a node "
+                        "error on {}:{}",
+                        info.node_error.node_addr.address_bytes,
+                        info.node_error.node_addr.port);
+                    // If there are more nodes left to try, the request will
+                    // be retried automatically.
+                    break;
+
+                case unsupported:
+                    switch ( info.unsupported.type )
+                    {
+                        case info.unsupported.type.RequestNotSupported:
+                            this.log.error("The request is not supported by "
+                                "node {}:{}",
+                                info.unsupported.node_addr.address_bytes,
+                                info.unsupported.node_addr.port);
+                            break;
+                        case info.unsupported.type.RequestVersionNotSupported:
+                            this.log.error("The request version is not "
+                                "supported by node {}:{}",
+                                info.unsupported.node_addr.address_bytes,
+                                info.unsupported.node_addr.port);
+                            break;
+                        default: assert(false);
+                    }
+                    break;
+
+                default: assert(false);
+            }
+        }
+    }
+}
+
+/// Example of task-blocking neo Put request without user-provided notifier
 unittest
 {
     // An example of handling a blocking Put request
@@ -314,7 +394,12 @@ unittest
         protected override void example ( )
         {
             // Perform a blocking neo Put request and return a result struct
-            // indicating success/failure.
+            // indicating success/failure. Notes:
+            // 1. In a real application, you probably want more information than
+            //    just success/failure and should use the task-blocking method
+            //    with a notifier (see example above).
+            // 2. The channel and value are copied inside the client -- the user
+            //    does not need to maintain them after calling this method.
             auto result = this.dls_client.blocking.put("channel", 0x1234,
                 "value_to_put");
             if ( result.succeeded )
