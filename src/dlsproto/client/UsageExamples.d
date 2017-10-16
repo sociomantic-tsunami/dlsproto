@@ -26,6 +26,8 @@ version (UnitTest)
     import ocean.util.log.Logger;
 
     import swarm.neo.authentication.HmacDef : Key;
+
+    import swarm.neo.client.requests.NotificationFormatter;
 }
 
 
@@ -95,14 +97,18 @@ version (UnitTest)
         // succeeds or fails. (Also called after a re-connection attempt.)
         private void connNotifier ( DlsClient.Neo.ConnNotification info )
         {
+            formatNotification(info, this.msg_buf);
+
             with (info.Active) switch (info.active)
             {
                 case connected:
                     // The connection succeeded.
+                    this.log.trace(this.msg_buf);
                     break;
                 case error_while_connecting:
                     // A connection error occurred. The client will
                     // automatically try to reconnect.
+                    this.log.trace(this.msg_buf);
                     break;
                 default:
                     assert(false);
@@ -144,6 +150,8 @@ unittest
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
             DlsClient.Neo.Put.Args args )
         {
+            formatNotification(info, this.msg_buf);
+
             // `info` is a smart union, where each member of the union
             // represents one possible notification. `info.active` denotes
             // the type of the current notification. Some notifications
@@ -154,46 +162,11 @@ unittest
                     this.log.trace("The request succeeded!");
                     break;
 
-                case failure:
-                    this.log.trace("The request failed on all nodes.");
-                    break;
-
                 case node_disconnected:
-                    this.log.trace("The request failed due to connection "
-                        "error {} on {}:{}",
-                        getMsg(info.node_disconnected.e),
-                        info.node_disconnected.node_addr.address_bytes,
-                        info.node_disconnected.node_addr.port);
-                    // If there are more nodes left to try, the request will
-                    // be retried automatically.
-                    break;
-
+                case failure:
                 case node_error:
-                    this.log.error("The request failed due to a node "
-                        "error on {}:{}",
-                        info.node_error.node_addr.address_bytes,
-                        info.node_error.node_addr.port);
-                    // If there are more nodes left to try, the request will
-                    // be retried automatically.
-                    break;
-
                 case unsupported:
-                    switch ( info.unsupported.type )
-                    {
-                        case info.unsupported.type.RequestNotSupported:
-                            this.log.error("The request is not supported by "
-                                "node {}:{}",
-                                info.unsupported.node_addr.address_bytes,
-                                info.unsupported.node_addr.port);
-                            break;
-                        case info.unsupported.type.RequestVersionNotSupported:
-                            this.log.error("The request version is not "
-                                "supported by node {}:{}",
-                                info.unsupported.node_addr.address_bytes,
-                                info.unsupported.node_addr.port);
-                            break;
-                        default: assert(false);
-                    }
+                    this.log.error(this.msg_buf);
                     break;
 
                 default: assert(false);
@@ -256,47 +229,25 @@ unittest
         private void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
+            formatNotification(info, this.msg_buf);
+
             this.log.trace("Request context was: {}",
                     args.context.integer());
 
             with ( info.Active ) switch ( info.active )
             {
-                case started:
-                    break;
-
                 case received:
                     this.log.trace("Received key {} with value {}",
                             info.received.key, info.received.value);
                     break;
 
+                case started:
                 case finished:
-                    this.log.trace("Request has finished on all nodes");
-                    break;
-
                 case node_disconnected:
-                    this.log.trace("GetRange failed due to connection "
-                        "error {} on {}:{}",
-                        getMsg(info.node_disconnected.e),
-                        info.node_disconnected.node_addr.address_bytes,
-                        info.node_disconnected.node_addr.port);
-                    break;
-
                 case node_error:
-                    this.log.error("GetRange failed due to a node "
-                        "error on {}:{}",
-                        info.node_error.node_addr.address_bytes,
-                        info.node_error.node_addr.port);
-                    break;
-
                 case unsupported:
-                    this.log.error("GetRange failed due to an unsupported error "
-                        "on {}:{}",
-                        info.unsupported.node_addr.address_bytes,
-                        info.unsupported.node_addr.port);
-                    break;
-
                 case stopped:
-                    this.log.trace("The request stopped on all nodes.");
+                    this.log.error(this.msg_buf);
                     break;
 
                 default: assert(false);
@@ -327,6 +278,8 @@ unittest
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
             DlsClient.Neo.Put.Args args )
         {
+            formatNotification(info, this.msg_buf);
+
             // `info` is a smart union, where each member of the union
             // represents one possible notification. `info.active` denotes
             // the type of the current notification. Some notifications
@@ -338,45 +291,10 @@ unittest
                     break;
 
                 case failure:
-                    this.log.trace("The request failed on all nodes.");
-                    break;
-
                 case node_disconnected:
-                    this.log.trace("The request failed due to connection "
-                        "error {} on {}:{}",
-                        getMsg(info.node_disconnected.e),
-                        info.node_disconnected.node_addr.address_bytes,
-                        info.node_disconnected.node_addr.port);
-                    // If there are more nodes left to try, the request will
-                    // be retried automatically.
-                    break;
-
                 case node_error:
-                    this.log.error("The request failed due to a node "
-                        "error on {}:{}",
-                        info.node_error.node_addr.address_bytes,
-                        info.node_error.node_addr.port);
-                    // If there are more nodes left to try, the request will
-                    // be retried automatically.
-                    break;
-
                 case unsupported:
-                    switch ( info.unsupported.type )
-                    {
-                        case info.unsupported.type.RequestNotSupported:
-                            this.log.error("The request is not supported by "
-                                "node {}:{}",
-                                info.unsupported.node_addr.address_bytes,
-                                info.unsupported.node_addr.port);
-                            break;
-                        case info.unsupported.type.RequestVersionNotSupported:
-                            this.log.error("The request version is not "
-                                "supported by node {}:{}",
-                                info.unsupported.node_addr.address_bytes,
-                                info.unsupported.node_addr.port);
-                            break;
-                        default: assert(false);
-                    }
+                    this.log.error(this.msg_buf);
                     break;
 
                 default: assert(false);
@@ -433,6 +351,8 @@ unittest
         void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
+            formatNotification(info, this.msg_buf);
+
             with ( info.Active ) switch ( info.active )
             {
                 // Request has started, attach the suspendable
@@ -465,25 +385,9 @@ unittest
                     break;
 
                 case node_disconnected:
-                    this.log.trace("GetRange failed due to connection "
-                        "error {} on {}:{}",
-                        getMsg(info.node_disconnected.e),
-                        info.node_disconnected.node_addr.address_bytes,
-                        info.node_disconnected.node_addr.port);
-                    break;
-
                 case node_error:
-                    this.log.trace("GetRange failed due to a node "
-                        "error on {}:{}",
-                        info.node_error.node_addr.address_bytes,
-                        info.node_error.node_addr.port);
-                    break;
-
                 case unsupported:
-                    this.log.trace("GetRange failed due to an unsupported error "
-                        "on {}:{}",
-                        info.unsupported.node_addr.address_bytes,
-                        info.unsupported.node_addr.port);
+                    this.log.error(this.msg_buf);
                     break;
 
                 default: assert(false);
