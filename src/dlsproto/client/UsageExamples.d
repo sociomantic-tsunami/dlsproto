@@ -22,6 +22,8 @@ version (UnitTest)
     import ocean.io.select.EpollSelectDispatcher;
     import ocean.task.Scheduler;
     import ocean.task.Task;
+    import ocean.util.app.DaemonApp;
+    import ocean.util.log.Logger;
 
     import swarm.neo.authentication.HmacDef : Key;
 }
@@ -29,45 +31,65 @@ version (UnitTest)
 
 version (UnitTest)
 {
-    /// Helper struct containing a DLS client, an epoll instance, and basic
-    /// initialisation/connection code (This struct serves to avoid repeating
-    /// all the initialisation/connection boilerplate in every example. It is
-    /// not intended that real applications need such a struct. Typically,
-    /// its members would be in your main app class.)
-    struct DlsInit
+    // DaemonApp class showing typical neo DLS client initialisation. The
+    // class has a single abstract method -- example() -- which is implemented
+    // by various usage examples in this module, each demonstrating a different
+    // client feature.
+    abstract class ExampleApp: DaemonApp
     {
-        public EpollSelectDispatcher epoll;
-        public DlsClient dls;
+        // DLS client (see dlsproto.client.DlsClient
+        private DlsClient dls_client;
 
-        public void connect (
-                EpollSelectDispatcher epoll = new EpollSelectDispatcher)
+        // Buffer used for message formatting in notifiers
+        private mstring msg_buf;
+
+        // Logger used for logging notifications
+        protected Logger log;
+
+        // Constructor. Initialises the scheduler
+        public this ( )
         {
-            // Create an epoll instance.
-            this.epoll = epoll;
+            super("example", "DLS client neo usage example", VersionInfo.init);
 
+            // Set up the logger for this example
+            this.log = Log.lookup("example");
+
+            // Initialize the scheduler
+            SchedulerConfiguration scheduler_config;
+            initScheduler(scheduler_config);
+        }
+
+        // Application run method. Initializes the DLS client and starts the
+        // main application task.
+        override protected int run ( Arguments args, ConfigParser config )
+        {
             // Create a DLS client instance, passing the additional
             // arguments required by neo: the authorisation name and
-            // password and the connection notifier (see below).
+            // password and the connection notifier (see below)
             auto auth_name = "neotest";
             ubyte[] auth_key = Key.init.content;
-            this.dls = new DlsClient(this.epoll, auth_name, auth_key,
-                &this.connNotifier);
+            this.dls_client = new DlsClient(theScheduler.epoll,
+                    auth_name, auth_key, &this.connNotifier);
 
-            // Add some nodes.
-            // Note: make sure you have a .nodes file which specifies the
-            // neo ports of the nodes!
-            dls.neo.addNodes("dls.nodes");
+            this.dls_client.neo.addNodes("dls.node");
+
+            theScheduler.schedule(new AppTask);
+            theScheduler.eventLoop();
+            return 0;
         }
 
-        // Initializes scheduler and DlsClient using its epoll
-        public void connectWithScheduler ( )
+        // Application main task
+        private class AppTask : Task
         {
-            SchedulerConfiguration config;
-            initScheduler(config);
-
-            this.connect(theScheduler.epoll);
+            // Thask entry point. Runs the example.
+            protected override void run ( )
+            {
+                this.outer.example();
+            }
         }
 
+        // Abstract method containing the logic for each example
+        abstract protected void example ( );
 
         // Notifier which is called when a connection establishment attempt
         // succeeds or fails. (Also called after a re-connection attempt.)
@@ -86,32 +108,33 @@ version (UnitTest)
                     assert(false);
             }
         }
+
     }
+}
+
+/*******************************************************************************
+
+    Dummy struct to enable ddoc rendering of usage examples.
+
+*******************************************************************************/
+
+struct UsageExamples
+{
 }
 
 /// Extensive example of neo Put request usage
 unittest
 {
     // An example of handling a Put request
-    struct PutExample
+    class PutExample: ExampleApp
     {
-        import ocean.io.Stdout;
-
-        private DlsInit dls_init;
-
-        // Method which initialises the client and starts a request
-        public void start ( )
+        override protected void example ()
         {
-            this.dls_init.connect();
-
             // Assign a neo Put request. Note that the channel and value
             // are copied inside the client -- the user does not need to
             // maintain them after calling this method.
-            this.dls_init.dls.neo.put("channel", 0x12345678, "value_to_put",
-                &this.putNotifier);
-
-            // Start the event loop to set it all running.
-            this.dls_init.epoll.eventLoop();
+            this.dls_client.neo.put("channel", 0x12345678, "value_to_put",
+                    &this.putNotifier);
         }
 
         // Notifier which is called when something of interest happens to
@@ -128,15 +151,15 @@ unittest
             with ( info.Active ) switch ( info.active )
             {
                 case success:
-                    Stdout.formatln("The request succeeded!");
+                    this.log.trace("The request succeeded!");
                     break;
 
                 case failure:
-                    Stdout.formatln("The request failed on all nodes.");
+                    this.log.trace("The request failed on all nodes.");
                     break;
 
                 case node_disconnected:
-                    Stdout.formatln("The request failed due to connection "
+                    this.log.trace("The request failed due to connection "
                         "error {} on {}:{}",
                         getMsg(info.node_disconnected.e),
                         info.node_disconnected.node_addr.address_bytes,
@@ -146,7 +169,7 @@ unittest
                     break;
 
                 case node_error:
-                    Stdout.formatln("The request failed due to a node "
+                    this.log.error("The request failed due to a node "
                         "error on {}:{}",
                         info.node_error.node_addr.address_bytes,
                         info.node_error.node_addr.port);
@@ -158,13 +181,13 @@ unittest
                     switch ( info.unsupported.type )
                     {
                         case info.unsupported.type.RequestNotSupported:
-                            Stdout.formatln("The request is not supported by "
+                            this.log.error("The request is not supported by "
                                 "node {}:{}",
                                 info.unsupported.node_addr.address_bytes,
                                 info.unsupported.node_addr.port);
                             break;
                         case info.unsupported.type.RequestVersionNotSupported:
-                            Stdout.formatln("The request version is not "
+                            this.log.error("The request version is not "
                                 "supported by node {}:{}",
                                 info.unsupported.node_addr.address_bytes,
                                 info.unsupported.node_addr.port);
@@ -183,32 +206,23 @@ unittest
 /// of controller and request context
 unittest
 {
-    struct GetRangeExample
+    class GetRangeExample : ExampleApp
     {
-        import ocean.io.Stdout;
-
-        private DlsInit dls_init;
-
         // id of the running GetRange request (required for the controller to
         // be able to control it).
         private DlsClient.Neo.RequestId rq_id;
 
-        // Method which initialises the client and starts a request
-        public void start ( )
+        protected override void example ( )
         {
-            this.dls_init.connect();
             int my_context = 1;
 
             // Assign a neo GetRange request. Note that the all arguments
             // are copied inside the client -- the user does not need to
             // maintain them after calling this method.
-            this.rq_id  = this.dls_init.dls.neo.getRange("channel", 0x1234, 0x9999,
+            this.rq_id  = this.dls_client.neo.getRange("channel", 0x1234, 0x9999,
                     &this.getRangeNotifier,
                     DlsClient.Neo.Filter(DlsClient.Neo.Filter.FilterMode.PCRE, "action/login"),
                     DlsClient.Neo.RequestContext(my_context));
-
-            // Start the event loop to set it all running.
-            this.dls_init.epoll.eventLoop();
         }
 
         // Method which initiates stopping the request. Sends a message to DLS
@@ -220,7 +234,7 @@ unittest
             // a request, while it's in progress. The GetRange request
             // controller interface is in dlsproto.client.request.GetRange.
             // Not all requests can be controlled in this way.
-            this.dls_init.dls.neo.control(this.rq_id,
+            this.dls_client.neo.control(this.rq_id,
                 ( DlsClient.Neo.GetRange.IController get_range )
                 {
                     // We tell the request to stop. This will cause a
@@ -242,7 +256,7 @@ unittest
         private void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
-            Stdout.formatln("Request context was: {}",
+            this.log.trace("Request context was: {}",
                     args.context.integer());
 
             with ( info.Active ) switch ( info.active )
@@ -251,16 +265,16 @@ unittest
                     break;
 
                 case received:
-                    Stdout.formatln("Received key {} with value {}",
+                    this.log.trace("Received key {} with value {}",
                             info.received.key, info.received.value);
                     break;
 
                 case finished:
-                    Stdout.formatln("Request has finished on all nodes");
+                    this.log.trace("Request has finished on all nodes");
                     break;
 
                 case node_disconnected:
-                    Stdout.formatln("GetRange failed due to connection "
+                    this.log.trace("GetRange failed due to connection "
                         "error {} on {}:{}",
                         getMsg(info.node_disconnected.e),
                         info.node_disconnected.node_addr.address_bytes,
@@ -268,21 +282,21 @@ unittest
                     break;
 
                 case node_error:
-                    Stdout.formatln("GetRange failed due to a node "
+                    this.log.error("GetRange failed due to a node "
                         "error on {}:{}",
                         info.node_error.node_addr.address_bytes,
                         info.node_error.node_addr.port);
                     break;
 
                 case unsupported:
-                    Stdout.formatln("GetRange failed due to an unsupported error "
+                    this.log.error("GetRange failed due to an unsupported error "
                         "on {}:{}",
                         info.unsupported.node_addr.address_bytes,
                         info.unsupported.node_addr.port);
                     break;
 
                 case stopped:
-                    Stdout.formatln("The request stopped on all nodes.");
+                    this.log.trace("The request stopped on all nodes.");
                     break;
 
                 default: assert(false);
@@ -295,39 +309,18 @@ unittest
 unittest
 {
     // An example of handling a blocking Put request
-    struct BlockingPutExample
+    class BlockingPutExample : ExampleApp
     {
-        import ocean.io.Stdout;
-
-        DlsInit dls_init;
-
-        // Task-derivative which performs a Put request
-        static class PutTask : Task
+        protected override void example ( )
         {
-            private DlsClient dls;
-
-            this ( DlsClient dls )
-            {
-                this.dls = dls;
-            }
-
-            override public void run ( )
-            {
-                auto result = this.dls.blocking.put("channel", 0x1234,
-                    "value_to_put");
-                if ( !result.succeeded )
-                    Stdout.formatln("Put request failed");
-            }
-        }
-
-        // Method which initialises the client and starts a request
-        public void start ( )
-        {
-            dls_init.connectWithScheduler();
-
-            // Start a task
-            theScheduler.schedule(new PutTask(this.dls_init.dls));
-            theScheduler.eventLoop();
+            // Perform a blocking neo Put request and return a result struct
+            // indicating success/failure.
+            auto result = this.dls_client.blocking.put("channel", 0x1234,
+                "value_to_put");
+            if ( result.succeeded )
+                this.log.trace("Put request succeeded");
+            else
+                this.log.trace("Put failed");
         }
     }
 }
@@ -336,13 +329,9 @@ unittest
 unittest
 {
     /// ditto
-    struct SuspendableExample
+    class SuspendableExample: ExampleApp
     {
         import ocean.io.model.ISuspendableThrottler;
-        import ocean.io.Stdout;
-
-        /// Initialisation helper struct
-        DlsInit dls_init;
 
         /// The suspendable thorttler instance that controls receiving records
         /// from the DLS
@@ -382,16 +371,16 @@ unittest
                 case stopped:
                     // request has finished, remove suspendable
                     this.throttler.removeSuspendable(suspendable);
-                    Stdout.formatln("Request has finished on all nodes");
+                    this.log.trace("Request has finished on all nodes");
                     break;
 
                 case received:
-                    Stdout.formatln("Received key {} with value {}",
+                    this.log.trace("Received key {} with value {}",
                             info.received.key, info.received.value);
                     break;
 
                 case node_disconnected:
-                    Stdout.formatln("GetRange failed due to connection "
+                    this.log.trace("GetRange failed due to connection "
                         "error {} on {}:{}",
                         getMsg(info.node_disconnected.e),
                         info.node_disconnected.node_addr.address_bytes,
@@ -399,14 +388,14 @@ unittest
                     break;
 
                 case node_error:
-                    Stdout.formatln("GetRange failed due to a node "
+                    this.log.trace("GetRange failed due to a node "
                         "error on {}:{}",
                         info.node_error.node_addr.address_bytes,
                         info.node_error.node_addr.port);
                     break;
 
                 case unsupported:
-                    Stdout.formatln("GetRange failed due to an unsupported error "
+                    this.log.trace("GetRange failed due to an unsupported error "
                         "on {}:{}",
                         info.unsupported.node_addr.address_bytes,
                         info.unsupported.node_addr.port);
@@ -416,17 +405,14 @@ unittest
             }
         }
 
-        // Method which initialises the client and starts a request
-        public void start ( )
+        protected override void example ( )
         {
-            this.dls_init.connect();
-
             // Start a GetRange request
-            auto request_id = this.dls_init.dls.neo.getRange("channel", 0x0000, 0xFFFF,
+            auto request_id = this.dls_client.neo.getRange("channel", 0x0000, 0xFFFF,
                     &this.getRangeNotifier);
 
             // Get a Suspendable interface to the GetRange request
-            this.suspendable = this.dls_init.dls.neo.
+            this.suspendable = this.dls_client.neo.
                 new Suspendable!(DlsClient.Neo.GetRange.IController)(request_id);
 
             // Note that, if the GetRange request finishes (for whatever reason),
@@ -434,9 +420,6 @@ unittest
             // removed from the throttler, when the request finishes (see notifier).
             // The suspendable is attached to throttler when request has been started.
             this.throttler = new SuspendableThrottlerCount(100, 10);
-
-            // Start the event loop to set it all running.
-            this.dls_init.epoll.eventLoop();
         }
     }
 }
