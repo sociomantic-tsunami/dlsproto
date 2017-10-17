@@ -98,7 +98,8 @@ public union NotificationUnion
     /// A value is received from a node.
     RecordInfo received;
 
-    /// The connection to a node disconnected.
+    /// The connection to a node disconnected; the request will automatically
+    /// restart after reconnection.
     NodeExceptionInfo node_disconnected;
 
     /// The request was tried on a node and failed due to an internal node
