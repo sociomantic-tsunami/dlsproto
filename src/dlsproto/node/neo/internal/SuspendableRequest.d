@@ -30,6 +30,7 @@ public struct SuspendableRequest
 {
     import ocean.transition;
     import swarm.neo.node.RequestOnConn;
+    import swarm.neo.connection.RequestOnConnBase;
 
     /***************************************************************************
 
@@ -194,13 +195,21 @@ public struct SuspendableRequest
         {
             send_interrupted = false;
 
-            this.conn.sendReceive(
-                ( in void[] msg ) {send_interrupted = true;},
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
                 ( conn.Payload payload )
                 {
                     payload.add(channel_removed_msg);
                 }
             );
+            assert (event.active == event.active.received ||
+                    event.active == event.active.sent);
+
+            // All messages from the client are ignored (see the method docs).
+            if (event.active == event.active.received)
+            {
+                send_interrupted = true;
+            }
+
         }
         while ( send_interrupted );
     }
@@ -269,27 +278,24 @@ public struct SuspendableRequest
             }
 
             // Send current data item, if necessary
-            bool received_msg;
             ReceivedMessageAction msg_action;
 
             if ( data !is null )
             {
-                this.conn.sendReceive(
-                    ( in void[] received )
-                    {
-                        msg_action = handle_received_message(received);
-                        received_msg = true;
-                    },
+                auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
                     ( conn.Payload payload )
                     {
                         payload.add(data_msg);
                         payload.addArray(data);
                     }
                 );
+                assert(event.active == event.active.received ||
+                       event.active == event.active.sent);
 
                 // Handle messages received while sending.
-                if ( received_msg )
+                if ( event.active == event.active.received )
                 {
+                    msg_action = handle_received_message(event.received.payload);
                     // sendReceive() was interrupted while sending, so send again.
                     // The client should not send any message until it has received
                     // the Ack.
@@ -320,42 +326,44 @@ public struct SuspendableRequest
                                 "Unexpected control message while sending data");
                     }
                 }
+
+                records_sent_without_yielding++;
             }
 
             // Yield after iterating some data items.
-            received_msg = false;
-            auto resume_code = this.conn.periodicYieldReceiveAndHandleEvents(
-                records_sent_without_yielding, this.yield_send_count,
-                ( in void[] received )
-                {
-                    msg_action = handle_received_message(received);
-                    received_msg = true;
-                }
-            );
-            assert(resume_code <= 0,
-                "Unexpected fiber resume code when yielding/waiting for control message");
-
-            // Handle messages received while yielding.
-            if ( received_msg )
+            if (records_sent_without_yielding >= this.yield_send_count)
             {
-                // Ack the received control message.
-                this.sendAck(ack);
+                auto event = this.conn.nextEvent(
+                        this.conn.NextEventFlags.Receive | this.conn.NextEventFlags.Yield);
+                assert(event.active == event.active.received ||
+                       event.active == event.active.yielded_resumed);
 
-                with ( ReceivedMessageAction ) switch ( msg_action )
+                // Handle messages received while yielding.
+                if ( event.active == event.active.received )
                 {
-                    case Suspend:
-                        return State.Suspended;
+                    msg_action = handle_received_message(event.received.payload);
 
-                    case Exit:
-                        return State.Exit;
+                    // Ack the received control message.
+                    this.sendAck(ack);
 
-                    case Resume: // Meaningless but harmless
-                        break;
+                    with ( ReceivedMessageAction ) switch ( msg_action )
+                    {
+                        case Suspend:
+                            return State.Suspended;
 
-                    default:
-                        throw this.conn.shutdownWithProtocolError(
-                            "Unexpected control message while yielded");
+                        case Exit:
+                            return State.Exit;
+
+                        case Resume: // Meaningless but harmless
+                            break;
+
+                        default:
+                            throw this.conn.shutdownWithProtocolError(
+                                "Unexpected control message while yielded");
+                    }
                 }
+
+                records_sent_without_yielding = 0;
             }
         }
         while ( keep_going );
@@ -390,14 +398,11 @@ public struct SuspendableRequest
         ReceivedMessageAction msg_action;
         do
         {
-            int resume_code = this.conn.receiveAndHandleEvents(
-                ( in void[] received )
-                {
-                    msg_action = handle_received_message(received);
-                }
-            );
-            assert(resume_code == this.conn.FiberResumeCode.Received,
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+            assert (event.active == event.active.received,
                 "Unexpected fiber resume code when waiting for control message");
+
+            msg_action = handle_received_message(event.received.payload);
 
             // Ack the received control message.
             this.sendAck(ack);
@@ -447,13 +452,19 @@ public struct SuspendableRequest
         {
             send_interrupted = false;
 
-            this.conn.sendReceive(
-                (in void[] msg) { send_interrupted = true; },
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
                 ( conn.Payload payload )
                 {
                     payload.addConstant(finished);
                 }
             );
+            assert(event.active == event.active.received ||
+                   event.active == event.active.sent);
+
+            if (event.active == event.active.received)
+            {
+                send_interrupted = true;
+            }
         }
         while (send_interrupted);
 
@@ -461,13 +472,11 @@ public struct SuspendableRequest
         bool ack_received;
         do
         {
-            int resume_code = this.conn.receiveAndHandleEvents(
-                ( in void[] received )
-                {
-                    ack_received = is_ack(received);
-                }
-            );
-            assert(resume_code <= 0, "Fiber unexpectedly resumed");
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+            assert(event.active == event.active.received,
+                    "Fiber unexpectedly resumed");
+
+            ack_received = is_ack(event.received.payload);
         }
         while ( !ack_received );
 
@@ -504,37 +513,37 @@ public struct SuspendableRequest
         ReceivedMessageAction msg_action;
         do
         {
-            int resume_code;
+            RequestOnConnBase.EventDispatcher.EventNotification event;
 
             this.fiber_suspended_waiting_for_data = true;
             try
             {
-                resume_code = this.conn.receiveAndHandleEvents(
-                    ( in void[] received )
-                    {
-                        msg_action = handle_received_message(received);
-                    }
-                );
+                event =  this.conn.nextEvent(this.conn.NextEventFlags.Receive);
             }
             finally
             {
                 this.fiber_suspended_waiting_for_data = false;
             }
 
-            // Fiber was resumed with the data ready code.
-            if ( resume_code > 0 ) // positive code => user code => must be data ready
+            with (event.Active) switch (event.active)
             {
-                assert(resume_code == data_ready_code,
-                    "Unexpected fiber resume code when waiting for data");
-                return State.Sending;
+                // positive code => user code => must be data ready
+                case resumed:
+                    assert(event.resumed.code == data_ready_code,
+                        "Unexpected fiber resume code when waiting for data");
+                    return State.Sending;
+
+                // If it's not the explicit resume call, a control message must be
+                case received:
+                    // Parse the message
+                    msg_action = handle_received_message(event.received.payload);
+                    // Ack the received control message.
+                    this.sendAck(ack);
+                    break;
+
+                default:
+                    assert(false, "Unexpected resume reason.");
             }
-
-            // A control message was received from the client.
-            assert(resume_code == this.conn.FiberResumeCode.Received,
-                "Unexpected fiber resume code when waiting for data");
-
-            // Ack the received control message.
-            this.sendAck(ack);
         }
         while ( msg_action == ReceivedMessageAction.Resume );
 
