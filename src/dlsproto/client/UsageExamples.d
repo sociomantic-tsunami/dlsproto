@@ -48,6 +48,10 @@ version (UnitTest)
         // Logger used for logging notifications
         protected Logger log;
 
+        // Legacy and neo config instances to be read from the config file.
+        private DlsClient.Config config;
+        private DlsClient.Neo.Config neo_config;
+
         // Constructor. Initialises the scheduler
         public this ( )
         {
@@ -65,19 +69,20 @@ version (UnitTest)
         // main application task.
         override protected int run ( Arguments args, ConfigParser config )
         {
-            // Create a DLS client instance, passing the additional
-            // arguments required by neo: the authorisation name and
-            // password and the connection notifier (see below)
-            auto auth_name = "neotest";
-            ubyte[] auth_key = Key.init.content;
             this.dls_client = new DlsClient(theScheduler.epoll,
-                    auth_name, auth_key, &this.connNotifier);
-
-            this.dls_client.neo.addNodes("dls.node");
+                    this.config, this.neo_config, &this.connNotifier);
 
             theScheduler.schedule(new AppTask);
             theScheduler.eventLoop();
             return 0;
+        }
+
+        // Reads the required config from the config file.
+        override public void processConfig ( IApplication app,
+                ConfigParser config_parser )
+        {
+            ConfigFiller.fill("DLS", this.config, config_parser);
+            ConfigFiller.fill("DLS_Neo", this.neo_config, config_parser);
         }
 
         // Application main task
