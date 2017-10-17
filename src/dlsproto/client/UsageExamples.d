@@ -175,6 +175,79 @@ unittest
     }
 }
 
+/// Example of Task-blocking neo Put request usage with a notifier
+unittest
+{
+    // An example of handling a Put request
+    class BlockingPutExample: ExampleApp
+    {
+        override protected void example ()
+        {
+            // Assign a neo Put request. Note that the channel and value
+            // are copied inside the client -- the user does not need to
+            // maintain them after calling this method.
+            this.dls_client.blocking.put("channel", 0x12345678, "value_to_put",
+                    &this.putNotifier);
+        }
+
+        // Notifier which is called when something of interest happens to
+        // the Put request. See dlsproto.client.request.Put for
+        // details of the parameters of the notifier. (Each request has a
+        // module like this, defining its public API.)
+        private void putNotifier ( DlsClient.Neo.Put.Notification info,
+            DlsClient.Neo.Put.Args args )
+        {
+            formatNotification(info, this.msg_buf);
+
+            // `info` is a smart union, where each member of the union
+            // represents one possible notification. `info.active` denotes
+            // the type of the current notification. Some notifications
+            // have fields containing more information:
+            with ( info.Active ) switch ( info.active )
+            {
+                case success:
+                    this.log.trace("The request succeeded!");
+                    break;
+
+                case failure:
+                case node_disconnected:
+                case node_error:
+                case unsupported:
+                    this.log.error(this.msg_buf);
+                    break;
+
+                default: assert(false);
+            }
+        }
+    }
+}
+
+/// Example of task-blocking neo Put request without user-provided notifier
+unittest
+{
+    // An example of handling a blocking Put request
+    class BlockingPutExample : ExampleApp
+    {
+        protected override void example ( )
+        {
+            // Perform a blocking neo Put request and return a result struct
+            // indicating success/failure. Notes:
+            // 1. In a real application, you probably want more information than
+            //    just success/failure and should use the task-blocking method
+            //    with a notifier (see example above).
+            // 2. The channel and value are copied inside the client -- the user
+            //    does not need to maintain them after calling this method.
+            auto result = this.dls_client.blocking.put("channel", 0x1234,
+                "value_to_put");
+            if ( result.succeeded )
+                this.log.trace("Put request succeeded");
+            else
+                this.log.trace("Put failed");
+        }
+    }
+}
+
+
 /// Extensive example of neo GetRange request usage, including the usage
 /// of controller and request context
 unittest
@@ -275,78 +348,6 @@ unittest
             {
                 this.log.trace("Received {}: {}", key, val);
             }
-        }
-    }
-}
-
-/// Example of Task-blocking neo Put request usage with a notifier
-unittest
-{
-    // An example of handling a Put request
-    class BlockingPutExample: ExampleApp
-    {
-        override protected void example ()
-        {
-            // Assign a neo Put request. Note that the channel and value
-            // are copied inside the client -- the user does not need to
-            // maintain them after calling this method.
-            this.dls_client.blocking.put("channel", 0x12345678, "value_to_put",
-                    &this.putNotifier);
-        }
-
-        // Notifier which is called when something of interest happens to
-        // the Put request. See dlsproto.client.request.Put for
-        // details of the parameters of the notifier. (Each request has a
-        // module like this, defining its public API.)
-        private void putNotifier ( DlsClient.Neo.Put.Notification info,
-            DlsClient.Neo.Put.Args args )
-        {
-            formatNotification(info, this.msg_buf);
-
-            // `info` is a smart union, where each member of the union
-            // represents one possible notification. `info.active` denotes
-            // the type of the current notification. Some notifications
-            // have fields containing more information:
-            with ( info.Active ) switch ( info.active )
-            {
-                case success:
-                    this.log.trace("The request succeeded!");
-                    break;
-
-                case failure:
-                case node_disconnected:
-                case node_error:
-                case unsupported:
-                    this.log.error(this.msg_buf);
-                    break;
-
-                default: assert(false);
-            }
-        }
-    }
-}
-
-/// Example of task-blocking neo Put request without user-provided notifier
-unittest
-{
-    // An example of handling a blocking Put request
-    class BlockingPutExample : ExampleApp
-    {
-        protected override void example ( )
-        {
-            // Perform a blocking neo Put request and return a result struct
-            // indicating success/failure. Notes:
-            // 1. In a real application, you probably want more information than
-            //    just success/failure and should use the task-blocking method
-            //    with a notifier (see example above).
-            // 2. The channel and value are copied inside the client -- the user
-            //    does not need to maintain them after calling this method.
-            auto result = this.dls_client.blocking.put("channel", 0x1234,
-                "value_to_put");
-            if ( result.succeeded )
-                this.log.trace("Put request succeeded");
-            else
-                this.log.trace("Put failed");
         }
     }
 }
