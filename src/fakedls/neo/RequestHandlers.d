@@ -28,10 +28,10 @@ import GetRange = fakedls.neo.request.GetRange;
 
 ******************************************************************************/
 
-public ConnectionHandler.CmdHandlers request_handlers;
+public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
-    request_handlers[RequestCode.Put] = &Put.handle;
-    request_handlers[RequestCode.GetRange] = &GetRange.handle;
+    requests.add(RequestCode.Put, "Put", &Put.handle);
+    requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
 }
