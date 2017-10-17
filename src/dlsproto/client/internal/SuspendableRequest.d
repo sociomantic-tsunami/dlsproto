@@ -471,27 +471,23 @@ struct SuspendableRequest
         // state change in the delegate.
         auto last_state = this.shared_working.desired_state;
         ReceivedMessageAction msg_action;
-        int resume_code = this.conn.receiveAndHandleEvents(
-            ( in void[] received )
-            {
-                msg_action = handle_received_message(received);
-            }
-        );
 
-        if ( resume_code < 0 ) // Fiber resumed due to received data
+        auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+        assert(event.active == event.active.received);
+
+        msg_action = handle_received_message(event.received.payload);
+
+        with ( ReceivedMessageAction ) switch ( msg_action )
         {
-            with ( ReceivedMessageAction ) switch ( msg_action )
-            {
-                case Finished:
-                    return State.HandlingFinishNotification;
-                case Exit:
-                    return State.Exit;
-                case Continue:
-                    break;
-                default:
-                    throw this.conn.shutdownWithProtocolError(
-                        "Unexpected message type while receiving");
-            }
+            case Finished:
+                return State.HandlingFinishNotification;
+            case Exit:
+                return State.Exit;
+            case Continue:
+                break;
+            default:
+                throw this.conn.shutdownWithProtocolError(
+                    "Unexpected message type while receiving");
         }
 
         return (last_state == this.shared_working.desired_state)
@@ -636,17 +632,21 @@ struct SuspendableRequest
             // SharedWorking.setDesiredState().)
             ReceivedMessageAction msg_action;
             send_interrupted = false;
-            this.conn.sendReceive(
-                ( in void[] received )
-                {
-                    send_interrupted = true;
-                    msg_action = handle_received_message(received);
-                },
+
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
                 ( conn.Payload payload )
                 {
                     payload.add(control_msg);
                 }
             );
+            assert (event.active == event.active.received ||
+                    event.active == event.active.sent);
+
+            if (event.active == event.active.received)
+            {
+                send_interrupted = true;
+                msg_action = handle_received_message(event.received.payload);
+            }
 
             if ( !send_interrupted ) // The control message was sent
                 break;
@@ -696,13 +696,12 @@ struct SuspendableRequest
         do
         {
             ReceivedMessageAction msg_action;
-            int resume_code = this.conn.receiveAndHandleEvents(
-                ( in void[] received )
-                {
-                    msg_action = handle_received_message(received);
-                }
-            );
-            assert(resume_code <= 0, "Fiber unexpectedly resumed");
+            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+
+            assert(event.active == event.active.received,
+                    "Fiber unexpectedly resumed");
+
+            msg_action = handle_received_message(event.received.payload);
 
             with ( ReceivedMessageAction ) switch ( msg_action )
             {
