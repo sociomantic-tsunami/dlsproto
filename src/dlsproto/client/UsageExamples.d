@@ -256,6 +256,29 @@ unittest
     }
 }
 
+/// Example of task-blocking Neo GetRange request. Note that this approach
+/// doesn't provide advanced features, such as suspend/resume.
+unittest
+{
+    class BlockingGetRangeExample : ExampleApp
+    {
+        protected override void example ( )
+        {
+            // Assigns the getRange request and provides opApply-like
+            // task blocking interface.
+
+            // buffer for the result
+            void[] buf;
+
+            foreach ( key, val;
+                this.dls_client.blocking.getRange("channel", buf, 0x1234, 0x5678))
+            {
+                this.log.trace("Received {}: {}", key, val);
+            }
+        }
+    }
+}
+
 /// Example of Task-blocking neo Put request usage with a notifier
 unittest
 {
