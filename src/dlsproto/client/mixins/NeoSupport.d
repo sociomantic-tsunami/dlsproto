@@ -168,6 +168,10 @@ template NeoSupport ()
             Returns:
                 id of newly assigned request
 
+            Throws:
+                NoMoreRequests if the pool of active requests is full, or
+                Exception if there are no nodes registered.
+
             Optional parameters allowed for this request are (may be specified
             in any order):
                 * RequestContext: user-specified data (integer, pointer, Object)
@@ -215,6 +219,9 @@ template NeoSupport ()
 
             Returns:
                 id of newly assigned request
+
+            Throws:
+                NoMoreRequests if the pool of active requests is full
 
             Optional parameters allowed for this request are (may be specified
             in any order):
@@ -391,6 +398,10 @@ template NeoSupport ()
 
             Returns:
                 PutResult struct, indicating the result of the request
+
+            Throws:
+                NoMoreRequests if the pool of active requests is full, or
+                Exception if there are no nodes registered.
 
             Optional parameters allowed for this request are (may be specified
             in any order):
@@ -679,6 +690,9 @@ template NeoSupport ()
 
             Returns:
                 GetRangeResult structure, whose opApply should be used
+
+            Throws:
+                NoMoreRequests if the pool of active requests is full
 
             Optional parameters allowed for this request are (may be specified
             in any order):
