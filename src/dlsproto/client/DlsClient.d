@@ -193,12 +193,16 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
 
     /***************************************************************************
 
-        Constructor
+        Constructor with support for only the legacy protocol. Automatically
+        calls addNodes() with the node definition file specified in the Config
+        instance.
 
         Params:
             epoll = EpollSelectDispatcher instance to use
             plugin_instances = instances of Plugins
-            config = Instance of the configuration class
+            config = Config instance (see swarm.client.model.IClient. The
+                Config class is designed to be read from an application's
+                config.ini file via ocean.util.config.ConfigFiller)
             fiber_stack_size = size of connection fibers' stack (in bytes)
 
     ***************************************************************************/
@@ -215,7 +219,9 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
 
     /***************************************************************************
 
-        Constructor
+        Constructor with support for only the legacy protocol. This constructor
+        that accepts all arguments manually (i.e. not read from a config file)
+        is mostly of use in tests.
 
         Params:
             epoll = EpollSelectDispatcher instance to use
@@ -239,7 +245,9 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
 
     /***************************************************************************
 
-        Constructor with support for the neo protocol.
+        Constructor with support for the neo and legacy protocols. This
+        constructor that accepts all arguments manually (i.e. not read from
+        config files) is mostly of use in tests.
 
         Params:
             epoll = select dispatcher to use
@@ -301,13 +309,15 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
 
     /***************************************************************************
 
-        Constructor
-
-        Adds the nodes in the file specified in the config to the node registry
+        Constructor with support for only the legacy protocol. Automatically
+        calls addNodes() with the node definition file specified in the Config
+        instance.
 
         Params:
             epoll = EpollSelectorDispatcher instance to use
-            config = Config instance
+            config = Config instance (see swarm.client.model.IClient. The
+                Config class is designed to be read from an application's
+                config.ini file via ocean.util.config.ConfigFiller)
             fiber_stack_size = size of connection fibers' stack (in bytes)
 
     ***************************************************************************/
@@ -322,7 +332,9 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
 
     /***************************************************************************
 
-        Constructor
+        Constructor with support for only the legacy protocol. This constructor
+        that accepts all arguments manually (i.e. not read from a config file)
+        is mostly of use in tests.
 
         Params:
             epoll = EpollSelectorDispatcher instance to use
@@ -347,7 +359,9 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
 
     /***************************************************************************
 
-        Constructor with support for the neo protocol.
+        Constructor with support for the neo and legacy protocols. This
+        constructor that accepts all arguments manually (i.e. not read from
+        config files) is mostly of use in tests.
 
         Params:
             epoll = select dispatcher to use
@@ -602,8 +616,9 @@ public class DlsClient : IClient
 
     /***************************************************************************
 
-        Constructor -- automatically calls addNodes() with the node definition
-        file specified in the Config instance.
+        Constructor with support for only the legacy protocol. Automatically
+        calls addNodes() with the node definition file specified in the Config
+        instance.
 
         Params:
             epoll = EpollSelectorDispatcher instance to use
@@ -629,7 +644,9 @@ public class DlsClient : IClient
 
     /***************************************************************************
 
-        Constructor
+        Constructor with support for only the legacy protocol. This constructor
+        that accepts all arguments manually (i.e. not read from a config file)
+        is mostly of use in tests.
 
         Params:
             epoll = EpollSelectorDispatcher instance to use
