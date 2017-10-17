@@ -822,4 +822,29 @@ template NeoSupport ()
                 new SharedResources);
         this.blocking = new TaskBlocking;
     }
+
+    /***************************************************************************
+
+        Helper function to initialise neo components. Automatically calls
+        addNodes() with the node definition files specified in the Config
+        instance.
+
+        Params:
+            config = swarm.neo.client.mixins.ClientCore.Config instance.
+                (The config class is designed to be read from an application's
+                config.ini file via ocean.util.config.ConfigFiller).
+            conn_notifier = delegate which is called when a connection attempt
+                succeeds or fails (including when a connection is
+                re-established). Of type:
+                void delegate ( IPAddress node_address, Exception e )
+
+    ***************************************************************************/
+
+    private void neoInit ( Neo.Config config,
+        Neo.ConnectionNotifier conn_notifier )
+    {
+        this.neo = new Neo(config, conn_notifier,
+                new SharedResources);
+        this.blocking = new TaskBlocking;
+    }
 }
