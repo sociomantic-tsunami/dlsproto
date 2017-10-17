@@ -90,7 +90,7 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
         params.node_info = this;
 
         Options neo_options;
-        neo_options.cmd_handlers = request_handlers;
+        neo_options.requests = requests;
         neo_options.epoll = epoll;
         neo_options.no_delay = true; // favour network turn-around over packet
                                      // efficiency
