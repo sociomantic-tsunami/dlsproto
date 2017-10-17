@@ -624,7 +624,7 @@ public class DlsClient : IClient
             epoll = EpollSelectorDispatcher instance to use
             config = Config instance (see swarm.client.model.IClient. The
                 Config class is designed to be read from an application's
-                config.ini file via ocean.util.config.ClassFiller)
+                config.ini file via ocean.util.config.ConfigFiller)
             fiber_stack_size = size (in bytes) of stack of individual connection
                 fibers
 
