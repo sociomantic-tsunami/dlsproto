@@ -49,7 +49,6 @@ static this ( )
 
 public class DlsNode : NodeBase!(DlsConnectionHandler)
 {
-    import ocean.io.Stdout_tango : Stderr;
     import core.stdc.stdlib : abort;
 
     import ocean.io.select.client.model.ISelectClient : IAdvancedSelectClient;
