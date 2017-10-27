@@ -79,7 +79,9 @@ template NeoSupport ()
     public class Neo
     {
         import swarm.neo.client.mixins.ClientCore;
-        import swarm.neo.client.request_options.RequestContext;
+        // Required otherwise the legacy RequestContext is picked with the new
+        // symbol resolution algorithm
+        import swarm.neo.client.request_options.RequestContext : RequestContext;
         import swarm.neo.client.mixins.Controllers;
         import core.stdc.time;
 
