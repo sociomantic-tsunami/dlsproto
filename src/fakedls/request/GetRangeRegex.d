@@ -30,7 +30,6 @@ import Protocol = dlsproto.node.request.GetRangeRegex;
 
 public scope class GetRangeRegex : Protocol.GetRangeRegex
 {
-    import ocean.io.Stdout_tango;
     import ocean.text.regex.PCRE;
     import ocean.text.Search;
 
