@@ -353,8 +353,10 @@ template NeoSupport ()
 
     private class TaskBlocking
     {
-        import swarm.neo.client.mixins.TaskBlockingCore;
         import ocean.core.Array : copy;
+        import ocean.task.Task;
+
+        import swarm.neo.client.mixins.TaskBlockingCore;
         import swarm.neo.client.request_options.RequestContext;
 
         /***********************************************************************

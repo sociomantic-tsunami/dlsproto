@@ -18,9 +18,13 @@ module dlsproto.client.request.internal.GetRange;
 
 *******************************************************************************/
 
+import core.stdc.time;
+
 import ocean.transition;
 import ocean.util.log.Logger;
-import core.stdc.time;
+
+import swarm.neo.client.RequestOnConn;
+
 import dlsproto.client.internal.SharedResources;
 
 /*******************************************************************************
@@ -331,7 +335,6 @@ private scope class Handler
 
     import swarm.neo.util.StateMachine;
     import swarm.neo.request.Command : StatusCode;
-    import swarm.neo.client.RequestOnConn;
     import swarm.neo.util.StateMachine;
     import swarm.util.RecordBatcher;
 

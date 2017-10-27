@@ -69,12 +69,18 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
 private scope class GetRangeImpl_v0: GetRangeProtocol_v0
 {
-    import swarm.util.Hash;
-    import fakedls.Storage;
     import core.stdc.time;
+
     import ocean.text.Search;
     import ocean.text.regex.PCRE;
+
+    import swarm.util.Hash;
+
+    import dlsproto.client.request.GetRange;
     import dlsproto.common.GetRange;
+    import dlsproto.node.neo.request.core.IRequestResources;
+
+    import fakedls.Storage;
 
     /***************************************************************************
 
