@@ -19,7 +19,7 @@ import ocean.core.Tuple;
     Template to strip the notifier from the variadic arguments.
 
     Params:
-        TypeToErase = type to erase from options 
+        TypeToErase = type to erase from options
         options = Tuple to erase the members matching TypeToErase
 
     Returns:
@@ -72,7 +72,7 @@ template NeoSupport ()
         the client class.)
 
         Usage example:
-            see the documented unittest, in UsageExamples 
+            see the documented unittest, in UsageExamples
 
     ***************************************************************************/
 
@@ -228,7 +228,7 @@ template NeoSupport ()
                 * RequestContext: user-specified data (integer, pointer, Object)
                   associated with this request. Passed to the notifier.
                 * GetRange.Filter: GetRange.Filter struct instructing node to
-                  filter results on PCRE or string matching filter 
+                  filter results on PCRE or string matching filter
 
         ***********************************************************************/
 
@@ -347,7 +347,7 @@ template NeoSupport ()
         based Put request).)
 
         Usage example:
-            see the documented unittest, in UsageExamples module 
+            see the documented unittest, in UsageExamples module
 
     ***************************************************************************/
 
@@ -647,7 +647,7 @@ template NeoSupport ()
                     if (this.state == State.Finished
                             || this.state == State.Stopped
                             || this.error)
-                        break; 
+                        break;
 
                     ret = dg(this.record_key, *this.record_value);
 
@@ -685,7 +685,7 @@ template NeoSupport ()
                                 values into
                 low = lower bouond
                 high = higher bound
-                notifier = notifier delegate 
+                notifier = notifier delegate
                 options ... = optional request settings, see below
 
             Returns:
@@ -697,7 +697,7 @@ template NeoSupport ()
             Optional parameters allowed for this request are (may be specified
             in any order):
                 * GetRange.Filter: GetRange.Filter struct instructing node to
-                  filter results on PCRE or string matching filter 
+                  filter results on PCRE or string matching filter
                 * Neo.GetRange.Nofifier: notifier delegate, not required for
                   feedback on basic success/failure, but may be desired for more
                   detailed error logging.
