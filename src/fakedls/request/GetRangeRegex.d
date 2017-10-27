@@ -30,14 +30,15 @@ import Protocol = dlsproto.node.request.GetRangeRegex;
 
 public scope class GetRangeRegex : Protocol.GetRangeRegex
 {
+    import ocean.io.Stdout_tango;
+    import ocean.text.regex.PCRE;
+    import ocean.text.Search;
+
+    import dlsproto.client.legacy.DlsConst;
+
+    import fakedls.ConnectionHandler;
     import fakedls.mixins.RequestConstruction;
     import fakedls.mixins.ChannelIteration;
-
-    import ocean.text.Search;
-    import ocean.io.Stdout_tango;
-    import fakedls.ConnectionHandler;
-
-    import ocean.text.regex.PCRE;
 
 
     /***************************************************************************
