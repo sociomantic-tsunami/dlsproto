@@ -397,7 +397,7 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
         Params:
             epoll = EpollSelectDispatcher instance to use
             plugin_instances = instances of Plugins
-            config = swarm.client.model.IClient.Config instance. (The Config
+            config = SchedulingDlsClient.Config instance. (The Config
                 class is designed to be read from an application's config.ini
                 file via ocean.util.config.ConfigFiller.)
             neo_config = swarm.neo.client.mixins.ClientCore.Config instance.
@@ -409,20 +409,17 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
                 void delegate ( IPAddress node_address, Exceptgion e )
             fiber_stack_size = size (in bytes) of stack of individual connection
                 fibers.
-            max_events = limit on the number of events which can be managed
-                by the scheduler at one time (0 = no limit)
 
     ***************************************************************************/
 
     public this ( EpollSelectDispatcher epoll,
-            IClient.Config config, Neo.Config neo_config,
+            SchedulingDlsClient.Config config, Neo.Config neo_config,
             Neo.ConnectionNotifier conn_notifier,
-            size_t fiber_stack_size = IClient.default_fiber_stack_size,
-            uint max_events = 0 )
+            size_t fiber_stack_size = IClient.default_fiber_stack_size)
     {
         this.setPlugins(plugin_instances);
 
-        super(epoll, new RequestScheduler(epoll, max_events),
+        super(epoll, new RequestScheduler(epoll, config.scheduler_limit),
                 config, neo_config, conn_notifier, fiber_stack_size);
     }
 
