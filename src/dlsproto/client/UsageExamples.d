@@ -23,7 +23,6 @@ version (UnitTest)
     import ocean.task.Scheduler;
     import ocean.task.Task;
     import ocean.util.app.DaemonApp;
-    import ocean.util.log.Logger;
 
     import swarm.neo.authentication.HmacDef : Key;
 
@@ -39,6 +38,8 @@ version (UnitTest)
     // client feature.
     abstract class ExampleApp: DaemonApp
     {
+        import ocean.util.log.Logger;
+
         // DLS client (see dlsproto.client.DlsClient
         private DlsClient dls_client;
 
