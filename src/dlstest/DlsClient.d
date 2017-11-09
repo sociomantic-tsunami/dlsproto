@@ -247,9 +247,7 @@ class DlsClient
             Connection notifier used by the client (see the outer class' ctor).
 
             Params:
-                node_address = address/port of node which notification refers to
-                e = exception instance indicating an error (null indicates
-                    connection success)
+                info = notification info containing the connection attempt status
 
         ***********************************************************************/
 
