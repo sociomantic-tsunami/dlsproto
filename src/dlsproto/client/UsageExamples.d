@@ -43,9 +43,6 @@ version (UnitTest)
         // DLS client (see dlsproto.client.DlsClient
         private DlsClient dls_client;
 
-        // Buffer used for message formatting in notifiers
-        private mstring msg_buf;
-
         // Logger used for logging notifications
         protected Logger log;
 
@@ -103,18 +100,18 @@ version (UnitTest)
         // succeeds or fails. (Also called after a re-connection attempt.)
         private void connNotifier ( DlsClient.Neo.ConnNotification info )
         {
-            formatNotification(info, this.msg_buf);
+            formatNotification(info, this.dls_client.msg_buf);
 
             with (info.Active) switch (info.active)
             {
                 case connected:
                     // The connection succeeded.
-                    this.log.trace(this.msg_buf);
+                    this.log.trace(this.dls_client.msg_buf);
                     break;
                 case error_while_connecting:
                     // A connection error occurred. The client will
                     // automatically try to reconnect.
-                    this.log.trace(this.msg_buf);
+                    this.log.trace(this.dls_client.msg_buf);
                     break;
                 default:
                     assert(false);
@@ -156,7 +153,7 @@ unittest
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
             DlsClient.Neo.Put.Args args )
         {
-            formatNotification(info, this.msg_buf);
+            formatNotification(info, this.dls_client.msg_buf);
 
             // `info` is a smart union, where each member of the union
             // represents one possible notification. `info.active` denotes
@@ -172,7 +169,7 @@ unittest
                 case failure:
                 case node_error:
                 case unsupported:
-                    this.log.error(this.msg_buf);
+                    this.log.error(this.dls_client.msg_buf);
                     break;
 
                 default: assert(false);
@@ -203,7 +200,7 @@ unittest
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
             DlsClient.Neo.Put.Args args )
         {
-            formatNotification(info, this.msg_buf);
+            formatNotification(info, this.dls_client.msg_buf);
 
             // `info` is a smart union, where each member of the union
             // represents one possible notification. `info.active` denotes
@@ -219,7 +216,7 @@ unittest
                 case node_disconnected:
                 case node_error:
                 case unsupported:
-                    this.log.error(this.msg_buf);
+                    this.log.error(this.dls_client.msg_buf);
                     break;
 
                 default: assert(false);
@@ -308,7 +305,7 @@ unittest
         private void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
-            formatNotification(info, this.msg_buf);
+            formatNotification(info, this.dls_client.msg_buf);
 
             this.log.trace("Request context was: {}",
                     args.context.integer());
@@ -326,7 +323,7 @@ unittest
                 case node_error:
                 case unsupported:
                 case stopped:
-                    this.log.error(this.msg_buf);
+                    this.log.error(this.dls_client.msg_buf);
                     break;
 
                 default: assert(false);
@@ -381,7 +378,7 @@ unittest
         void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
-            formatNotification(info, this.msg_buf);
+            formatNotification(info, this.dls_client.msg_buf);
 
             with ( info.Active ) switch ( info.active )
             {
@@ -417,7 +414,7 @@ unittest
                 case node_disconnected:
                 case node_error:
                 case unsupported:
-                    this.log.error(this.msg_buf);
+                    this.log.error(this.dls_client.msg_buf);
                     break;
 
                 default: assert(false);
