@@ -38,7 +38,6 @@ class DlsClient
     import ocean.task.Task;
     import ocean.task.Scheduler;
 
-    import swarm.client.plugins.ScopeRequests;
     import swarm.util.Hash;
 
     static import dlsproto.client.DlsClient;
@@ -200,8 +199,6 @@ class DlsClient
 
     private class Neo
     {
-        import ocean.io.select.client.FiberSelectEvent;
-
         /**********************************************************************
 
             Flag which is set (by connect()) when a connection error occurs.
