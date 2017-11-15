@@ -37,6 +37,7 @@ class DlsClient
     import ocean.core.Array : copy;
     import ocean.task.Task;
     import ocean.task.Scheduler;
+    import ocean.task.util.Event;
 
     import swarm.util.Hash;
 
@@ -69,8 +70,8 @@ class DlsClient
         import ocean.io.select.protocol.generic.ErrnoIOException : IOError;
         import swarm.Const : NodeItem;
 
-        /// Task instance to be suspended / resumed while the request is handled
-        private Task task;
+        /// Task event to suspend/resume the task while a request is handled.
+        private TaskEvent task_event;
 
         /// Counter of the number of request-on-conns which are not finished.
         private uint pending;
@@ -87,18 +88,6 @@ class DlsClient
 
         /***********************************************************************
 
-            Constructor. Sets this.task to the current task.
-
-        ***********************************************************************/
-
-        public this ( )
-        {
-            this.task = Task.getThis();
-            assert(this.task !is null);
-        }
-
-        /***********************************************************************
-
             Should be called after assigning a request. Suspends the task until
             the request finishes and then checks for errors.
 
@@ -109,8 +98,7 @@ class DlsClient
 
         public void wait ( )
         {
-            if ( this.pending > 0 )
-                this.task.suspend();
+            this.task_event.wait();
             enforce(!this.error, idup(this.error_msg));
         }
 
@@ -149,8 +137,8 @@ class DlsClient
                             this.error = true;
                     }
 
-                    if ( --this.pending == 0 && this.task.suspended() )
-                        this.task.resume();
+                    if ( --this.pending == 0 )
+                        this.task_event.trigger();
                     break;
 
                 default:
@@ -209,11 +197,11 @@ class DlsClient
 
         /***********************************************************************
 
-            Task used to call connect.
+            Task event to suspend/resume the task that handles the connection.
 
         ***********************************************************************/
 
-        Task connect_task;
+        private TaskEvent task_event;
 
         /***********************************************************************
 
@@ -224,16 +212,13 @@ class DlsClient
 
         public void connect ( )
         {
-            this.connect_task = Task.getThis();
-            assert(this.connect_task !is null);
-
             scope stats = this.outer.raw_client.neo.new Stats;
 
             this.connection_error = false;
             while ( stats.num_connected_nodes < stats.num_registered_nodes
                     && !this.connection_error )
             {
-                this.connect_task.suspend();
+                this.task_event.wait();
             }
 
             enforce(!this.connection_error, "neo connection error");
@@ -257,8 +242,7 @@ class DlsClient
                     info.connected.node_addr.address_bytes,
                     info.connected.node_addr.port);
 
-                if (this.connect_task && this.connect_task.suspended())
-                    this.connect_task.resume();
+                this.task_event.trigger();
 
                 break;
             case error_while_connecting:
@@ -414,10 +398,7 @@ class DlsClient
 
     public void connect ( ProtocolType protocol_type )
     {
-        bool finished;
-
-        auto task = Task.getThis();
-        assert (task !is null);
+        TaskEvent task_event;
 
         if (protocol_type & ProtocolType.Legacy)
         {
@@ -425,17 +406,14 @@ class DlsClient
 
             void handshake_cb (RawClient.RequestContext, bool ok)
             {
-                finished = true;
                 handshake_ok = ok;
 
-                if (task.suspended())
-                    task.resume ();
+                task_event.trigger();
             }
 
             this.raw_client.nodeHandshake(&handshake_cb, null);
 
-            if (!finished)
-                task.suspend();
+            task_event.wait();
 
             enforce(handshake_ok, "Test DLS handshake failed");
         }
