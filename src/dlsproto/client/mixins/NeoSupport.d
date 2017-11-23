@@ -610,9 +610,7 @@ template NeoSupport ()
                         if (this.state == State.Stopped)
                             break;
 
-                        this.state = State.Finished;
                         this.error = true;
-                        this.task.resume();
                         break;
 
                     case started:
