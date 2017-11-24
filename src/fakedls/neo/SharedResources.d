@@ -18,6 +18,7 @@ import ocean.util.ReusableException;
 import dlsproto.node.neo.request.core.IRequestResources;
 
 import swarm.util.RecordBatcher;
+import ocean.io.compress.Lzo;
 
 /*******************************************************************************
 
@@ -29,8 +30,6 @@ import swarm.util.RecordBatcher;
 
 class SharedResources : IRequestResources
 {
-    import ocean.io.compress.Lzo;
-
     /***************************************************************************
 
         Struct wrapper used to workaround D's inability to allocate slices on
@@ -78,5 +77,17 @@ class SharedResources : IRequestResources
     override public RecordBatcher getRecordBatcher ( )
     {
         return new RecordBatcher(new Lzo);
+    }
+
+    /***************************************************************************
+
+        Returns:
+            lzo object for compressing the batches.
+
+    ***************************************************************************/
+
+    override public Lzo getLzo ( )
+    {
+        return new Lzo();
     }
 }

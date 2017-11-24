@@ -617,11 +617,6 @@ template NeoSupport ()
                         this.error = true;
                         break;
 
-                    case started:
-                        // We will not resume task in this case, since
-                        // we're still waiting for the first result
-                        break;
-
                     default: assert(false);
                 }
             }
