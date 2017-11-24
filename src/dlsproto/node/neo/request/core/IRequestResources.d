@@ -16,6 +16,7 @@
 module dlsproto.node.neo.request.core.IRequestResources;
 
 import swarm.util.RecordBatcher;
+import ocean.io.compress.Lzo;
 
 public interface IRequestResources
 {
@@ -46,4 +47,13 @@ public interface IRequestResources
     ***************************************************************************/
 
     RecordBatcher getRecordBatcher ( );
+
+    /***************************************************************************
+
+        Returns:
+            instance of Lzo for compressing the record batch.
+
+    ***************************************************************************/
+
+    Lzo getLzo();
 }

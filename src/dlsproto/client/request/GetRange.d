@@ -96,7 +96,7 @@ public union NotificationUnion
     NoInfo started;
 
     /// A value is received from a node.
-    RecordInfo received;
+    RequestRecordInfo received;
 
     /// The connection to a node disconnected; the request will automatically
     /// restart after reconnection.

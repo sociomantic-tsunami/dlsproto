@@ -320,7 +320,6 @@ unittest
                             info.received.key, info.received.value);
                     break;
 
-                case started:
                 case finished:
                 case node_disconnected:
                 case node_error:
@@ -385,23 +384,6 @@ unittest
 
             with ( info.Active ) switch ( info.active )
             {
-                // Request has started, attach the suspendable
-                // to throttler
-                case started:
-                    this.throttler.addSuspendable(suspendable);
-                    break;
-
-
-                case suspended:
-                    // handle state change
-                    this.suspendable.handlePending();
-                    break;
-
-                case resumed:
-                    // handle state change
-                    this.suspendable.handlePending();
-                    break;
-
                 case finished:
                 case stopped:
                     // request has finished, remove suspendable
@@ -439,6 +421,7 @@ unittest
             // removed from the throttler, when the request finishes (see notifier).
             // The suspendable is attached to throttler when request has been started.
             this.throttler = new SuspendableThrottlerCount(100, 10);
+            this.throttler.addSuspendable(suspendable);
         }
     }
 }
