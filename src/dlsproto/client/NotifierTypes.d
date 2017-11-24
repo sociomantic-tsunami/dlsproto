@@ -21,8 +21,11 @@ import core.stdc.time;
 
 *******************************************************************************/
 
-public struct RecordInfo
+public struct RequestRecordInfo
 {
+    import swarm.neo.protocol.Message: RequestId;
+
+    RequestId request_id;
     time_t key;
     Const!(void)[] value;
 }
