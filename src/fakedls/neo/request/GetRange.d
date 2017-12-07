@@ -44,6 +44,11 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
     switch (cmdver)
     {
+        case 0:
+            scope rq = new GetRangeImpl_v0(resources);
+            rq.handle(connection, msg_payload);
+            break;
+
         case 1:
             scope rq = new GetRangeImpl_v1(resources);
             rq.handle(connection, msg_payload);
@@ -362,7 +367,7 @@ private scope class GetRangeImpl_v1: GetRangeProtocol_v1
 
 *******************************************************************************/
 
-version(none) private scope class GetRangeImpl_v0: GetRangeProtocol_v0
+private scope class GetRangeImpl_v0: GetRangeProtocol_v0
 {
     import swarm.util.Hash;
     import fakedls.Storage;
