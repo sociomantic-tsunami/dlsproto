@@ -43,6 +43,24 @@ public enum RequestStatusCode : StatusCode
 
 ******************************************************************************/
 
+public enum MessageType_v0 : ubyte
+{
+    None,    /// Invalid, default value
+
+
+    // Message types sent from the client to the node
+    Suspend, /// Sent when the client wants the node to stop sending records
+    Resume,  /// Sent when the client wants the node to restart sending records
+    Stop,    /// Sent when the client wants the node to cleanly end the request
+
+    // Message types sent from the node to the client
+    Ack,      /// Sent by the node to acknowledge one of the above messages
+    Record,   /// Sent by the node when it sends a record
+    Finished, /// Sent by the node when it finished iterating over the given set
+    Error     /// Sent by the node when the error during iteration was raised
+}
+
+/// ditto
 public enum MessageType_v1 : ubyte
 {
     None,    /// Invalid, default value
