@@ -269,7 +269,7 @@ public abstract scope class GetRangeProtocol_v1
                     this.ed.NextEventFlags.Receive,
                     (ed.Payload payload)
                     {
-                        payload.addConstant(MessageType.Finished);
+                        payload.addConstant(MessageType_v1.Finished);
                     }
                 );
 
@@ -281,7 +281,7 @@ public abstract scope class GetRangeProtocol_v1
 
                     if (event.active.received)
                     {
-                        MessageType msg_type;
+                        MessageType_v1 msg_type;
                         this.parser.parseBody(event.received.payload, msg_type);
 
                         if (msg_type == msg_type.Ack)
@@ -324,7 +324,7 @@ public abstract scope class GetRangeProtocol_v1
     {
         void fillInRecordsMessage ( ed.Payload payload )
         {
-            payload.addConstant(MessageType.Records);
+            payload.addConstant(MessageType_v1.Records);
             payload.addConstant((*this.batch_buffer).length);
             payload.addArray(*this.compressed_batch);
         }
@@ -357,12 +357,12 @@ public abstract scope class GetRangeProtocol_v1
             case event.active.sent:
                 // Records sent: wait for Continue/Stop feedback, ACK Stop
                 // stop and return true for Continue or false for stop
-                switch (this.ed.receiveValue!(MessageType)())
+                switch (this.ed.receiveValue!(MessageType_v1)())
                 {
-                    case MessageType.Continue:
+                    case MessageType_v1.Continue:
                         return true;
 
-                    case MessageType.Stop:
+                    case MessageType_v1.Stop:
                         this.sendStoppedMessage();
                         return false;
 
@@ -392,7 +392,7 @@ public abstract scope class GetRangeProtocol_v1
     /***************************************************************************
 
         Parses `msg_payload`, excepting the message type to be
-        `MessageType.Stop`, and raises a protocol error if it is not so.
+        `MessageType_v1.Stop`, and raises a protocol error if it is not so.
 
         Params:
             msg_payload = the payload of the received message
@@ -402,7 +402,7 @@ public abstract scope class GetRangeProtocol_v1
     private void verifyReceivedMessageIsStop ( in void[] msg_payload,
         istring file = __FILE__, int line = __LINE__ )
     {
-        MessageType msg_type;
+        MessageType_v1 msg_type;
         this.parser.parseBody(msg_payload, msg_type);
 
         if (msg_type != msg_type.Stop)
@@ -426,7 +426,7 @@ public abstract scope class GetRangeProtocol_v1
         this.ed.send(
             (ed.Payload payload)
             {
-                payload.addConstant(MessageType.Stopped);
+                payload.addConstant(MessageType_v1.Stopped);
             }
         );
     }
