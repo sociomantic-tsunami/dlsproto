@@ -20,6 +20,8 @@ module dlstest.cases.legacy.Ranges;
 
 import ocean.transition;
 import ocean.core.Array;
+import ocean.core.Test;
+import dlstest.DlsClient;
 import dlstest.DlsTestCase;
 
 /*******************************************************************************

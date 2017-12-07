@@ -30,6 +30,7 @@ import dlstest.DlsTestCase;
 
 class OrderedMultiPutTest : DlsTestCase
 {
+    import dlstest.DlsClient;
     import dlstest.util.LocalStore;
     import dlstest.util.Record;
 
