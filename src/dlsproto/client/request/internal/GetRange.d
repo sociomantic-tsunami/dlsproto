@@ -211,19 +211,6 @@ public struct GetRange
 
     /***************************************************************************
 
-        Data which each request-on-conn needs while it is progress. An instance
-        of this struct is stored per connection on which the request runs and is
-        passed to the request handler.
-
-    ***************************************************************************/
-
-    private static struct Working
-    {
-        MessageType requested_control_msg = MessageType.None;
-    }
-
-    /***************************************************************************
-
         Request core. Mixes in the types `NotificationInfo`, `Notifier`,
         `Params`, `Context` plus the static constants `request_type` and
         `request_code`.
@@ -231,7 +218,7 @@ public struct GetRange
     ***************************************************************************/
 
     mixin RequestCore!(RequestType.AllNodes, RequestCode.GetRange, 0,
-        Args, SuspendableRequest.SharedWorking, Working, Notification);
+        Args, SuspendableRequest.SharedWorking, Notification);
 
     /***************************************************************************
 
@@ -241,13 +228,11 @@ public struct GetRange
             conn = connection event dispatcher
             context_blob = untyped chunk of data containing the serialized
                 context of the request which is to be handled
-            working_blob = untyped chunk of data containing the serialized
-                working data for the request on this connection
 
     ***************************************************************************/
 
     public static void handler ( RequestOnConn.EventDispatcherAllNodes conn,
-        void[] context_blob, void[] working_blob )
+        void[] context_blob )
     {
         auto context = This.getContext(context_blob);
         scope resources = (cast(SharedResources)(context.request_resources.get())).new RequestResources;
@@ -268,10 +253,6 @@ public struct GetRange
             {
                 if (!h.initialized)
                 {
-                    // Reset the working data of this connection to the initial state.
-                    auto working = GetRange.getWorkingData(working_blob);
-                    *working = Working.init;
-
                     reconnect = true;
                 }
 
@@ -298,13 +279,10 @@ public struct GetRange
         Params:
             context_blob = untyped chunk of data containing the serialized
                 context of the request which is finishing
-            working_data_iter = iterator over the stored working data associated
-                with each connection on which this request was run
 
     ***************************************************************************/
 
-    public static void all_finished_notifier ( void[] context_blob,
-        IRequestWorkingData working_data_iter )
+    public static void all_finished_notifier ( void[] context_blob )
     {
         auto context = This.getContext(context_blob);
 
