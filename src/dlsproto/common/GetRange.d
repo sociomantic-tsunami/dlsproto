@@ -43,7 +43,7 @@ public enum RequestStatusCode : StatusCode
 
 ******************************************************************************/
 
-public enum MessageType : ubyte
+public enum MessageType_v1 : ubyte
 {
     None,    /// Invalid, default value
 
