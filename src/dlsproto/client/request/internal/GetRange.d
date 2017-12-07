@@ -548,7 +548,7 @@ private scope class GetRangeHandler
                     this.fiber,
                     (conn.Payload payload)
                     {
-                        payload.addConstant(MessageType.Continue);
+                        payload.addConstant(MessageType_v1.Continue);
                     }
                 );
             }
@@ -701,13 +701,13 @@ private scope class GetRangeHandler
             {
                 auto msg = this.outer.request_event_dispatcher.receive(
                     this.fiber,
-                    Message(MessageType.Records),
-                    Message(MessageType.Stopped),
-                    Message(MessageType.Finished));
+                    Message(MessageType_v1.Records),
+                    Message(MessageType_v1.Stopped),
+                    Message(MessageType_v1.Finished));
 
                 switch (msg.type)
                 {
-                    case MessageType.Records:
+                    case MessageType_v1.Records:
                         Const!(void)[] received_record_batch;
                         size_t uncompressed_batch_size;
 
@@ -724,11 +724,11 @@ private scope class GetRangeHandler
                         this.record_stream.addRecords(*uncompressed_batch);
                         break;
 
-                    case MessageType.Stopped:
+                    case MessageType_v1.Stopped:
                         this.record_stream.stop();
                         return;
 
-                    case MessageType.Finished:
+                    case MessageType_v1.Finished:
                         finished = true;
                         break;
 
@@ -742,7 +742,7 @@ private scope class GetRangeHandler
             this.outer.resources.request_event_dispatcher.send(this.fiber,
                     (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
-                        payload.addConstant(MessageType.Ack);
+                        payload.addConstant(MessageType_v1.Ack);
                     }
             );
 
@@ -811,7 +811,7 @@ private scope class GetRangeHandler
                             this.fiber,
                             (conn.Payload payload)
                             {
-                                payload.addConstant(MessageType.Stop);
+                                payload.addConstant(MessageType_v1.Stop);
                             }
                         );
                         this.outer.context.shared_working.stopped = true;
