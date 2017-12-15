@@ -12,6 +12,20 @@
 
 module dlsproto.node.neo.request.GetRange;
 
+import ocean.util.log.Logger;
+
+/*******************************************************************************
+
+    Module logger
+
+*******************************************************************************/
+
+static private Logger log;
+static this ( )
+{
+    log = Log.lookup("dlsproto.node.neo.request.GetRange");
+}
+
 /*******************************************************************************
 
     v1 GetRange request protocol.
@@ -149,6 +163,18 @@ public abstract scope class GetRangeProtocol_v1
 
     final public void handle ( RequestOnConn connection, Const!(void)[] msg_payload )
     {
+        // Send the finished code to the client to indicate end
+        // of the request on the error
+        void sendFinishedCode ()
+        {
+            this.ed.send(
+                ( ed.Payload payload )
+                {
+                    payload.addConstant(MessageType_v1.Finished);
+                }
+            );
+        }
+
         this.connection = connection;
         this.ed = connection.event_dispatcher;
         this.parser = this.ed.message_parser;
@@ -158,45 +184,6 @@ public abstract scope class GetRangeProtocol_v1
         time_t low, high;
         Filter.FilterMode filter_mode;
 
-        this.parser.parseBody(msg_payload, channel_name, low, high,
-                filter_string, filter_mode);
-
-        if ( !this.prepareChannel(channel_name) )
-        {
-            this.ed.send(
-                ( ed.Payload payload )
-                {
-                    payload.addConstant(RequestStatusCode.Error);
-                }
-            );
-            return;
-        }
-
-        if ( !this.prepareRange(low, high) )
-        {
-            this.ed.send(
-                ( ed.Payload payload )
-                {
-                    payload.addConstant(RequestStatusCode.Error);
-                }
-            );
-            return;
-        }
-
-        if (filter_string.length > 0)
-        {
-            if ( !this.prepareFilter(filter_mode, filter_string) )
-            {
-                this.ed.send(
-                    ( ed.Payload payload )
-                    {
-                        payload.addConstant(RequestStatusCode.Error);
-                    }
-                );
-                return;
-            }
-        }
-
         this.ed.send(
             ( ed.Payload payload )
             {
@@ -204,15 +191,31 @@ public abstract scope class GetRangeProtocol_v1
             }
         );
 
-        this.value_buffer = this.resources.getVoidBuffer();
-        this.batch_buffer = this.resources.getVoidBuffer();
-        this.compressed_batch = this.resources.getVoidBuffer();
-        this.saved_exception = this.resources.getException();
-        this.lzo = this.resources.getLzo();
-
         try
         {
+            this.parser.parseBody(msg_payload, channel_name, low, high,
+                    filter_string, filter_mode);
+
+            if ( !this.prepareChannel(channel_name) ||
+                 !this.prepareRange(low, high) ||
+                 (filter_string.length > 0 && !this.prepareFilter(filter_mode, filter_string)))
+            {
+                sendFinishedCode();
+                return;
+            }
+
+            this.value_buffer = this.resources.getVoidBuffer();
+            this.batch_buffer = this.resources.getVoidBuffer();
+            this.compressed_batch = this.resources.getVoidBuffer();
+            this.saved_exception = this.resources.getException();
+            this.lzo = this.resources.getLzo();
+
             this.run();
+        }
+        catch (Exception e)
+        {
+            log.error("{}", getMsg(e));
+            sendFinishedCode();
         }
         finally
         {
