@@ -358,6 +358,7 @@ public abstract scope class GetRangeProtocol_v1
         switch (event.active)
         {
             case event.active.sent:
+                this.ed.flush();
                 // Records sent: wait for Continue/Stop feedback, ACK Stop
                 // stop and return true for Continue or false for stop
                 switch (this.ed.receiveValue!(MessageType_v1)())
@@ -432,6 +433,8 @@ public abstract scope class GetRangeProtocol_v1
                 payload.addConstant(MessageType_v1.Stopped);
             }
         );
+
+        this.ed.flush();
     }
 
 
