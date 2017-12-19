@@ -551,6 +551,8 @@ private scope class GetRangeHandler
                         payload.addConstant(MessageType_v1.Continue);
                     }
                 );
+
+                this.outer.conn.flush();
             }
 
             this.outer.request_event_dispatcher.signal(this.outer.conn,
@@ -814,6 +816,7 @@ private scope class GetRangeHandler
                                 payload.addConstant(MessageType_v1.Stop);
                             }
                         );
+                        this.outer.conn.flush();
                         this.outer.context.shared_working.stopped = true;
                         break;
 
