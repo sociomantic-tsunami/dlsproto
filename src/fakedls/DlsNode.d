@@ -66,7 +66,7 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
 
     ***************************************************************************/
 
-    private bool log_errors = true;
+    public bool log_errors = true;
 
     /***************************************************************************
 
@@ -92,18 +92,6 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
 
     /***************************************************************************
 
-        After this method is called, node will stop logging unhandled exceptions
-        as part of the test suite trace.
-
-    ***************************************************************************/
-
-    public void ignoreErrors ( )
-    {
-        this.log_errors = false;
-    }
-
-    /***************************************************************************
-
         Simple `shutdown` implementation to stop logging unhandled exceptions
         when it is initiated.
 
@@ -111,7 +99,7 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
 
     override public void shutdown ( )
     {
-        this.ignoreErrors();
+        this.log_errors = false;
     }
 
     /***************************************************************************

@@ -1152,7 +1152,7 @@ unittest
         class DummyStore : RequestQueueDiskOverflow.IRequestStore
         {
             ubyte[] store ( IRequestParams params ) { return null; }
-            void restore ( ubyte[] stored ) { }
+            void restore ( void[] stored ) { }
         }
 
         auto dls = new ExtensibleDlsClient!(DlsClient.RequestQueueDiskOverflow)
