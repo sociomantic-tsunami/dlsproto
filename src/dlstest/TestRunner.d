@@ -30,10 +30,8 @@ import dlstest.cases.legacy.OrderedPut;
 import dlstest.cases.legacy.OrderedMultiplePut;
 import dlstest.cases.legacy.UnorderedPut;
 import dlstest.cases.legacy.UnorderedMultiplePut;
-import dlstest.cases.neo.OrderedPut;
-import dlstest.cases.neo.OrderedMultiplePut;
-import dlstest.cases.neo.UnorderedPut;
-import dlstest.cases.neo.UnorderedMultiplePut;
+
+import dlstest.cases.neo.Dummy;
 
 /*******************************************************************************
 
