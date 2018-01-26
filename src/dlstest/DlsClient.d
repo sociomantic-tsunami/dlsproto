@@ -169,15 +169,6 @@ class DlsClient
 
     /**************************************************************************
 
-        Convenience aliases.
-
-    **************************************************************************/
-
-    alias RawClient.Neo.Filter Filter;
-
-
-    /**************************************************************************
-
         Alias for type of the standard DLS client.
 
     **************************************************************************/
@@ -192,183 +183,6 @@ class DlsClient
 
     private RawClient raw_client;
 
-    /*************************************************************************
-
-        Neo protocol support.
-
-    *************************************************************************/
-
-    private class Neo
-    {
-        import ocean.io.select.client.FiberSelectEvent;
-
-        /**********************************************************************
-
-            Flag which is set (by connect()) when a connection error occurs.
-
-        **********************************************************************/
-
-        private bool connection_error;
-
-        /***********************************************************************
-
-            Task used to call connect.
-
-        ***********************************************************************/
-
-        Task connect_task;
-
-        /***********************************************************************
-
-            Waits until either neo connections to all nodes have been
-            established (including authentication) or one connection has failed.
-
-        ***********************************************************************/
-
-        public void connect ( )
-        {
-            this.connect_task = Task.getThis();
-            assert(this.connect_task !is null);
-
-            scope stats = this.outer.raw_client.neo.new Stats;
-
-            this.connection_error = false;
-            while ( stats.num_connected_nodes < stats.num_registered_nodes
-                    && !this.connection_error )
-            {
-                this.connect_task.suspend();
-            }
-
-            enforce(!this.connection_error, "neo connection error");
-        }
-
-        /***********************************************************************
-
-            Connection notifier used by the client (see the outer class' ctor).
-
-            Params:
-                node_address = address/port of node which notification refers to
-                e = exception instance indicating an error (null indicates
-                    connection success)
-
-        ***********************************************************************/
-
-        private void connectionNotifier ( RawClient.Neo.ConnNotification info)
-        {
-            with (info.Active) switch (info.active)
-            {
-            case connected:
-                log.trace("Neo connection established (on {}:{})",
-                    info.connected.node_addr.address_bytes,
-                    info.connected.node_addr.port);
-
-                if (this.connect_task && this.connect_task.suspended())
-                    this.connect_task.resume();
-
-                break;
-            case error_while_connecting:
-                with (info.error_while_connecting)
-                {
-                    this.connection_error = true;
-                    log.error("Neo connection error: {} (on {}:{})",
-                            getMsg(e),
-                            node_addr.address_bytes, node_addr.port);
-                }
-                break;
-            default:
-                assert(false);
-            }
-        }
-
-        /***********************************************************************
-
-            Performs a neo Put request, suspending the fiber until it is done.
-
-            Params:
-                channels = channels to put the record to
-                timestamp = timestamp of the record to put
-                data = record value to put
-
-            Throws:
-                upon failure
-
-        ***********************************************************************/
-
-        public void put ( cstring channel, time_t timestamp, cstring data )
-        {
-            auto res = this.outer.raw_client.blocking.put(channel, timestamp, data);
-
-            enforce(res.succeeded, "Neo Put request failed on all nodes");
-        }
-
-        /*******************************************************************
-
-            Performs a neo GetRange request, suspending the fiber until it is
-            done.
-
-            Params:
-                channel = channel to put the record to
-                low = lower boundary of records to get
-                high = higher boundary of records to get
-                regex = filter string to filter the records on
-                filter_mode = mode of the filtering
-
-            Returns:
-                record set received from the node(s).
-
-        *******************************************************************/
-
-        public cstring[][time_t] getRange ( cstring channel,
-                time_t low, time_t high,
-                cstring filter_string = null,
-                Filter.FilterMode filter_mode = Filter.FilterMode.None )
-        {
-            auto task = Task.getThis();
-            assert (task !is null);
-
-            void[] record_buf;
-            cstring[][time_t] records;
-            bool error = false;
-            bool req_finished;
-
-            auto res = this.outer.raw_client.blocking.getRange(channel,
-                    record_buf, low, high,
-                    Filter(filter_mode, filter_string));
-
-            foreach (key, value; res)
-            {
-                records[key] ~= cast(char[])(value.dup);
-            }
-
-            // Neo returns time_t as a record keys, but our test suite
-            // requires hash_t (as that's what the legacy requests were
-            // returning).
-            return records;
-        }
-
-        /***********************************************************************
-
-            Convenience getter for the neo object of the swarm client owned by
-            the outer class.
-
-        ***********************************************************************/
-
-        private RawClient.Neo neo_client ( )
-        {
-            return this.outer.raw_client.neo;
-        }
-    }
-
-
-    /**************************************************************************
-
-        Wrapper object containing all neo requests.
-
-    **************************************************************************/
-
-    public Neo neo;
-
-
     /**************************************************************************
 
         Creates DLS client using the task scheduler's epoll instance.
@@ -381,39 +195,30 @@ class DlsClient
 
         const max_connections = 2;
 
-        this.neo = new Neo;
-
         auto auth_name = "test";
         auto auth_key = Key.init;
 
-        this.raw_client = new RawClient(theScheduler.epoll, auth_name,
-            auth_key.content,
-            &this.neo.connectionNotifier, max_connections);
-        this.raw_client.neo.enableSocketNoDelay();
+        this.raw_client = new RawClient(theScheduler.epoll, max_connections);
     }
 
     /**************************************************************************
 
-        Adds the address/port to listen to on both old and neo client.
+        Adds the address/port to listen to.
 
         Params:
-            port = standard port number to listen to. Neo port defaults to
-                   one higher.
+            port = standard port number to listen to.
 
     **************************************************************************/
 
     public void addNode (ushort port)
     {
         this.raw_client.addNode("127.0.0.1".dup, port);
-        ushort neo_port = port;
-        neo_port++;
-        this.neo.neo_client.addNode("127.0.0.1", neo_port);
     }
 
 
    /**************************************************************************
 
-        Connects the Dls client with the nodes, on both legacy and neo port.
+        Connects the Dls client with the nodes.
 
     **************************************************************************/
 
@@ -443,11 +248,6 @@ class DlsClient
                 task.suspend();
 
             enforce(handshake_ok, "Test DLS handshake failed");
-        }
-
-        if (protocol_type & ProtocolType.Neo)
-        {
-            this.neo.connect();
         }
     }
 

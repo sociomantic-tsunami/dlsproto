@@ -29,6 +29,7 @@ import dlstest.DlsTestCase;
 
 class UnorderedPutTest : DlsTestCase
 {
+    import dlstest.DlsClient;
     import dlstest.util.LocalStore;
     import dlstest.util.Record;
 
