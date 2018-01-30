@@ -20,10 +20,10 @@ Dependencies
 ==========  =======
 Dependency  Version
 ==========  =======
-ocean       v3.3.x
-swarm       v4.2.x
-turtle      v8.0.x
-makd        v1.3.3
+ocean       v4.0.x
+swarm       v5.0.x
+turtle      v9.0.x
+makd        v2.1.3
 ==========  =======
 
 Versioning
