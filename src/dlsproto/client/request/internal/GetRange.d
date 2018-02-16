@@ -402,11 +402,80 @@ private scope class GetRangeHandler
 
     private /* scope */ class RecordStream
     {
-        /// The acquired buffer to store a batch of records.
-        private void[]* batch_buffer;
+        /// Double buffer structure
+        private struct DoubleBuffer
+        {
+            /// Buffer that's filled with the data that the RecordStream can consume
+            /// Once it's empty, it will swap itself with input buffer (see below).
+            private void[]* output;
 
-        /// Slices the records in *batch_buffer that haven't been processed yet
-        private Const!(void)[] remaining_batch = null;
+            /// Buffer that's being filled with the data by the Reader, while
+            /// RecordStream consumes output buffer.
+            private void[]* input;
+
+            /*******************************************************************
+
+                Initializes the double buffer
+
+                Params:
+                    getVoidBuffer = delegate to acquire the reusable buffer
+
+            *******************************************************************/
+
+            private void init (void[]* delegate() getVoidBuffer)
+            {
+                this.output = getVoidBuffer();
+                this.input = getVoidBuffer();
+            }
+
+           /********************************************************************
+
+                Swaps the front and back buffer
+
+            *******************************************************************/
+
+            private void swap ()
+            {
+                auto tmp = this.output;
+                this.output = this.input;
+                this.input = tmp;
+            }
+
+            /*******************************************************************
+
+                Returns:
+                     false if there are no records in any of the buffers
+
+            *******************************************************************/
+
+            private bool empty ()
+            {
+                return !this.output.length && !this.input.length;
+            }
+
+            /*******************************************************************
+
+                Fills the input buffer with data.
+
+                Params:
+                    data = data to copy into input buffer
+
+            *******************************************************************/
+
+            private void fill (in void[] data)
+            {
+                // append record_batch to *this.input, which may or may not
+                // be empty.
+                if (!(*input).length)
+                    enableStomping(*input);
+
+                (*input).length = data.length;
+                (*input)[] = data[];
+            }
+        }
+
+        /// Ditto
+        private DoubleBuffer buffers;
 
         /// The fiber.
         private MessageFiber fiber;
@@ -433,7 +502,7 @@ private scope class GetRangeHandler
         /// Constructor, starts the fiber.
         private this ()
         {
-            this.batch_buffer = this.outer.resources.getVoidBuffer();
+            this.buffers.init(&this.outer.resources.getVoidBuffer);
             this.fiber = this.outer.resources.getFiber(&this.fiberMethod);
             this.fiber.start();
         }
@@ -451,19 +520,7 @@ private scope class GetRangeHandler
 
         public void addRecords ( in void[] record_batch )
         {
-            // append record_batch to *this.batch_buffer, which may or may not
-            // be empty.
-
-            if (!(*this.batch_buffer).length)
-                enableStomping(*this.batch_buffer);
-
-            // Append record_batch, then set this.remaining_batch to reference
-            // the remaining records. To void a dangling slice if
-            // *this.batch_buffer is relocated, set this.remaining_batch to
-            // null first.
-            size_t n_processed = (*this.batch_buffer).length - this.remaining_batch.length;
-            (*this.batch_buffer) ~= record_batch;
-            this.remaining_batch = (*this.batch_buffer)[n_processed .. $];
+            this.buffers.fill(record_batch);
 
             if (this.fiber_suspended == fiber_suspended.WaitingForRecords)
                 this.resumeFiber();
@@ -514,7 +571,21 @@ private scope class GetRangeHandler
         {
             while (this.waitForRecords())
             {
-                for (uint yield_count = 0; this.remaining_batch.length; yield_count++)
+                if (!this.stopped)
+                {
+                    this.outer.request_event_dispatcher.send(
+                        this.fiber,
+                        (conn.Payload payload)
+                        {
+                            payload.addConstant(MessageType_v1.Continue);
+                        }
+                    );
+
+                    this.outer.conn.flush();
+                }
+
+                Const!(void)[] remaining_batch = *this.buffers.output;
+                for (uint yield_count = 0; remaining_batch.length; yield_count++)
                 {
                     if (yield_count >= 10) //yield every 10 records
                     {
@@ -531,28 +602,17 @@ private scope class GetRangeHandler
 
                     this.passRecordToUser(
                         *this.outer.conn.message_parser.getValue!(time_t)(
-                            this.remaining_batch),
+                            remaining_batch),
                         this.outer.conn.message_parser.getArray!(Const!(void))(
-                            this.remaining_batch
+                            remaining_batch
                         ));
 
                 }
 
-                this.remaining_batch = null;
-                (*this.batch_buffer).length = 0;
+                (*this.buffers.output).length = 0;
 
-                if (this.stopped)
+                if (this.stopped && this.buffers.empty())
                     break;
-
-                this.outer.request_event_dispatcher.send(
-                    this.fiber,
-                    (conn.Payload payload)
-                    {
-                        payload.addConstant(MessageType_v1.Continue);
-                    }
-                );
-
-                this.outer.conn.flush();
             }
 
             this.outer.request_event_dispatcher.signal(this.outer.conn,
@@ -565,14 +625,22 @@ private scope class GetRangeHandler
 
             Returns:
                 true if the fiber was resumed by `addRecords` or false if
-                resumed by `stop`.
+                resumed by `stop` and there's no more records to iterate.
 
         **********************************************************************/
 
         private bool waitForRecords ()
         {
-            this.suspendFiber(FiberSuspended.WaitingForRecords);
-            return !this.stopped;
+            // Wait for the next batch, unless we already have one.
+            if ((*this.buffers.input).length == 0)
+            {
+                this.suspendFiber(FiberSuspended.WaitingForRecords);
+            }
+
+            // Grab the back buffer and move it to the front
+            this.buffers.swap();
+
+            return !this.stopped || !this.buffers.empty();
         }
 
         /**********************************************************************
