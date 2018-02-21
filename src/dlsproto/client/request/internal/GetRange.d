@@ -635,7 +635,7 @@ private scope class GetRangeHandler
         private bool waitForRecords ()
         {
             // Wait for the next batch, unless we already have one.
-            if ((*this.buffers.input).length == 0)
+            if (this.buffers.empty())
             {
                 this.suspendFiber(FiberSuspended.WaitingForRecords);
             }
