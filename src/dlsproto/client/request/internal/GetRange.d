@@ -465,8 +465,12 @@ private scope class GetRangeHandler
                 if (!(*input).length)
                     enableStomping(*input);
 
-                (*input).length = data.length;
-                (*input)[] = data[];
+                // Note that the appending here is needed, since the node
+                // will send the remaining batch if received the Stop message
+                // during sending the batch.
+                auto old_len = (*input).length;
+                (*input).length = (*input).length + data.length;
+                (*input)[old_len..$] = data[];
             }
         }
 
