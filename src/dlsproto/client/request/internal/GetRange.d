@@ -455,22 +455,24 @@ private scope class GetRangeHandler
 
             /*******************************************************************
 
-                Fills the input buffer with data.
+                Appends the input buffer with data.
 
                 Params:
                     data = data to copy into input buffer
 
             *******************************************************************/
 
-            private void fill (in void[] data)
+            private void append (in void[] data)
             {
                 // append record_batch to *this.input, which may or may not
                 // be empty.
                 if (!(*input).length)
                     enableStomping(*input);
 
-                (*input).length = data.length;
-                (*input)[] = data[];
+                // Note that the appending here is needed, since the node
+                // will send the remaining batch if received the Stop message
+                // during sending the batch.
+                (*input) ~= data;
             }
         }
 
@@ -525,7 +527,7 @@ private scope class GetRangeHandler
                 throw this.outer.conn.shutdownWithProtocolError("Received empty batch from the node");
             }
 
-            this.buffers.fill(record_batch);
+            this.buffers.append(record_batch);
 
             if (this.fiber_suspended == fiber_suspended.WaitingForRecords)
                 this.resumeFiber();
