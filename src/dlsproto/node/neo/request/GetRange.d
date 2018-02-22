@@ -266,8 +266,15 @@ public abstract scope class GetRangeProtocol_v1
 
             if(!got_next)
             {
-                this.sendBatchAndReceiveFeedback();
+                // No more data in the range. Ending request.
 
+                // Send the data remaining in the batch, if any
+                if ((*this.batch_buffer).length)
+                {
+                    this.sendBatchAndReceiveFeedback();
+                }
+
+                // Send finished message and wait on the ACK
                 this.ed.nextEvent(
                     this.ed.NextEventFlags.Receive,
                     (ed.Payload payload)
