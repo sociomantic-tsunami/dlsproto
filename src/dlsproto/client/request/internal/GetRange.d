@@ -409,6 +409,12 @@ private scope class GetRangeHandler
             /// RecordStream consumes output buffer.
             private void[]* input;
 
+            /// Indicator if there's a (possibly empty) batch in the background
+            /// that was received, but never processed by the reader. We can't
+            /// use just input.length, since the batch we've received could be
+            /// zero-sized.
+            private bool pending_batch;
+
             /*******************************************************************
 
                 Initializes the double buffer
@@ -439,14 +445,41 @@ private scope class GetRangeHandler
 
             /*******************************************************************
 
+                Gets the next batch for processing.
+
                 Returns:
-                     false if there are no records in any of the buffers
+                    the slice to the next batch to process
 
             *******************************************************************/
 
-            private bool empty ()
+            private void[] getNextBatch ()
             {
-                return !this.output.length && !this.input.length;
+                this.pending_batch = false;
+                return *this.output;
+            }
+
+            /*******************************************************************
+
+                Clears the last processed batch.
+
+            *******************************************************************/
+
+            private void clearLastBatch ()
+            {
+                (*this.output).length = 0;
+            }
+
+            /*******************************************************************
+
+                Returns:
+                     false if there are no records in any of the buffers and
+                     there are no more batches to process lying in the background
+
+            *******************************************************************/
+
+            private bool has_more ()
+            {
+                return this.output.length || this.input.length || this.pending_batch;
             }
 
             /*******************************************************************
@@ -465,8 +498,14 @@ private scope class GetRangeHandler
                 if (!(*input).length)
                     enableStomping(*input);
 
-                (*input).length = data.length;
-                (*input)[] = data[];
+                // Note that the appending here is needed, since the node
+                // will send the remaining batch if received the Stop message
+                // during sending the batch.
+                auto old_len = (*input).length;
+                (*input).length = (*input).length + data.length;
+                (*input)[old_len..$] = data[];
+
+                this.pending_batch = true;
             }
         }
 
@@ -585,7 +624,7 @@ private scope class GetRangeHandler
                     this.outer.conn.flush();
                 }
 
-                Const!(void)[] remaining_batch = *this.buffers.output;
+                Const!(void)[] remaining_batch = this.buffers.getNextBatch();
                 for (uint yield_count = 0; remaining_batch.length; yield_count++)
                 {
                     if (yield_count >= 10) //yield every 10 records
@@ -610,9 +649,9 @@ private scope class GetRangeHandler
 
                 }
 
-                (*this.buffers.output).length = 0;
+                this.buffers.clearLastBatch();
 
-                if (this.stopped && this.buffers.empty())
+                if (this.stopped && !this.buffers.has_more())
                     break;
             }
 
@@ -633,7 +672,7 @@ private scope class GetRangeHandler
         private bool waitForRecords ()
         {
             // Wait for the next batch, unless we already have one.
-            if ((*this.buffers.input).length == 0)
+            if (!this.buffers.has_more())
             {
                 this.suspendFiber(FiberSuspended.WaitingForRecords);
             }
@@ -641,7 +680,7 @@ private scope class GetRangeHandler
             // Grab the back buffer and move it to the front
             this.buffers.swap();
 
-            return !this.stopped || !this.buffers.empty();
+            return !this.stopped || this.buffers.has_more();
         }
 
         /**********************************************************************
