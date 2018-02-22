@@ -520,6 +520,11 @@ private scope class GetRangeHandler
 
         public void addRecords ( in void[] record_batch )
         {
+            if (record_batch.length == 0)
+            {
+                throw this.outer.conn.shutdownWithProtocolError("Received empty batch from the node");
+            }
+
             this.buffers.fill(record_batch);
 
             if (this.fiber_suspended == fiber_suspended.WaitingForRecords)
