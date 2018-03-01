@@ -746,7 +746,7 @@ public abstract scope class GetRangeProtocol_v0
                 state = state.Suspended;
                 break;
             default:
-                this.ed.shutdownWithProtocolError("invalid start state");
+                throw this.ed.shutdownWithProtocolError("invalid start state");
         }
 
         if ( !this.prepareChannel(channel_name) )
