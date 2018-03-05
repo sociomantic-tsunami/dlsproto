@@ -25,8 +25,6 @@ module dlsproto.client.legacy.internal.RequestSetup;
 
 public import swarm.client.RequestSetup;
 
-static import swarm.util.Hash;
-
 /*******************************************************************************
 
     Mixin for the methods use by DLS client requests which have an I/O delegate.
@@ -278,6 +276,7 @@ public template Key ( )
 {
     import ocean.transition;
     import ocean.core.TypeConvert : downcast;
+    static import swarm.util.Hash;
 
     mixin TypeofThis;
     static assert (is(This == struct));
@@ -371,6 +370,7 @@ public template Range ( )
 {
     import ocean.transition;
     import ocean.core.TypeConvert : downcast;
+    static import swarm.util.Hash;
 
     mixin TypeofThis;
     static assert (is(This == struct));

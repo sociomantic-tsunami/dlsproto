@@ -19,6 +19,7 @@ module dlstest.cases.legacy.Basic;
 *******************************************************************************/
 
 import ocean.core.Array;
+import ocean.core.Test;
 import ocean.transition;
 
 import dlstest.DlsTestCase;

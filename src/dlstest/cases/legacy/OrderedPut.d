@@ -19,6 +19,7 @@ module dlstest.cases.legacy.OrderedPut;
 *******************************************************************************/
 
 import dlstest.DlsTestCase;
+import dlstest.DlsClient;
 
 /*******************************************************************************
 

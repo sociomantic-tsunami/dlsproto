@@ -19,6 +19,7 @@ module dlstest.cases.neo.UnorderedPut;
 *******************************************************************************/
 
 import dlstest.NeoDlsTestCase;
+import dlstest.DlsClient;
 
 /*******************************************************************************
 

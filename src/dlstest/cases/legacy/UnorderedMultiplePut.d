@@ -19,6 +19,7 @@ module dlstest.cases.legacy.UnorderedMultiplePut;
 *******************************************************************************/
 
 import dlstest.DlsTestCase;
+import dlstest.DlsClient;
 
 /*******************************************************************************
 
