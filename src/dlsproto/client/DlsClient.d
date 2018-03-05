@@ -140,6 +140,8 @@ import swarm.client.plugins.RequestQueueDiskOverflow;
 import swarm.client.plugins.RequestScheduler;
 import swarm.client.plugins.ScopeRequests;
 
+import dlsproto.client.legacy.DlsConst;
+
 import dlsproto.client.legacy.internal.registry.model.IDlsNodeRegistryInfo;
 
 import dlsproto.client.legacy.internal.registry.DlsNodeRegistry;
@@ -151,8 +153,6 @@ import dlsproto.client.legacy.internal.request.notifier.RequestNotification;
 import dlsproto.client.legacy.internal.request.params.RequestParams;
 
 import RequestSetup = dlsproto.client.legacy.internal.RequestSetup;
-
-import dlsproto.client.legacy.DlsConst;
 
 import ocean.core.Array : copy, endsWith;
 
@@ -337,6 +337,8 @@ public class DlsClient : IClient
     public alias .RequestQueueDiskOverflow RequestQueueDiskOverflow;
 
     public alias .ScopeRequestsPlugin ScopeRequestsPlugin;
+
+    public alias .DlsConst.FilterMode FilterMode;
 
 
     /***************************************************************************

@@ -20,6 +20,7 @@ module dlstest.cases.legacy.OrderedMultiplePut;
 *******************************************************************************/
 
 import dlstest.DlsTestCase;
+import dlstest.DlsClient;
 
 /*******************************************************************************
 

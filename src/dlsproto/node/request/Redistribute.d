@@ -49,7 +49,7 @@ static this ( )
 
 public abstract scope class Redistribute : DlsCommand
 {
-    import swarm.Const: NodeItem;
+    public import swarm.Const: NodeItem;
 
     /**************************************************************************
 
