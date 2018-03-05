@@ -359,7 +359,7 @@ template NeoSupport ()
         import ocean.task.Task;
 
         import swarm.neo.client.mixins.TaskBlockingCore;
-        import swarm.neo.client.request_options.RequestContext;
+        import swarm.neo.client.request_options.RequestContext : RequestContext;
 
         /***********************************************************************
 
