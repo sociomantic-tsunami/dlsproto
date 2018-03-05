@@ -44,6 +44,7 @@ import swarm.client.request.GetChannelSizeRequest;
 import swarm.client.request.GetSizeRequest;
 import swarm.client.request.RemoveChannelRequest;
 
+import dlsproto.client.legacy.internal.request.model.IDlsRequestResources;
 import dlsproto.client.legacy.internal.request.GetVersionRequest;
 import dlsproto.client.legacy.internal.request.GetRangeRequest;
 import dlsproto.client.legacy.internal.request.GetRangeFilterRequest;
@@ -65,23 +66,23 @@ import ocean.transition;
 *******************************************************************************/
 
 private alias GetChannelsRequestTemplate!(IRequest,
-    IRequest.IDlsRequestResources, DlsConst.Command.E.GetChannels)
+    IDlsRequestResources, DlsConst.Command.E.GetChannels)
     GetChannelsRequest;
 
 private alias GetNumConnectionsRequestTemplate!(IRequest,
-    IRequest.IDlsRequestResources, DlsConst.Command.E.GetNumConnections)
+    IDlsRequestResources, DlsConst.Command.E.GetNumConnections)
     GetNumConnectionsRequest;
 
 private alias GetChannelSizeRequestTemplate!(IChannelRequest,
-    IRequest.IDlsRequestResources, DlsConst.Command.E.GetChannelSize)
+    IDlsRequestResources, DlsConst.Command.E.GetChannelSize)
     GetChannelSizeRequest;
 
 private alias GetSizeRequestTemplate!(IRequest,
-    IRequest.IDlsRequestResources, DlsConst.Command.E.GetSize)
+    IDlsRequestResources, DlsConst.Command.E.GetSize)
     GetSizeRequest;
 
 private alias RemoveChannelRequestTemplate!(IChannelRequest,
-    IRequest.IDlsRequestResources, DlsConst.Command.E.RemoveChannel)
+    IDlsRequestResources, DlsConst.Command.E.RemoveChannel)
     RemoveChannelRequest;
 
 

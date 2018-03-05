@@ -81,7 +81,7 @@ template NeoSupport ()
         import swarm.neo.client.mixins.ClientCore;
         // Required otherwise the legacy RequestContext is picked with the new
         // symbol resolution algorithm
-        import swarm.neo.client.request_options.RequestContext : RequestContext;
+        public import swarm.neo.client.request_options.RequestContext : RequestContext;
         import swarm.neo.client.mixins.Controllers;
         import core.stdc.time;
 
@@ -92,8 +92,8 @@ template NeoSupport ()
 
         ***********************************************************************/
 
-        import Put = dlsproto.client.request.Put;
-        import GetRange = dlsproto.client.request.GetRange;
+        public import Put = dlsproto.client.request.Put;
+        public import GetRange = dlsproto.client.request.GetRange;
 
         /***********************************************************************
 
@@ -123,7 +123,7 @@ template NeoSupport ()
 
         ***********************************************************************/
 
-        mixin ClientCore!();
+        public mixin ClientCore!();
 
         /***********************************************************************
 
@@ -359,7 +359,7 @@ template NeoSupport ()
         import ocean.task.Task;
 
         import swarm.neo.client.mixins.TaskBlockingCore;
-        import swarm.neo.client.request_options.RequestContext;
+        import swarm.neo.client.request_options.RequestContext : RequestContext;
 
         /***********************************************************************
 

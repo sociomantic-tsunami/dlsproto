@@ -217,7 +217,7 @@ public struct GetRange
 
     ***************************************************************************/
 
-    private static struct Working
+    public static struct Working
     {
         MessageType requested_control_msg = MessageType.None;
     }

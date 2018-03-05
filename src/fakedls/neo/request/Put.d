@@ -65,7 +65,7 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
 private scope class PutImpl_v0: PutProtocol_v0
 {
-    import swarm.util.Hash;
+    static import swarm.util.Hash;
     import fakedls.Storage;
     import core.stdc.time;
 
@@ -103,8 +103,8 @@ private scope class PutImpl_v0: PutProtocol_v0
 
     override protected bool putInStorage ( cstring channel, time_t timestamp, in void[] value )
     {
-        char[HexDigest.length] timestamp_buf;
-        Hash.toHexString(timestamp, timestamp_buf);
+        char[swarm.util.Hash.HexDigest.length] timestamp_buf;
+        swarm.util.Hash.toHexString(timestamp, timestamp_buf);
 
         global_storage.get(channel).put(timestamp_buf.dup, cast(cstring)value);
         return true;

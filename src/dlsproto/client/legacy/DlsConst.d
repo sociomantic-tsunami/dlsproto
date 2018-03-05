@@ -120,7 +120,7 @@ static:
 
     ***************************************************************************/
 
-    protected enum FilterMode : ubyte
+    public enum FilterMode : ubyte
     {
         StringMatch,
         PCRE,
