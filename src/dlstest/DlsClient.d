@@ -367,7 +367,7 @@ class DlsClient
 
     ***************************************************************************/
 
-    enum FilterType
+    public enum FilterType
     {
         None,
         StringFilter,
