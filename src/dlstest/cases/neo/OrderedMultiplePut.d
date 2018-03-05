@@ -20,6 +20,7 @@ module dlstest.cases.neo.OrderedMultiplePut;
 *******************************************************************************/
 
 import dlstest.NeoDlsTestCase;
+import dlstest.DlsClient;
 
 /*******************************************************************************
 

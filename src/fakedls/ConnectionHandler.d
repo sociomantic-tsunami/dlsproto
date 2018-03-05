@@ -76,7 +76,7 @@ public class DlsConnectionHandler :
 
     ***************************************************************************/
 
-    private scope class DlsRequestResources : DlsCommand.Resources
+    public scope class DlsRequestResources : DlsCommand.Resources
     {
         import swarm.util.RecordBatcher;
         import ocean.io.compress.Lzo;

@@ -87,7 +87,7 @@ public struct Put
 
     ***************************************************************************/
 
-    private static struct Working
+    public static struct Working
     {
         // Dummy (not required by this request)
     }
