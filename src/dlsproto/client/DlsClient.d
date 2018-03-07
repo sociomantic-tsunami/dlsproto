@@ -260,7 +260,7 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exceptgion e )
+                void delegate ( Neo.ConnNotification )
             fiber_stack_size = size (in bytes) of stack of individual connection
                 fibers.
 
@@ -294,7 +294,7 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exception e )
+                void delegate ( Neo.ConnNotification )
             conn_limit  = maximum number of connections in pool
             queue_size = size (in bytes) of per-node queue of pending requests
             fiber_stack_size = size (in bytes) of stack of individual connection
@@ -408,7 +408,7 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exceptgion e )
+                void delegate ( Neo.ConnNotification )
             fiber_stack_size = size (in bytes) of stack of individual connection
                 fibers.
 
@@ -443,7 +443,7 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exception e )
+                void delegate ( Neo.ConnNotification )
             conn_limit  = maximum number of connections in pool
             queue_size = size (in bytes) of per-node queue of pending requests
             fiber_stack_size = size (in bytes) of stack of individual connection
@@ -760,7 +760,7 @@ public class DlsClient : IClient
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exception e )
+                void delegate ( Neo.ConnNotification )
 
     ***************************************************************************/
 
@@ -792,7 +792,7 @@ public class DlsClient : IClient
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exceptgion e )
+                void delegate ( Neo.ConnNotification )
             fiber_stack_size = size (in bytes) of stack of individual connection
                 fibers.
 
@@ -831,7 +831,7 @@ public class DlsClient : IClient
             conn_notifier = delegate which is called when a connection attempt
                 succeeds or fails (including when a connection is
                 re-established). Of type:
-                void delegate ( IPAddress node_address, Exception e )
+                void delegate ( Neo.ConnNotification )
             conn_limit  = maximum number of connections in pool
             queue_size = size (in bytes) of per-node queue of pending requests
             fiber_stack_size = size (in bytes) of stack of individual connection
