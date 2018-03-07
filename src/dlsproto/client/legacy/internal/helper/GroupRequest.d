@@ -36,7 +36,7 @@
 
         // Set up group request (with imaginary get callback)
         auto request = dls.getAll("channel", &getCb, &notifier);
-        auto get_all = new GroupRequest!(DlsClient.GetAll)(request);
+        auto get_all = makeGroupRequest(request);
 
         // Run group request
         dls.assign(get_all);
@@ -62,6 +62,8 @@ module dlsproto.client.legacy.internal.helper.GroupRequest;
 
 *******************************************************************************/
 
+import ocean.transition;
+
 import swarm.client.helper.GroupRequest;
 
 import dlsproto.client.DlsClient;
@@ -70,7 +72,10 @@ import dlsproto.client.legacy.internal.request.notifier.RequestNotification;
 
 import dlsproto.client.legacy.internal.request.params.RequestParams;
 
-
+version (UnitTest)
+{
+    import ocean.io.select.EpollSelectDispatcher;
+}
 
 /*******************************************************************************
 
@@ -88,3 +93,40 @@ public template GroupRequest ( Request )
         GroupRequest;
 }
 
+/*******************************************************************************
+
+    Instantiates a GroupRequest instance wrapped around the provided Request
+    instance. Used to allow template parameter deduction.
+
+    Params:
+        Request = type of the request
+        req = request to manage using GroupRequest
+
+    Returns:
+        instance of the GroupRequest!(Request) managing the req instance.
+
+*******************************************************************************/
+
+public GroupRequest!(Request) makeGroupRequest(Request)(Request req)
+{
+    return new GroupRequest!(Request)(req);
+}
+
+unittest
+{
+    // just to satisfy the getRange's interface
+    void notify ( DlsClient.RequestNotification info )
+    {
+    }
+
+    void receive_values ( DlsClient.RequestContext context, in cstring timestamp,
+        in cstring value )
+    {
+    }
+
+    auto epoll = new EpollSelectDispatcher();
+    auto client = new DlsClient(epoll);
+    auto req = client.getRange("channel", 0UL, 0UL, &receive_values, &notify);
+
+    auto groupReq = makeGroupRequest(req);
+}
