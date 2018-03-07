@@ -13,6 +13,7 @@
 module fakedls.neo.request.GetRange;
 
 import dlsproto.node.neo.request.GetRange;
+import dlsproto.node.neo.request.core.IRequestResources;
 
 import swarm.neo.node.RequestOnConn;
 import swarm.neo.request.Command;

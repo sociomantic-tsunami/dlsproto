@@ -39,7 +39,7 @@ public abstract scope class GetRangeProtocol_v1
     import swarm.util.RecordBatcher;
     import swarm.neo.node.RequestOnConn;
     import dlsproto.common.GetRange;
-    import dlsproto.client.request.GetRange: Filter;
+    public import dlsproto.client.request.GetRange: Filter;
 
     import core.stdc.time;
 
