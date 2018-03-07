@@ -73,12 +73,13 @@ private Dls _dls;
 
 public class Dls : Node!(DlsNode, "dls")
 {
-    import dlsproto.client.legacy.DlsConst;
-    import Hash = swarm.util.Hash;
+    public import dlsproto.client.legacy.DlsConst;
+    static import swarm.util.Hash;
 
     import ocean.core.Enforce;
 
     import ocean.task.Scheduler;
+    import swarm.Const: NodeItem;
 
     /***************************************************************************
 
@@ -109,8 +110,8 @@ public class Dls : Node!(DlsNode, "dls")
 
         // The DLS protocol defines keys as strings but env.Dls tries to mimic
         // swarm client API which uses hash_t
-        char[Hash.HashDigits] str_key;
-        Hash.toHexString(key, str_key);
+        char[swarm.util.Hash.HashDigits] str_key;
+        swarm.util.Hash.toHexString(key, str_key);
 
         global_storage.getCreate(channel).put(str_key.dup, value.dup);
     }
@@ -136,8 +137,8 @@ public class Dls : Node!(DlsNode, "dls")
     {
         // DLS protocol defines keys as strings but env.Dls tries to mimic
         // swarm client API which uses hash_t
-        char[Hash.HashDigits] str_key;
-        Hash.toHexString(key, str_key);
+        char[swarm.util.Hash.HashDigits] str_key;
+        swarm.util.Hash.toHexString(key, str_key);
 
         return global_storage.getVerify(channel).getVerify(str_key[]);
     }
