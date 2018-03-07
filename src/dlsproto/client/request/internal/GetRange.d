@@ -169,13 +169,20 @@ public struct GetRange
     {
         auto context = This.getContext(context_blob);
 
-        if (!context.shared_working.stopped)
+        Notification notification;
+
+        if (context.shared_working.stopped)
+        {
+            // Stopped notification instead of the final one
+            notification.stopped = NoInfo();
+        }
+        else
         {
             // Final notification, after the request has been finished
-            Notification notification;
             notification.finished = NoInfo();
-            GetRange.notify(context.user_params, notification);
         }
+
+        GetRange.notify(context.user_params, notification);
     }
 }
 
