@@ -746,6 +746,34 @@ public class DlsClient : IClient
         this.node_handshake = new NodeHandshake;
     }
 
+     /***************************************************************************
+
+        Constructor with support for neo and legacy protocols. Accepts only
+        `Neo.Config`, not `IClient.Config`, for applications that use the neo
+        protocol only.
+
+        Params:
+            epoll = EpollSelectDispatcher instance to use
+            neo_config = swarm.neo.client.mixins.ClientCore.Config instance.
+                (The Config class is designed to be read from an application's
+                config.ini file via ocean.util.config.ConfigFiller.)
+            conn_notifier = delegate which is called when a connection attempt
+                succeeds or fails (including when a connection is
+                re-established). Of type:
+                void delegate ( IPAddress node_address, Exception e )
+
+    ***************************************************************************/
+
+    public this ( EpollSelectDispatcher epoll, Neo.Config neo_config,
+        Neo.ConnectionNotifier conn_notifier )
+    {
+        this(epoll, IClient.Config.default_connection_limit,
+            IClient.Config.default_queue_size,
+            IClient.default_fiber_stack_size);
+
+        this.neoInit(neo_config, conn_notifier);
+    }
+
 
     /***************************************************************************
 
