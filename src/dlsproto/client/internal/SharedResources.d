@@ -271,7 +271,7 @@ public final class SharedResources
 
         **********************************************************************/
 
-        public MessageFiber getFiber ( void delegate ( ) fiber_method )
+        public MessageFiber getFiber ( scope void delegate ( ) fiber_method )
         {
             bool new_fiber;
 

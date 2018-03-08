@@ -358,7 +358,7 @@ class DlsClient
     {
         this.log = Log.lookup("dlstest");
 
-        const max_connections = 2;
+        static immutable max_connections = 2;
 
         this.neo = new Neo;
 

@@ -116,7 +116,7 @@ public struct SuspendableRequest
 
     ***************************************************************************/
 
-    private const uint yield_send_count = 10;
+    private enum uint yield_send_count = 10;
 
     /***************************************************************************
 
@@ -155,7 +155,7 @@ public struct SuspendableRequest
     }
     body
     {
-        this.conn = conn;
+        (&this).conn = conn;
     }
 
     /***************************************************************************
@@ -168,7 +168,7 @@ public struct SuspendableRequest
 
     public void dataReady ( RequestOnConn connection, uint data_ready_code )
     {
-        if ( this.fiber_suspended_waiting_for_data )
+        if ( (&this).fiber_suspended_waiting_for_data )
             connection.resumeFiber(data_ready_code);
     }
 
@@ -195,7 +195,7 @@ public struct SuspendableRequest
         {
             send_interrupted = false;
 
-            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
+            auto event = (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive,
                 ( conn.Payload payload )
                 {
                     payload.add(channel_removed_msg);
@@ -250,7 +250,7 @@ public struct SuspendableRequest
 
     public State sendData (
         Const!(void)[] delegate ( out IterateResult iterate_result ) iterate,
-        ReceivedMessageDg handle_received_message, ubyte ack, ubyte data_msg )
+        scope ReceivedMessageDg handle_received_message, ubyte ack, ubyte data_msg )
     {
         uint records_sent_without_yielding = 0;
 
@@ -282,7 +282,7 @@ public struct SuspendableRequest
 
             if ( data !is null )
             {
-                auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
+                auto event = (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive,
                     ( conn.Payload payload )
                     {
                         payload.add(data_msg);
@@ -299,7 +299,7 @@ public struct SuspendableRequest
                     // sendReceive() was interrupted while sending, so send again.
                     // The client should not send any message until it has received
                     // the Ack.
-                    this.conn.send(
+                    (&this).conn.send(
                         ( conn.Payload payload )
                         {
                             payload.addConstant(data_msg);
@@ -308,7 +308,7 @@ public struct SuspendableRequest
                     );
 
                     // Ack the received control message.
-                    this.sendAck(ack);
+                    (&this).sendAck(ack);
 
                     with ( ReceivedMessageAction ) switch ( msg_action )
                     {
@@ -322,7 +322,7 @@ public struct SuspendableRequest
                             break;
 
                         default:
-                            throw this.conn.shutdownWithProtocolError(
+                            throw (&this).conn.shutdownWithProtocolError(
                                 "Unexpected control message while sending data");
                     }
                 }
@@ -331,10 +331,10 @@ public struct SuspendableRequest
             }
 
             // Yield after iterating some data items.
-            if (records_sent_without_yielding >= this.yield_send_count)
+            if (records_sent_without_yielding >= (&this).yield_send_count)
             {
-                auto event = this.conn.nextEvent(
-                        this.conn.NextEventFlags.Receive | this.conn.NextEventFlags.Yield);
+                auto event = (&this).conn.nextEvent(
+                        (&this).conn.NextEventFlags.Receive | (&this).conn.NextEventFlags.Yield);
                 assert(event.active == event.active.received ||
                        event.active == event.active.yielded_resumed);
 
@@ -344,7 +344,7 @@ public struct SuspendableRequest
                     msg_action = handle_received_message(event.received.payload);
 
                     // Ack the received control message.
-                    this.sendAck(ack);
+                    (&this).sendAck(ack);
 
                     with ( ReceivedMessageAction ) switch ( msg_action )
                     {
@@ -358,7 +358,7 @@ public struct SuspendableRequest
                             break;
 
                         default:
-                            throw this.conn.shutdownWithProtocolError(
+                            throw (&this).conn.shutdownWithProtocolError(
                                 "Unexpected control message while yielded");
                     }
                 }
@@ -392,20 +392,20 @@ public struct SuspendableRequest
     ***************************************************************************/
 
     // The request is suspended waiting for a state change
-    public State waitForControlMessage ( ReceivedMessageDg handle_received_message,
+    public State waitForControlMessage ( scope ReceivedMessageDg handle_received_message,
         ubyte ack )
     {
         ReceivedMessageAction msg_action;
         do
         {
-            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+            auto event = (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive);
             assert (event.active == event.active.received,
                 "Unexpected fiber resume code when waiting for control message");
 
             msg_action = handle_received_message(event.received.payload);
 
             // Ack the received control message.
-            this.sendAck(ack);
+            (&this).sendAck(ack);
 
         }
         while ( msg_action == ReceivedMessageAction.Suspend );
@@ -422,7 +422,7 @@ public struct SuspendableRequest
                 return State.Sending;
 
             default:
-                throw this.conn.shutdownWithProtocolError(
+                throw (&this).conn.shutdownWithProtocolError(
                     "Unexpected control message while waiting for control message");
         }
         assert(false);
@@ -443,7 +443,7 @@ public struct SuspendableRequest
 
     ***************************************************************************/
 
-    public State finished ( bool delegate (in void[] received) is_ack,
+    public State finished ( scope bool delegate (in void[] received) is_ack,
             ubyte finished )
     {
         // Send finished
@@ -452,7 +452,7 @@ public struct SuspendableRequest
         {
             send_interrupted = false;
 
-            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive,
+            auto event = (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive,
                 ( conn.Payload payload )
                 {
                     payload.addConstant(finished);
@@ -472,7 +472,7 @@ public struct SuspendableRequest
         bool ack_received;
         do
         {
-            auto event = this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+            auto event = (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive);
             assert(event.active == event.active.received,
                     "Fiber unexpectedly resumed");
 
@@ -507,7 +507,7 @@ public struct SuspendableRequest
 
     ***************************************************************************/
 
-    public State waitForData ( ReceivedMessageDg handle_received_message,
+    public State waitForData ( scope ReceivedMessageDg handle_received_message,
         uint data_ready_code, ubyte ack )
     {
         ReceivedMessageAction msg_action;
@@ -515,14 +515,14 @@ public struct SuspendableRequest
         {
             RequestOnConnBase.EventDispatcher.EventNotification event;
 
-            this.fiber_suspended_waiting_for_data = true;
+            (&this).fiber_suspended_waiting_for_data = true;
             try
             {
-                event =  this.conn.nextEvent(this.conn.NextEventFlags.Receive);
+                event =  (&this).conn.nextEvent((&this).conn.NextEventFlags.Receive);
             }
             finally
             {
-                this.fiber_suspended_waiting_for_data = false;
+                (&this).fiber_suspended_waiting_for_data = false;
             }
 
             with (event.Active) switch (event.active)
@@ -538,7 +538,7 @@ public struct SuspendableRequest
                     // Parse the message
                     msg_action = handle_received_message(event.received.payload);
                     // Ack the received control message.
-                    this.sendAck(ack);
+                    (&this).sendAck(ack);
                     break;
 
                 default:
@@ -559,7 +559,7 @@ public struct SuspendableRequest
                 assert(false); // Should have not exited the while loop
 
             default:
-                throw this.conn.shutdownWithProtocolError(
+                throw (&this).conn.shutdownWithProtocolError(
                     "Unexpected control message while waiting for data");
         }
         assert(false);
@@ -577,7 +577,7 @@ public struct SuspendableRequest
 
     private void sendAck ( ubyte ack )
     {
-        this.conn.send(
+        (&this).conn.send(
             ( conn.Payload payload )
             {
                 payload.add(ack);

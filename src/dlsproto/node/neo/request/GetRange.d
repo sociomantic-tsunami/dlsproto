@@ -63,7 +63,7 @@ public abstract scope class GetRangeProtocol_v1
 
     ***************************************************************************/
 
-    private const uint yield_send_count = 10;
+    private static immutable uint yield_send_count = 10;
 
     /***************************************************************************
 
@@ -71,7 +71,7 @@ public abstract scope class GetRangeProtocol_v1
 
     ***************************************************************************/
 
-    private const NodeFiberResumeCode = 1;
+    private static immutable NodeFiberResumeCode = 1;
 
     /***************************************************************************
 
@@ -80,7 +80,7 @@ public abstract scope class GetRangeProtocol_v1
 
     ***************************************************************************/
 
-    private const size_t min_batch_length = 100_000;
+    private static immutable size_t min_batch_length = 100_000;
 
     /***************************************************************************
 
