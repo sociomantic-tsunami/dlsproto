@@ -90,11 +90,6 @@ public struct Args
 
 public union NotificationUnion
 {
-    /// All known nodes have either started handling the request or are not
-    /// currently connected. The request may now be suspended / resumed /
-    /// stopped, via the controller.
-    NoInfo started;
-
     /// A value is received from a node.
     RequestRecordInfo received;
 
@@ -109,14 +104,6 @@ public union NotificationUnion
     /// The request was tried on a node and failed because it is unsupported;
     /// it will be continued on any remaining nodes.
     RequestNodeUnsupportedInfo unsupported;
-
-    /// All known nodes have either suspended the request (as requested by the
-    /// user, via the controller) or are not currently connected.
-    NoInfo suspended;
-
-    /// All known nodes have either resumed the request (as requested by the
-    /// user, via the controller) or are not currently connected.
-    NoInfo resumed;
 
     /// All known nodes have either stopped the request (as requested by the
     /// user, via the controller) or are not currently connected. The request is
