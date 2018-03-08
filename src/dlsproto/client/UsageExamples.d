@@ -372,11 +372,7 @@ unittest
         /// Suspendable instance
         private DlsClient.Neo.Suspendable!(DlsClient.Neo.GetRange.IController) suspendable;
 
-        // Notifier for the GetRange request below. This attaches the
-        // suspendable to the throttler after request is started. In addition
-        // notifier must call suspendable.handlePending() after previously
-        // initiated state-change has been completed (i.e. on suspended or
-        // resumed).
+        // Notifier for the GetRange request below.
         void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
             DlsClient.Neo.GetRange.Args args )
         {
