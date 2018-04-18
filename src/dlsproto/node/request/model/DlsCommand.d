@@ -19,6 +19,7 @@ module dlsproto.node.request.model.DlsCommand;
 *******************************************************************************/
 
 import ocean.transition;
+import ocean.core.Verify;
 
 import swarm.node.protocol.Command;
 
@@ -82,10 +83,10 @@ public abstract scope class DlsCommand : Command
         FiberSelectWriter writer, Resources resources )
     {
         auto name = command in DlsConst.Command();
-        assert(name);
+        verify(name !is null);
         super(*name, reader, writer);
 
-        assert(resources);
+        verify(resources !is null);
         this.resources = resources;
     }
 }

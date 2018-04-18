@@ -21,6 +21,8 @@ module dlsproto.client.legacy.internal.request.model.IKeyRequest;
 
 *******************************************************************************/
 
+import ocean.core.Verify;
+
 import dlsproto.client.legacy.internal.request.model.IChannelRequest;
 
 import dlsproto.client.legacy.DlsConst;
@@ -68,7 +70,7 @@ public scope class IKeyRequest : IChannelRequest
 
     final override protected void sendRequestData__ ( )
     {
-        assert(this.params.key.is_single_hash,
+        verify(this.params.key.is_single_hash,
             typeof(this).stringof ~ ".sendRequestData: key type mismatch");
 
         RequestParams.HexDigest key;

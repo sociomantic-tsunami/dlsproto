@@ -20,6 +20,8 @@ module dlsproto.client.legacy.internal.request.notifier.RequestNotification;
 
 *******************************************************************************/
 
+import ocean.core.Verify;
+
 import swarm.client.request.notifier.IRequestNotification;
 
 import swarm.Const;
@@ -48,7 +50,7 @@ public scope class RequestNotification : IRequestNotification
 
     public this ( ICommandCodes.Value command, Context context )
     {
-        assert(command in DlsConst.Command());
+        verify((command in DlsConst.Command()) !is null);
 
         super(DlsConst.Command(), DlsConst.Status(), command, context);
     }
