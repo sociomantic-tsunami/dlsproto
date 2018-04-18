@@ -23,6 +23,7 @@ module dlsproto.client.legacy.internal.RequestSetup;
 
 *******************************************************************************/
 
+import ocean.core.Verify;
 public import swarm.client.RequestSetup;
 
 /*******************************************************************************
@@ -83,7 +84,7 @@ public template IODelegate ( )
     private void setup_io_item ( IRequestParams params )
     {
         auto params_ = downcast!(RequestParams)(params);
-        assert(params_);
+        verify(params_ !is null);
 
         params_.io_item = this.io_item;
     }
@@ -137,14 +138,11 @@ public template Filter ( )
     ***************************************************************************/
 
     public This* filter ( cstring filter )
-    in
     {
-        assert(this.command_code != DlsConst.Command.E.GetAllFilter
+        verify(this.command_code != DlsConst.Command.E.GetAllFilter
             && this.command_code != DlsConst.Command.E.GetRangeFilter
             && this.command_code != DlsConst.Command.E.GetRangeRegex);
-    }
-    body
-    {
+
         this.filter_mode = this.filter_mode.StringMatch;
         this.filter_string = filter;
 
@@ -193,14 +191,11 @@ public template Filter ( )
     ***************************************************************************/
 
     public This* pcre ( cstring filter, bool case_sensitive = true )
-    in
     {
-        assert(this.command_code != DlsConst.Command.E.GetAllFilter
+        verify(this.command_code != DlsConst.Command.E.GetAllFilter
             && this.command_code != DlsConst.Command.E.GetRangeFilter
             && this.command_code != DlsConst.Command.E.GetRangeRegex);
-    }
-    body
-    {
+
         this.filter_mode = case_sensitive ?
             this.filter_mode.PCRE : this.filter_mode.PCRECaseInsensitive;
         this.filter_string = filter;
@@ -240,7 +235,7 @@ public template Filter ( )
     private void setup_filter_mode ( IRequestParams params )
     {
         auto params_ = downcast!(RequestParams)(params);
-        assert(params_);
+        verify(params_ !is null);
 
         params_.filter_mode = this.filter_mode;
     }
@@ -259,7 +254,7 @@ public template Filter ( )
     private void setup_filter_string ( IRequestParams params )
     {
         auto params_ = downcast!(RequestParams)(params);
-        assert(params_);
+        verify(params_ !is null);
 
         params_.filter_string = this.filter_string;
     }
@@ -352,7 +347,7 @@ public template Key ( )
     private void setup_hash ( IRequestParams params )
     {
         auto params_ = downcast!(RequestParams)(params);
-        assert(params_);
+        verify(params_ !is null);
 
         params_.key.hash = this.hash;
     }
@@ -426,7 +421,7 @@ public template Range ( )
     private void setup_hash_range ( IRequestParams params )
     {
         auto params_ = downcast!(RequestParams)(params);
-        assert(params_);
+        verify(params_ !is null);
 
         params_.key.range = this.hash_range;
     }

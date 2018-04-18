@@ -22,6 +22,8 @@ module dlsproto.client.legacy.internal.registry.DlsNodeRegistry;
 
 import ocean.transition;
 
+import ocean.core.Verify;
+
 import swarm.client.ClientCommandParams;
 
 import swarm.client.registry.NodeRegistry;
@@ -275,7 +277,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
         NodeConnectionPool node_conn_pool )
     {
         auto dls_conn_pool = (cast(DlsNodeConnectionPool)node_conn_pool);
-        assert(dls_conn_pool);
+        verify(dls_conn_pool !is null);
 
         if ( params.command != DlsConst.Command.E.GetVersion )
         {
@@ -306,7 +308,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
     public void setNodeAPIVersion ( mstring address, ushort port, cstring api )
     {
         auto conn_pool = super.inRegistry(address, port);
-        assert(conn_pool, "node not in registry");
+        verify(conn_pool !is null, "node not in registry");
 
         auto dls_conn_pool = (cast(DlsNodeConnectionPool*)conn_pool);
         dls_conn_pool.setAPIVerison(api);

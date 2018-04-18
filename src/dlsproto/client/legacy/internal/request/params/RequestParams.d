@@ -22,6 +22,8 @@ module dlsproto.client.legacy.internal.request.params.RequestParams;
 
 import ocean.transition;
 
+import ocean.core.Verify;
+
 import swarm.client.request.params.IChannelRequestParams;
 
 import swarm.client.request.context.RequestContext;
@@ -112,12 +114,8 @@ public class RequestParams : IChannelRequestParams
         ***********************************************************************/
 
         public hash_t hash ( )
-        in
         {
-            assert(this.is_single_hash);
-        }
-        body
-        {
+            verify(this.is_single_hash);
             return this.range.min;
         }
 
@@ -216,13 +214,9 @@ public class RequestParams : IChannelRequestParams
      **************************************************************************/
 
     public mstring keyToString ( mstring hash )
-    in
     {
         HexDigest digest;
-        assert( hash.length == digest.length ); 
-    }
-    body
-    {
+        verify( hash.length == digest.length );
         return Hash.toHexString(this.key.hash(), hash);
     }
 

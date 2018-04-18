@@ -117,6 +117,8 @@ module dlsproto.client.DlsClient;
 
 import ocean.transition;
 
+import ocean.core.Verify;
+
 import swarm.util.ExtensibleClass;
 import swarm.Const;
 import swarm.util.Hash : HashRange;
@@ -454,7 +456,7 @@ public class DlsClient : IClient
                 }
 
                 auto dls_registry = cast(IDlsNodeRegistryInfo)this.outer.nodes;
-                assert(dls_registry);
+                verify(dls_registry !is null);
 
                 if ( version_done_count == dls_registry.length )
                 {
