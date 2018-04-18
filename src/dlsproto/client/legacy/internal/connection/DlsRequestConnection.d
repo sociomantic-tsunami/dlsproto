@@ -58,6 +58,7 @@ import dlsproto.client.legacy.internal.request.PutBatchRequest;
 import dlsproto.client.legacy.DlsConst;
 
 import ocean.transition;
+import ocean.core.Enforce;
 
 /*******************************************************************************
 
@@ -417,7 +418,7 @@ public class DlsRequestConnection :
 
     override protected void handleNone ( )
     {
-        assert(false, "Handling command with code None");
+        enforce(false, "Handling command with code None");
     }
 
 
