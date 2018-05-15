@@ -154,7 +154,7 @@ unittest
         // details of the parameters of the notifier. (Each request has a
         // module like this, defining its public API.)
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
-            DlsClient.Neo.Put.Args args )
+            Const!(DlsClient.Neo.Put.Args) args )
         {
             formatNotification(info, this.msg_buf);
 
@@ -201,7 +201,7 @@ unittest
         // details of the parameters of the notifier. (Each request has a
         // module like this, defining its public API.)
         private void putNotifier ( DlsClient.Neo.Put.Notification info,
-            DlsClient.Neo.Put.Args args )
+            Const!(DlsClient.Neo.Put.Args) args )
         {
             formatNotification(info, this.msg_buf);
 
@@ -306,7 +306,7 @@ unittest
         // details of the parameters of the notifier. (Each request has a
         // module like this, defining its public API.)
         private void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
-            DlsClient.Neo.GetRange.Args args )
+            Const!(DlsClient.Neo.GetRange.Args) args )
         {
             formatNotification(info, this.msg_buf);
 
@@ -374,7 +374,7 @@ unittest
 
         // Notifier for the GetRange request below.
         void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
-            DlsClient.Neo.GetRange.Args args )
+            Const!(DlsClient.Neo.GetRange.Args) args )
         {
             formatNotification(info, this.msg_buf);
 
