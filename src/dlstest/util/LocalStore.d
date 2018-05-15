@@ -309,8 +309,38 @@ struct LocalStore
 
         }
 
-        // Do a legacy get range
-        log.trace("\tVerifying channel with GetRangeFilter");
-        verifyReceived(dls.getRange(channel, start, end, filter_type, filter));
+        if (protocol_type & DlsClient.ProtocolType.Legacy)
+        {
+            // Do a legacy get range, followed by the Neo get range
+            log.trace("\tVerifying channel with GetRangeFilter");
+            verifyReceived(dls.getRange(channel, start, end, filter_type, filter));
+        }
+
+        if (protocol_type & DlsClient.ProtocolType.Neo)
+        {
+            log.trace("\tVerifying channel with Neo GetRangeFilter");
+
+            // Adapt to the change in APIs
+            auto neo_filter_type = DlsClient.Filter.FilterMode.None;
+            switch (filter_type)
+            {
+                case DlsClient.FilterType.StringFilter:
+                    neo_filter_type = DlsClient.Filter.FilterMode.StringMatch;
+                    break;
+                case DlsClient.FilterType.PCRE:
+                    neo_filter_type = DlsClient.Filter.FilterMode.PCRE;
+                    break;
+                default:
+                    break;
+            }
+
+            verifyReceived(
+                    cast(cstring[][hash_t])dls.neo.getRange(channel,
+                        start,
+                        end,
+                        filter,
+                        neo_filter_type)
+                    );
+        }
     }
 }
