@@ -33,7 +33,6 @@ public final class SharedResources
     import ocean.util.container.pool.FreeList;
     import ocean.core.TypeConvert: downcast;
     import swarm.neo.util.AcquiredResources;
-    import swarm.neo.request.RequestEventDispatcher;
     import swarm.util.RecordBatcher;
     import swarm.neo.util.MessageFiber;
     import swarm.neo.client.mixins.RequestCore;
@@ -48,14 +47,6 @@ public final class SharedResources
     ***************************************************************************/
 
     private FreeList!(ubyte[]) buffers;
-
-    /***************************************************************************
-
-        Pool of RequestEventDispatcher instances.
-
-    ***************************************************************************/
-
-    private FreeList!(RequestEventDispatcher) request_event_dispatchers;
 
     /***************************************************************************
 
@@ -115,7 +106,6 @@ public final class SharedResources
         this.lzo = new Lzo;
         this.buffers = new FreeList!(ubyte[]);
         this.record_batches = new FreeList!(RecordBatch);
-        this.request_event_dispatchers = new FreeList!(RequestEventDispatcher);
         this.fibers = new FreeList!(MessageFiber);
     }
 
@@ -151,15 +141,6 @@ public final class SharedResources
 
         /***********************************************************************
 
-            Singleton RequestEventDispatcher used by this request.
-
-        ***********************************************************************/
-
-        private AcquiredSingleton!(RequestEventDispatcher) acquired_request_event_dispatcher;
-
-
-        /***********************************************************************
-
             Set of acquired fibers.
 
         ***********************************************************************/
@@ -179,9 +160,6 @@ public final class SharedResources
                     this.outer.record_batches);
             this.acquired_fibers.initialise(this.outer.buffers,
                 this.outer.fibers);
-            this.acquired_request_event_dispatcher.initialise(
-                this.outer.request_event_dispatchers
-            );
         }
 
         /***********************************************************************
@@ -196,7 +174,6 @@ public final class SharedResources
             this.acquired_void_buffers.relinquishAll();
             this.acquired_record_batches.relinquishAll();
             this.acquired_fibers.relinquishAll();
-            this.acquired_request_event_dispatcher.relinquish();
         }
 
 
@@ -237,25 +214,6 @@ public final class SharedResources
         public Lzo getLzo ( )
         {
             return this.outer.lzo;
-        }
-
-        /**********************************************************************
-
-            Returns:
-                pointer to singleton (one per request) RequestEventDispatcher
-                instance.
-
-        **********************************************************************/
-
-        public RequestEventDispatcher* request_event_dispatcher ()
-        {
-            return this.acquired_request_event_dispatcher.acquire(
-                new RequestEventDispatcher,
-                ( RequestEventDispatcher* dispatcher )
-                {
-                    dispatcher.reset();
-                }
-            );
         }
 
         /**********************************************************************

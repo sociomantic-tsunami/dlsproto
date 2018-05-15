@@ -197,10 +197,8 @@ template NeoSupport ()
             );
 
             auto params = Const!(Internals.Put.UserSpecifiedParams)(
-                    Const!(Put.Args)(channel, timestamp, value, context),
-                    Const!(Internals.Put.UserSpecifiedParams.SerializedNotifier)(
-                        *(cast(Const!(ubyte[notifier.sizeof])*)&notifier)
-                    )
+                    Const!(Put.Args)(channel, timestamp, value),
+                    notifier
                 );
 
             auto id = this.assign!(Internals.Put)(params);
@@ -255,9 +253,7 @@ template NeoSupport ()
             auto params = Const!(Internals.GetRange.UserSpecifiedParams)(
                         Const!(GetRange.Args)(channel, low, high,
                             filter_string, filter_mode, context),
-                        Const!(Internals.GetRange.UserSpecifiedParams.SerializedNotifier)(
-                            *(cast(Const!(ubyte[notifier.sizeof])*)&notifier)
-                        )
+                        notifier
                     );
 
             auto id = this.assign!(Internals.GetRange)(params);
@@ -815,8 +811,8 @@ template NeoSupport ()
     private void neoInit ( cstring auth_name, ubyte[] auth_key,
         Neo.ConnectionNotifier conn_notifier )
     {
-        this.neo = new Neo(auth_name, auth_key, conn_notifier,
-                new SharedResources);
+        this.neo = new Neo(auth_name, auth_key,
+                        Neo.Settings(conn_notifier, new SharedResources));
         this.blocking = new TaskBlocking;
     }
 
@@ -840,8 +836,7 @@ template NeoSupport ()
     private void neoInit ( Neo.Config config,
         Neo.ConnectionNotifier conn_notifier )
     {
-        this.neo = new Neo(config, conn_notifier,
-                new SharedResources);
+        this.neo = new Neo(config, Neo.Settings(conn_notifier, new SharedResources));
         this.blocking = new TaskBlocking;
     }
 }

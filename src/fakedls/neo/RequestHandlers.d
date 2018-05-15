@@ -13,11 +13,12 @@
 module fakedls.neo.RequestHandlers;
 
 import swarm.neo.node.ConnectionHandler;
+import swarm.neo.request.Command;
 
 import dlsproto.common.RequestCodes;
 
-import Put = fakedls.neo.request.Put;
-import GetRange = fakedls.neo.request.GetRange;
+import fakedls.neo.request.Put;
+import fakedls.neo.request.GetRange;
 
 
 /******************************************************************************
@@ -32,6 +33,6 @@ public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
-    requests.add(RequestCode.Put, "Put", &Put.handle);
-    requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
+    requests.add(Command(RequestCode.Put, 0), "Put", PutImpl_v0.classinfo);
+    requests.add(Command(RequestCode.GetRange, 1), "GetRange", GetRangeImpl_v1.classinfo);
 }

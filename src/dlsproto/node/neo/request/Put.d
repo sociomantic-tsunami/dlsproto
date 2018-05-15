@@ -12,8 +12,13 @@
 
 module dlsproto.node.neo.request.Put;
 
-public abstract scope class PutProtocol_v0
+import swarm.neo.node.IRequestHandler;
+
+public abstract class PutProtocol_v0: IRequestHandler
 {
+    import dlsproto.node.neo.request.core.Mixins;
+    import swarm.neo.connection.RequestOnConnBase;
+
     import swarm.neo.node.RequestOnConn;
     import dlsproto.common.Put;
     import ocean.transition;
@@ -21,66 +26,61 @@ public abstract scope class PutProtocol_v0
 
     /***************************************************************************
 
-        Request-on-conn, to get the event dispatcher and control the fiber.
+        Mixin the initialiser and the connection and resources members.
 
     ***************************************************************************/
 
-    protected RequestOnConn connection;
+    mixin IRequestHandlerRequestCore!();
+
+    /// Response status code to send to client.
+    private RequestStatusCode response;
 
     /**************************************************************************
 
         Request handler
 
         Params:
-            connection = connection to the client
             msg_payload = initial message read from client to begin
                 the request (the request code and version are
                 assumed to be extracted)
 
     **************************************************************************/
 
-    final public void handle ( RequestOnConn connection,
-            Const!(void)[] msg_payload )
+    public void preSupportedCodeSent ( Const!(void)[] msg_payload )
     {
-        this.connection = connection;
-        auto ed = this.connection.event_dispatcher;
-        auto parser = ed.message_parser;
-
         // Extract the channel, record's timestamp and value from the
         // message payload
-        cstring channel = parser.getArray!(char)(msg_payload);
-        time_t timestamp = *parser.getValue!(time_t)(msg_payload);
-        auto value = parser.getArray!(char)(msg_payload);
+        cstring channel = this.ed.message_parser.getArray!(char)(msg_payload);
+        time_t timestamp = *this.ed.message_parser.getValue!(time_t)(msg_payload);
+        auto value = this.ed.message_parser.getArray!(char)(msg_payload);
 
         // Store the extracted data in StorageEngine
         if (this.prepareChannel(channel))
         {
-            if (!this.putInStorage(channel, timestamp, value))
-            {
-                ed.send(
-                    ( ed.Payload payload )
-                    {
-                        payload.addConstant(RequestStatusCode.Error);
-                    }
-                );
-            }
-
-            ed.send(
-                ( ed.Payload payload )
-                {
-                    payload.addConstant(RequestStatusCode.Put);
-                }
-            );
+            this.response = this.putInStorage(channel, timestamp, value)?
+                RequestStatusCode.Put : RequestStatusCode.Error;
         }
         else
         {
-            ed.send(
-                ( ed.Payload payload )
-                {
-                    payload.addConstant(RequestStatusCode.Error);
-                }
-            );
+            this.response = RequestStatusCode.Error;
         }
+    }
+
+    /***************************************************************************
+
+        Called by the connection handler after the supported code has been sent
+        back to the client.
+
+    ***************************************************************************/
+
+    public void postSupportedCodeSent ()
+    {
+        this.ed.send(
+            ( RequestOnConnBase.EventDispatcher.Payload payload )
+            {
+                payload.addCopy(response);
+            }
+        );
     }
 
     /**************************************************************************

@@ -13,6 +13,7 @@
 module dlsproto.node.neo.request.GetRange;
 
 import ocean.util.log.Logger;
+import swarm.neo.node.IRequestHandler;
 
 /*******************************************************************************
 
@@ -32,9 +33,10 @@ static this ( )
 
 *******************************************************************************/
 
-public abstract scope class GetRangeProtocol_v1
+public abstract class GetRangeProtocol_v1: IRequestHandler
 {
     import dlsproto.node.neo.request.core.Mixins;
+    import swarm.neo.connection.RequestOnConnBase;
 
     import swarm.util.RecordBatcher;
     import swarm.neo.node.RequestOnConn;
@@ -49,12 +51,11 @@ public abstract scope class GetRangeProtocol_v1
 
     /***************************************************************************
 
-        Mixin the constructor and resources member.
+        Mixin the initialiser and the connection and resources members.
 
     ***************************************************************************/
 
-    mixin RequestCore!();
-
+    mixin IRequestHandlerRequestCore!();
 
     /***************************************************************************
 
@@ -81,30 +82,6 @@ public abstract scope class GetRangeProtocol_v1
     ***************************************************************************/
 
     private const size_t min_batch_length = 100_000;
-
-    /***************************************************************************
-
-        Request-on-conn, to get the event dispatcher and control the fiber.
-
-    ***************************************************************************/
-
-    private RequestOnConn connection;
-
-    /***************************************************************************
-
-        Request-on-conn event dispatcher, to send and receive messages.
-
-    ***************************************************************************/
-
-    private RequestOnConn.EventDispatcher ed;
-
-    /***************************************************************************
-
-        Message parser
-
-    ***************************************************************************/
-
-    private RequestOnConn.EventDispatcher.MessageParser parser;
 
     /***************************************************************************
 
@@ -149,60 +126,82 @@ public abstract scope class GetRangeProtocol_v1
 
     private Lzo lzo;
 
+    /// Indicator if the request is initialized well
+    bool initialised_ok;
+
     /***************************************************************************
 
-        Request handler. Reads the initial request args and starts the state
-        machine.
+
+        Called by the connection handler immediately after the request code and
+        version have been parsed from a message received over the connection.
+        Allows the request handler to process the remainder of the incoming
+        message, before the connection handler sends the supported code back to
+        the client.
+
+        Note: the initial payload is a slice of the connection's read buffer.
+        This means that when the request-on-conn fiber suspends, the contents of
+        the buffer (hence the slice) may change. It is thus *absolutely
+        essential* that this method does not suspend the fiber. (This precludes
+        all I/O operations on the connection.)
 
         Params:
-            connection = connection to client
-            msg_payload = initial message read from client to begin the request
-                (the request code and version are assumed to be extracted)
+            init_payload = initial message payload read from the connection
 
     ***************************************************************************/
 
-    final public void handle ( RequestOnConn connection, Const!(void)[] msg_payload )
+    public void preSupportedCodeSent ( Const!(void)[] msg_payload )
     {
-        // Send the finished code to the client to indicate end
-        // of the request on the error
-        void sendFinishedCode ()
-        {
-            this.ed.send(
-                ( ed.Payload payload )
-                {
-                    payload.addConstant(MessageType_v1.Finished);
-                }
-            );
-        }
-
-        this.connection = connection;
-        this.ed = connection.event_dispatcher;
-        this.parser = this.ed.message_parser;
-
         cstring channel_name;
         cstring filter_string;
         time_t low, high;
         Filter.FilterMode filter_mode;
 
-        this.ed.send(
-            ( ed.Payload payload )
-            {
-                payload.addConstant(RequestStatusCode.Started);
-            }
-        );
-
         try
         {
-            this.parser.parseBody(msg_payload, channel_name, low, high,
+            this.ed.message_parser.parseBody(msg_payload, channel_name, low, high,
                     filter_string, filter_mode);
 
             if ( !this.prepareChannel(channel_name) ||
                  !this.prepareRange(low, high) ||
                  (filter_string.length > 0 && !this.prepareFilter(filter_mode, filter_string)))
             {
-                sendFinishedCode();
                 return;
             }
+
+            this.initialised_ok = true;
+        }
+        catch (Exception e)
+        {
+            log.error("{}", getMsg(e));
+        }
+    }
+
+    /***************************************************************************
+
+        Called by the connection handler after the supported code has been sent
+        back to the client.
+
+    ***************************************************************************/
+
+    public void postSupportedCodeSent ()
+    {
+        if (!initialised_ok)
+        {
+            this.ed.send(
+                ( RequestOnConnBase.EventDispatcher.Payload payload )
+                {
+                    payload.addCopy(RequestStatusCode.Error);
+                }
+            );
+        }
+        else
+        {
+            this.ed.send(
+                ( RequestOnConnBase.EventDispatcher.Payload payload )
+                {
+                    payload.addCopy(RequestStatusCode.Started);
+                }
+            );
 
             this.value_buffer = this.resources.getVoidBuffer();
             this.batch_buffer = this.resources.getVoidBuffer();
@@ -211,15 +210,6 @@ public abstract scope class GetRangeProtocol_v1
             this.lzo = this.resources.getLzo();
 
             this.run();
-        }
-        catch (Exception e)
-        {
-            log.error("{}", getMsg(e));
-            sendFinishedCode();
-        }
-        finally
-        {
-            this.requestFinished();
         }
     }
 
@@ -240,9 +230,10 @@ public abstract scope class GetRangeProtocol_v1
             auto got_next = this.getNextRecord(record_timestamp, *this.value_buffer,
                     wait_for_data);
 
+            auto ed = this.ed;
             if (wait_for_data)
             {
-                auto event = this.ed.nextEvent(ed.NextEventFlags.Receive);
+                auto event = ed.nextEvent(ed.NextEventFlags.Receive);
 
                 switch (event.active)
                 {
@@ -275,11 +266,11 @@ public abstract scope class GetRangeProtocol_v1
                 }
 
                 // Send finished message and wait on the ACK
-                this.ed.nextEvent(
-                    this.ed.NextEventFlags.Receive,
-                    (ed.Payload payload)
+                ed.nextEvent(
+                    ed.NextEventFlags.Receive,
+                    (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
-                        payload.addConstant(MessageType_v1.Finished);
+                        payload.addCopy(MessageType_v1.Finished);
                     }
                 );
 
@@ -292,7 +283,7 @@ public abstract scope class GetRangeProtocol_v1
                     if (event.active.received)
                     {
                         MessageType_v1 msg_type;
-                        this.parser.parseBody(event.received.payload, msg_type);
+                        this.ed.message_parser.parseBody(event.received.payload, msg_type);
 
                         if (msg_type == msg_type.Ack)
                         {
@@ -332,10 +323,10 @@ public abstract scope class GetRangeProtocol_v1
 
     private bool sendBatchAndReceiveFeedback ()
     {
-        void fillInRecordsMessage ( ed.Payload payload )
+        void fillInRecordsMessage ( RequestOnConnBase.EventDispatcher.Payload payload )
         {
-            payload.addConstant(MessageType_v1.Records);
-            payload.addConstant((*this.batch_buffer).length);
+            payload.addCopy(MessageType_v1.Records);
+            payload.addCopy((*this.batch_buffer).length);
             payload.addArray(*this.compressed_batch);
         }
 
@@ -356,10 +347,9 @@ public abstract scope class GetRangeProtocol_v1
         (*this.compressed_batch).length = compressed_size;
         enableStomping(*this.compressed_batch);
 
-
         // sends the records but be ready to potentially receive a Stop message.
         auto event = this.ed.nextEvent(
-            ed.NextEventFlags.Receive, &fillInRecordsMessage
+            this.ed.NextEventFlags.Receive, &fillInRecordsMessage
         );
 
         switch (event.active)
@@ -414,7 +404,7 @@ public abstract scope class GetRangeProtocol_v1
         istring file = __FILE__, int line = __LINE__ )
     {
         MessageType_v1 msg_type;
-        this.parser.parseBody(msg_payload, msg_type);
+        this.ed.message_parser.parseBody(msg_payload, msg_type);
 
         if (msg_type != msg_type.Stop)
         {
@@ -435,9 +425,9 @@ public abstract scope class GetRangeProtocol_v1
     private void sendStoppedMessage ()
     {
         this.ed.send(
-            (ed.Payload payload)
+            (RequestOnConnBase.EventDispatcher.Payload payload)
             {
-                payload.addConstant(MessageType_v1.Stopped);
+                payload.addCopy(MessageType_v1.Stopped);
             }
         );
 
