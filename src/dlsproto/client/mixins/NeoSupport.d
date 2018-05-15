@@ -452,7 +452,7 @@ template NeoSupport ()
                     }
             );
 
-            void notifier ( Neo.Put.Notification info, Neo.Put.Args args )
+            void notifier ( Neo.Put.Notification info, Const!(Neo.Put.Args) args )
             {
                 if ( user_notifier )
                     user_notifier(info, args);
@@ -572,7 +572,7 @@ template NeoSupport ()
             *******************************************************************/
 
             private void notifier ( DlsClient.Neo.GetRange.Notification info,
-                DlsClient.Neo.GetRange.Args args )
+                Const!(DlsClient.Neo.GetRange.Args) args )
             {
                 if (this.user_notifier)
                 {
@@ -759,7 +759,7 @@ template NeoSupport ()
             }
 
             private void putNotifier ( DlsClient.Neo.Put.Notification info,
-                DlsClient.Neo.Put.Args args )
+                Const!(DlsClient.Neo.Put.Args) args )
             {
             }
 
