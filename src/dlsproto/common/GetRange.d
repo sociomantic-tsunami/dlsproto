@@ -61,7 +61,7 @@ public enum MessageType_v0 : ubyte
 }
 
 /// ditto
-public enum MessageType_v1 : ubyte
+public enum MessageType_v2 : ubyte
 {
     None,    /// Invalid, default value
 

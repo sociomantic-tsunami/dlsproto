@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Client DLS Put v0 request handler.
+    Client DLS Put v1 request handler.
 
     Copyright:
         Copyright (c) 2016-2017 sociomantic labs GmbH. All rights reserved.
@@ -87,7 +87,7 @@ public struct Put
 
     ***************************************************************************/
 
-    mixin RequestCore!(RequestType.RoundRobin, RequestCode.Put, 0, Args,
+    mixin RequestCore!(RequestType.RoundRobin, RequestCode.Put, 1, Args,
         SharedWorking, Notification);
 
     /***************************************************************************

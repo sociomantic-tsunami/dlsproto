@@ -26,11 +26,11 @@ import fakedls.neo.SharedResources;
 
 /*******************************************************************************
 
-    Node implementation of the GetRangeProtocol_v1.
+    Node implementation of the GetRangeProtocol_v2.
 
 *******************************************************************************/
 
-public class GetRangeImpl_v1: GetRangeProtocol_v1
+public class GetRangeImpl_v2: GetRangeProtocol_v2
 {
     import swarm.util.Hash;
     import fakedls.Storage;
