@@ -112,9 +112,6 @@ public struct GetRange
         bool stopped;
     }
 
-    // dummy struct, needed for RequestCore interface
-    private struct Working {}
-
     /***************************************************************************
 
         Request core. Mixes in the types `NotificationInfo`, `Notifier`,
@@ -124,7 +121,7 @@ public struct GetRange
     ***************************************************************************/
 
     mixin RequestCore!(RequestType.AllNodes, RequestCode.GetRange, 1,
-        Args, SharedWorking, Working, Notification);
+        Args, SharedWorking, Notification);
 
     /***************************************************************************
 
@@ -134,18 +131,16 @@ public struct GetRange
             conn = connection event dispatcher
             context_blob = untyped chunk of data containing the serialized
                 context of the request which is to be handled
-            working_blob = untyped chunk of data containing the serialized
-                working data for the request on this connection
 
     ***************************************************************************/
 
     public static void handler ( RequestOnConn.EventDispatcherAllNodes conn,
-        void[] context_blob, void[] working_blob )
+        void[] context_blob )
     {
         auto context = This.getContext(context_blob);
 
         auto shared_resources = SharedResources.fromObject(
-            context.request_resources.get());
+            context.shared_resources);
         scope acquired_resources = shared_resources.new RequestResources;
         scope handler = new GetRangeHandler(conn, context, acquired_resources);
 
@@ -159,13 +154,10 @@ public struct GetRange
         Params:
             context_blob = untyped chunk of data containing the serialized
                 context of the request which is finishing
-            working_data_iter = iterator over the stored working data associated
-                with each connection on which this request was run
 
     ***************************************************************************/
 
-    public static void all_finished_notifier ( void[] context_blob,
-        IRequestWorkingData working_data_iter )
+    public static void all_finished_notifier ( void[] context_blob )
     {
         auto context = This.getContext(context_blob);
 
@@ -221,7 +213,7 @@ private scope class GetRangeHandler
     private SharedResources.RequestResources resources;
 
     /// Request event dispatcher
-    private RequestEventDispatcher* request_event_dispatcher;
+    private RequestEventDispatcher request_event_dispatcher;
 
     /***************************************************************************
 
@@ -240,7 +232,7 @@ private scope class GetRangeHandler
         this.conn = conn;
         this.context = context;
         this.resources = resources;
-        this.request_event_dispatcher = resources.request_event_dispatcher;
+        this.request_event_dispatcher.initialise(&resources.getVoidBuffer);
     }
 
     /***************************************************************************
@@ -252,7 +244,7 @@ private scope class GetRangeHandler
     public void run ( )
     {
         auto initialiser = createAllNodesRequestInitialiser!(GetRange)(
-            this.conn, this.context, &this.fillInitialPayload, &this.handleStatusCode);
+            this.conn, this.context, &this.fillInitialPayload);
 
         auto request = createAllNodesRequest!(GetRange)(this.conn, this.context,
             &this.connect, &this.disconnected, initialiser, &this.handle);
@@ -320,51 +312,6 @@ private scope class GetRangeHandler
 
     /**************************************************************************
 
-        HandleStatus code policy, called from AllNodesRequestInitialiser
-        template to decide how to handle the status code received from the node.
-
-        Params:
-            status = status code received from the node in response to the initial
-                message
-
-        Returns:
-            true to continue handling the request (OK status); false to
-            abort (error status).
-
-    **************************************************************************/
-
-    private bool handleStatusCode ( ubyte status )
-    {
-        auto getrange_status = cast(RequestStatusCode)status;
-
-        if (GetRange.handleGlobalStatusCodes(getrange_status,
-                this.context, this.conn.remote_address))
-        {
-            return false; // Global code, e.g. request/version not supported
-        }
-
-        // GetRange specific codes
-        switch (getrange_status)
-        {
-            case getrange_status.Started:
-                // Expected, "request started" code
-                return true;
-
-            case getrange_status.Error:
-            default:
-                // The node returned an error code. Notify the user and
-                // end the request.
-                GetRange.Notification n;
-                n.node_error = NodeInfo(this.conn.remote_address);
-                GetRange.notify(this.context.user_params, n);
-                return false;
-        }
-
-        assert(false);
-    }
-
-    /**************************************************************************
-
         Handler policy, called from AllNodesRequest template to run the
         request's main handling logic.
 
@@ -372,6 +319,19 @@ private scope class GetRangeHandler
 
     private void handle ( )
     {
+        switch (this.conn.receiveValue!(RequestStatusCode)())
+        {
+            case RequestStatusCode.Started:
+                break;
+
+            case RequestStatusCode.Error:
+            default:
+                GetRange.Notification n;
+                n.node_error = NodeInfo(this.conn.remote_address);
+                GetRange.notify(this.context.user_params, n);
+                return;
+        }
+
         scope record_stream = this.new RecordStream;
         scope reader = this.new Reader(record_stream);
         scope controller = this.new Controller(record_stream);
@@ -591,7 +551,7 @@ private scope class GetRangeHandler
                         this.fiber,
                         (conn.Payload payload)
                         {
-                            payload.addConstant(MessageType_v1.Continue);
+                            payload.addCopy(MessageType_v1.Continue);
                         }
                     );
 
@@ -823,10 +783,10 @@ private scope class GetRangeHandler
             while (!finished);
 
             /// Ack finished
-            this.outer.resources.request_event_dispatcher.send(this.fiber,
+            this.outer.request_event_dispatcher.send(this.fiber,
                     (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
-                        payload.addConstant(MessageType_v1.Ack);
+                        payload.addCopy(MessageType_v1.Ack);
                     }
             );
 
@@ -895,7 +855,7 @@ private scope class GetRangeHandler
                             this.fiber,
                             (conn.Payload payload)
                             {
-                                payload.addConstant(MessageType_v1.Stop);
+                                payload.addCopy(MessageType_v1.Stop);
                             }
                         );
                         this.outer.conn.flush();

@@ -23,44 +23,6 @@ import ocean.text.convert.Integer;
 import ocean.transition;
 import fakedls.neo.SharedResources;
 
-/*******************************************************************************
-
-    The request handler for the table of handlers. When called, runs in a fiber
-    that can be controlled via `connection`.
-
-    Params:
-        shared_resources = an opaque object containing resources owned by the
-            node which are required by the request
-        connection  = performs connection socket I/O and manages the fiber
-        cmdver      = the version number of the GetRange command as specified by
-                      the client
-        msg_payload = the payload of the first message of this request
-
-*******************************************************************************/
-
-public void handle ( Object shared_resources, RequestOnConn connection,
-        Command.Version cmdver, Const!(void)[] msg_payload )
-{
-    auto resources = new SharedResources;
-
-    switch (cmdver)
-    {
-        case 1:
-            scope rq = new GetRangeImpl_v1(resources);
-            rq.handle(connection, msg_payload);
-            break;
-
-        default:
-            auto ed = connection.event_dispatcher;
-            ed.send(
-                    ( ed.Payload payload )
-                    {
-                        payload.addConstant(GlobalStatusCode.RequestVersionNotSupported);
-                    }
-            );
-            break;
-    }
-}
 
 /*******************************************************************************
 
@@ -68,7 +30,7 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
 *******************************************************************************/
 
-private scope class GetRangeImpl_v1: GetRangeProtocol_v1
+public class GetRangeImpl_v1: GetRangeProtocol_v1
 {
     import swarm.util.Hash;
     import fakedls.Storage;
@@ -76,20 +38,6 @@ private scope class GetRangeImpl_v1: GetRangeProtocol_v1
     import ocean.text.Search;
     import ocean.text.regex.PCRE;
     import dlsproto.common.GetRange;
-
-    /***************************************************************************
-
-        Constructor.
-
-        Params:
-            shared_resources = DLS request resources getter
-
-    ***************************************************************************/
-
-    public this ( IRequestResources resources)
-    {
-        super(resources);
-    }
 
     /***************************************************************************
 
