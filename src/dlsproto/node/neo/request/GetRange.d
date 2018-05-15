@@ -29,11 +29,11 @@ static this ( )
 
 /*******************************************************************************
 
-    v1 GetRange request protocol.
+    v2 GetRange request protocol.
 
 *******************************************************************************/
 
-public abstract class GetRangeProtocol_v1: IRequestHandler
+public abstract class GetRangeProtocol_v2: IRequestHandler
 {
     import dlsproto.node.neo.request.core.Mixins;
     import swarm.neo.connection.RequestOnConnBase;
@@ -270,7 +270,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
                     ed.NextEventFlags.Receive,
                     (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
-                        payload.addCopy(MessageType_v1.Finished);
+                        payload.addCopy(MessageType_v2.Finished);
                     }
                 );
 
@@ -282,7 +282,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
 
                     if (event.active.received)
                     {
-                        MessageType_v1 msg_type;
+                        MessageType_v2 msg_type;
                         this.ed.message_parser.parseBody(event.received.payload, msg_type);
 
                         if (msg_type == msg_type.Ack)
@@ -325,7 +325,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
     {
         void fillInRecordsMessage ( RequestOnConnBase.EventDispatcher.Payload payload )
         {
-            payload.addCopy(MessageType_v1.Records);
+            payload.addCopy(MessageType_v2.Records);
             payload.addCopy((*this.batch_buffer).length);
             payload.addArray(*this.compressed_batch);
         }
@@ -358,12 +358,12 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
                 this.ed.flush();
                 // Records sent: wait for Continue/Stop feedback, ACK Stop
                 // stop and return true for Continue or false for stop
-                switch (this.ed.receiveValue!(MessageType_v1)())
+                switch (this.ed.receiveValue!(MessageType_v2)())
                 {
-                    case MessageType_v1.Continue:
+                    case MessageType_v2.Continue:
                         return true;
 
-                    case MessageType_v1.Stop:
+                    case MessageType_v2.Stop:
                         this.sendStoppedMessage();
                         return false;
 
@@ -393,7 +393,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
     /***************************************************************************
 
         Parses `msg_payload`, excepting the message type to be
-        `MessageType_v1.Stop`, and raises a protocol error if it is not so.
+        `MessageType_v2.Stop`, and raises a protocol error if it is not so.
 
         Params:
             msg_payload = the payload of the received message
@@ -403,7 +403,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
     private void verifyReceivedMessageIsStop ( in void[] msg_payload,
         istring file = __FILE__, int line = __LINE__ )
     {
-        MessageType_v1 msg_type;
+        MessageType_v2 msg_type;
         this.ed.message_parser.parseBody(msg_payload, msg_type);
 
         if (msg_type != msg_type.Stop)
@@ -427,7 +427,7 @@ public abstract class GetRangeProtocol_v1: IRequestHandler
         this.ed.send(
             (RequestOnConnBase.EventDispatcher.Payload payload)
             {
-                payload.addCopy(MessageType_v1.Stopped);
+                payload.addCopy(MessageType_v2.Stopped);
             }
         );
 

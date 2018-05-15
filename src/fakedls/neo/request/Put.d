@@ -22,11 +22,11 @@ import ocean.transition;
 
 /*******************************************************************************
 
-    Node implementation of the PutProtocol_v0.
+    Node implementation of the PutProtocol_v1.
 
 *******************************************************************************/
 
-public class PutImpl_v0: PutProtocol_v0
+public class PutImpl_v1: PutProtocol_v1
 {
     import swarm.util.Hash;
     import fakedls.Storage;

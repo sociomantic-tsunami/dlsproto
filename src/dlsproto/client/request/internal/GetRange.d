@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Client DLS GetRange v0 request handler.
+    Client DLS GetRange v2 request handler.
 
     Copyright:
         Copyright (c) 2016-2017 sociomantic labs GmbH. All rights reserved.
@@ -120,7 +120,7 @@ public struct GetRange
 
     ***************************************************************************/
 
-    mixin RequestCore!(RequestType.AllNodes, RequestCode.GetRange, 1,
+    mixin RequestCore!(RequestType.AllNodes, RequestCode.GetRange, 2,
         Args, SharedWorking, Notification);
 
     /***************************************************************************
@@ -180,7 +180,7 @@ public struct GetRange
 
 /*******************************************************************************
 
-    GetRange v1 handler class instantiated inside the main handler() function,
+    GetRange v2 handler class instantiated inside the main handler() function,
     above.
 
 *******************************************************************************/
@@ -551,7 +551,7 @@ private scope class GetRangeHandler
                         this.fiber,
                         (conn.Payload payload)
                         {
-                            payload.addCopy(MessageType_v1.Continue);
+                            payload.addCopy(MessageType_v2.Continue);
                         }
                     );
 
@@ -745,13 +745,13 @@ private scope class GetRangeHandler
             {
                 auto msg = this.outer.request_event_dispatcher.receive(
                     this.fiber,
-                    Message(MessageType_v1.Records),
-                    Message(MessageType_v1.Stopped),
-                    Message(MessageType_v1.Finished));
+                    Message(MessageType_v2.Records),
+                    Message(MessageType_v2.Stopped),
+                    Message(MessageType_v2.Finished));
 
                 switch (msg.type)
                 {
-                    case MessageType_v1.Records:
+                    case MessageType_v2.Records:
                         Const!(void)[] received_record_batch;
                         size_t uncompressed_batch_size;
 
@@ -768,11 +768,11 @@ private scope class GetRangeHandler
                         this.record_stream.addRecords(*uncompressed_batch);
                         break;
 
-                    case MessageType_v1.Stopped:
+                    case MessageType_v2.Stopped:
                         this.record_stream.stop();
                         return;
 
-                    case MessageType_v1.Finished:
+                    case MessageType_v2.Finished:
                         finished = true;
                         break;
 
@@ -786,7 +786,7 @@ private scope class GetRangeHandler
             this.outer.request_event_dispatcher.send(this.fiber,
                     (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
-                        payload.addCopy(MessageType_v1.Ack);
+                        payload.addCopy(MessageType_v2.Ack);
                     }
             );
 
@@ -855,7 +855,7 @@ private scope class GetRangeHandler
                             this.fiber,
                             (conn.Payload payload)
                             {
-                                payload.addCopy(MessageType_v1.Stop);
+                                payload.addCopy(MessageType_v2.Stop);
                             }
                         );
                         this.outer.conn.flush();

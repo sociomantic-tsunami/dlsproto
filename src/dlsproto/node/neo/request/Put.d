@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Implementation of the neo Put v0 request.
+    Implementation of the neo Put v1 request.
 
     Copyright:
         Copyright (c) 2016-2017 sociomantic labs GmbH. All rights reserved.
@@ -14,7 +14,7 @@ module dlsproto.node.neo.request.Put;
 
 import swarm.neo.node.IRequestHandler;
 
-public abstract class PutProtocol_v0: IRequestHandler
+public abstract class PutProtocol_v1: IRequestHandler
 {
     import dlsproto.node.neo.request.core.Mixins;
     import swarm.neo.connection.RequestOnConnBase;
