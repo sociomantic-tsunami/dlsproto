@@ -82,7 +82,7 @@ template NeoSupport ()
         import swarm.neo.client.mixins.ClientCore;
         // Required otherwise the legacy RequestContext is picked with the new
         // symbol resolution algorithm
-        import swarm.neo.client.request_options.RequestContext : RequestContext;
+        public import swarm.neo.client.request_options.RequestContext : RequestContext;
         import swarm.neo.client.mixins.Controllers;
         import core.stdc.time;
 
@@ -93,8 +93,8 @@ template NeoSupport ()
 
         ***********************************************************************/
 
-        import Put = dlsproto.client.request.Put;
-        import GetRange = dlsproto.client.request.GetRange;
+        public import Put = dlsproto.client.request.Put;
+        public import GetRange = dlsproto.client.request.GetRange;
 
         /***********************************************************************
 
@@ -439,7 +439,7 @@ template NeoSupport ()
                     // explicit `delegate` is needed here,
                     // because in D2 this is a function, since it doesn't
                     // use outer context
-                    delegate (RequestContext context)
+                    delegate (Neo.RequestContext context)
                     {
                         // Unused here. Passed through to Neo.put()
                     },

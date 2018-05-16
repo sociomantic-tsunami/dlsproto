@@ -67,7 +67,7 @@ public class PutImpl_v1: PutProtocol_v1
     override protected bool putInStorage ( cstring channel, time_t timestamp, in void[] value )
     {
         char[HexDigest.length] timestamp_buf;
-        Hash.toHexString(timestamp, timestamp_buf);
+        toHexString(timestamp, timestamp_buf);
 
         global_storage.get(channel).put(timestamp_buf.dup, cast(cstring)value);
         return true;
