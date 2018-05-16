@@ -39,6 +39,7 @@ version (UnitTest)
     abstract class ExampleApp: DaemonApp
     {
         import ocean.util.log.Logger;
+        import ConfigFiller = ocean.util.config.ConfigFiller;
 
         // DLS client (see dlsproto.client.DlsClient
         private DlsClient dls_client;
