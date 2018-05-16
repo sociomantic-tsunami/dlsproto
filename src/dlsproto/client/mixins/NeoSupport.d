@@ -62,6 +62,7 @@ template NeoSupport ()
     import dlsproto.client.internal.SharedResources;
     import swarm.neo.client.request_options.RequestOptions;
     import core.stdc.time;
+    import ocean.core.Verify;
 
     public import dlsproto.common.GetRange;
 
@@ -421,7 +422,7 @@ template NeoSupport ()
                     " void[]");
 
             auto task = Task.getThis();
-            assert(task !is null,
+            verify(task !is null,
                     "This method may only be called from inside a Task");
 
             enum FinishedStatus
@@ -482,7 +483,7 @@ template NeoSupport ()
 
             if ( state == state.None ) // if request not completed, suspend
                 task.suspend();
-            assert(state != state.None);
+            verify(state != state.None);
 
             PutResult res;
             res.succeeded = state == state.Succeeded;
@@ -706,7 +707,7 @@ template NeoSupport ()
                     " Const!(void)[]");
 
             auto task = Task.getThis();
-            assert(task !is null,
+            verify(task !is null,
                     "This method may only be called from inside a Task");
 
             GetRangeResult res;
