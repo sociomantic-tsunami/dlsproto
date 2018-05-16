@@ -22,6 +22,7 @@ module turtle.env.Dls;
 *******************************************************************************/
 
 import ocean.transition;
+import ocean.core.Verify;
 
 import turtle.env.model.Node;
 
@@ -51,12 +52,8 @@ public alias fakedls.Storage.MissingRecordException MissingRecordException;
  *******************************************************************************/
 
 public Dls dls()
-in
 {
-    assert (_dls !is null, "Must call `Dls.initialize` first");
-}
-body
-{
+    verify (_dls !is null, "Must call `Dls.initialize` first");
     return _dls;
 }
 
@@ -229,7 +226,7 @@ public class Dls : Node!(DlsNode, "dls")
 
     override public AddrPort node_addrport ( )
     {
-        assert(this.node);
+        verify(this.node !is null);
 
         AddrPort addrport;
         addrport.setAddress(this.node.node_item.Address);

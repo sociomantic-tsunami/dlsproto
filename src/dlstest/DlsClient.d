@@ -20,6 +20,7 @@ module dlstest.DlsClient;
 ******************************************************************************/
 
 import ocean.transition;
+import ocean.core.Verify;
 import ocean.util.log.Logger;
 
 /******************************************************************************
@@ -303,7 +304,7 @@ class DlsClient
                 Filter.FilterMode filter_mode = Filter.FilterMode.None )
         {
             auto task = Task.getThis();
-            assert (task !is null);
+            verify (task !is null);
 
             void[] record_buf;
             cstring[][time_t] records;

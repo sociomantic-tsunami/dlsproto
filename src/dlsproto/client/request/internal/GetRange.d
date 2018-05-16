@@ -21,6 +21,7 @@ module dlsproto.client.request.internal.GetRange;
 import core.stdc.time;
 
 import ocean.transition;
+import ocean.core.Verify;
 import ocean.util.log.Logger;
 
 import swarm.neo.client.RequestOnConn;
@@ -338,9 +339,9 @@ private scope class GetRangeHandler
 
         this.request_event_dispatcher.eventLoop(this.conn);
 
-        with (record_stream.fiber) assert(state == state.TERM);
-        with (reader.fiber) assert(state == state.TERM);
-        with (controller.fiber) assert(state == state.TERM);
+        with (record_stream.fiber) verify(state == state.TERM);
+        with (reader.fiber) verify(state == state.TERM);
+        with (controller.fiber) verify(state == state.TERM);
     }
 
     /**************************************************************************

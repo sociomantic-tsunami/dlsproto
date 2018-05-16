@@ -12,6 +12,8 @@
 
 module fakedls.neo.request.GetRange;
 
+import ocean.core.Verify;
+
 import dlsproto.node.neo.request.GetRange;
 import dlsproto.node.neo.request.core.IRequestResources;
 
@@ -289,7 +291,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
             case PCRECaseInsensitive:
                 try
                 {
-                    assert (this.regex !is null);
+                    verify (this.regex !is null);
                     return this.regex.match(cast(char[])value);
                 }
                 catch ( Exception e )

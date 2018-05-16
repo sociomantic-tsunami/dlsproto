@@ -21,6 +21,8 @@ module dlsproto.client.internal.SharedResources;
 
 import ocean.transition;
 
+import ocean.core.Verify;
+
 /*******************************************************************************
 
     Resources owned by the client which are needed by the request handlers.
@@ -89,7 +91,7 @@ public final class SharedResources
     public static typeof(this) fromObject ( Object obj )
     {
         auto shared_resources = downcast!(typeof(this))(obj);
-        assert (shared_resources !is null);
+        verify (shared_resources !is null);
         return shared_resources;
     }
 
