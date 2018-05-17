@@ -48,11 +48,10 @@ public abstract class PutProtocol_v1: IRequestHandler
 
     public void preSupportedCodeSent ( Const!(void)[] msg_payload )
     {
-        // Extract the channel, record's timestamp and value from the
-        // message payload
-        cstring channel = this.ed.message_parser.getArray!(char)(msg_payload);
-        time_t timestamp = *this.ed.message_parser.getValue!(time_t)(msg_payload);
-        auto value = this.ed.message_parser.getArray!(char)(msg_payload);
+        cstring channel;
+        time_t timestamp;
+        Const!(char)[] value;
+        this.ed.message_parser.parseBody(msg_payload, channel, timestamp, value);
 
         // Store the extracted data in StorageEngine
         if (this.prepareChannel(channel))
