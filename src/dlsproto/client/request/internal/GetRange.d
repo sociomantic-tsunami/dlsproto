@@ -204,6 +204,12 @@ private scope class GetRangeHandler
 
     alias GetRange.BatchRequestSharedWorkingData.Signal ControllerSignal;
 
+    /// Resumes the `RecordStream` fiber.
+    private const ubyte ResumeRecordStreamValue = ControllerSignal.max + 1;
+
+    /// Signal to resume receiver on the Timeout
+    private const ubyte TimeoutSignal = ControllerSignal.max + 3;
+
     /// Request-on-conn event dispacher
     private RequestOnConn.EventDispatcherAllNodes conn;
 
@@ -353,9 +359,42 @@ private scope class GetRangeHandler
     enum FiberSignal: ubyte
     {
         /// Resumes the `RecordStream` fiber.
-        ResumeRecordStream = ControllerSignal.max + 1,
+        ResumeRecordStream = ResumeRecordStreamValue,
         /// Tells the `Controller` to terminate.
         StopController
+    }
+
+    /// Timer to be timeout waiting for the Stopped message
+    private SharedResources.RequestResources.ITimer timer;
+
+    /// Seconds to timeout the Stopped signal after
+    private const int seconds_stop_timeout = 60;
+
+    /**************************************************************************
+
+        Sets the timer to stop this RoC, in case no message was received
+        from the node for a long period of time.
+
+    **************************************************************************/
+
+    private void setStoppedMessageTimeout ()
+    {
+        this.timer = this.resources.getTimer(
+                this.seconds_stop_timeout * 1000,
+                &this.forceStopRequest);
+        this.timer.start();
+    }
+
+    /**************************************************************************
+
+        Raises the timeout signal which will in turn end the record stream,
+        no matter the response from the node.
+
+    **************************************************************************/
+
+    private void forceStopRequest ()
+    {
+        this.request_event_dispatcher.signal(this.conn, TimeoutSignal);
     }
 
     /**************************************************************************
@@ -526,6 +565,9 @@ private scope class GetRangeHandler
 
         public void stop ( )
         {
+            if (this.outer.timer)
+                this.outer.timer.cancel();
+
             this.stopped = true;
             if (this.fiber_suspended == fiber_suspended.WaitingForRecords)
                 this.resumeFiber();
@@ -744,41 +786,61 @@ private scope class GetRangeHandler
 
             do
             {
-                auto msg = this.outer.request_event_dispatcher.receive(
+                auto event = this.outer.request_event_dispatcher.nextEvent(
                     this.fiber,
                     Message(MessageType_v2.Records),
                     Message(MessageType_v2.Stopped),
-                    Message(MessageType_v2.Finished));
+                    Message(MessageType_v2.Finished),
+                    Signal(this.outer.TimeoutSignal));
 
-                switch (msg.type)
+                with (event.Active) switch (event.active)
                 {
-                    case MessageType_v2.Records:
-                        Const!(void)[] received_record_batch;
-                        size_t uncompressed_batch_size;
+                    case message:
+                        auto msg = event.message;
+                        switch (msg.type)
+                        {
+                            case MessageType_v2.Records:
+                                Const!(void)[] received_record_batch;
+                                size_t uncompressed_batch_size;
 
-                        this.outer.conn.message_parser.parseBody(
-                            msg.payload, uncompressed_batch_size,
-                            received_record_batch
-                        );
+                                this.outer.conn.message_parser.parseBody(
+                                    msg.payload, uncompressed_batch_size,
+                                    received_record_batch
+                                );
 
-                        (*uncompressed_batch).length = uncompressed_batch_size;
-                        enableStomping(*uncompressed_batch);
+                                (*uncompressed_batch).length = uncompressed_batch_size;
+                                enableStomping(*uncompressed_batch);
 
-                        this.lzo.uncompress(received_record_batch,
-                               *uncompressed_batch);
-                        this.record_stream.addRecords(*uncompressed_batch);
+                                this.lzo.uncompress(received_record_batch,
+                                       *uncompressed_batch);
+                                this.record_stream.addRecords(*uncompressed_batch);
+                                break;
+
+                            case MessageType_v2.Stopped:
+                                this.record_stream.stop();
+                                return;
+
+                            case MessageType_v2.Finished:
+                                finished = true;
+                                break;
+
+                            default:
+                                assert(false);
+                        }
                         break;
-
-                    case MessageType_v2.Stopped:
+                    case signal:
+                        verify(event.signal.code == this.outer.TimeoutSignal);
+                        // Got a message from timer. Yield in order to allow it
+                        // to unregister itself from epoll, before this RoC
+                        // exits (the timer will be destroyed when this
+                        // happens).
+                        this.outer.request_event_dispatcher.yield(this.fiber);
                         this.record_stream.stop();
-                        return;
-
-                    case MessageType_v2.Finished:
                         finished = true;
                         break;
-
                     default:
-                        assert(false);
+                        verify(false);
+                        break;
                 }
             }
             while (!finished);
@@ -794,7 +856,6 @@ private scope class GetRangeHandler
             this.record_stream.stop();
         }
     }
-
 
     /**************************************************************************
 
@@ -861,6 +922,10 @@ private scope class GetRangeHandler
                         );
                         this.outer.conn.flush();
                         this.outer.context.shared_working.stopped = true;
+
+                        // set the timer to timeout if the node haven't responded
+                        // with the Stopped message within a predefined period
+                        this.outer.setStoppedMessageTimeout();
                         break;
 
                     case FiberSignal.StopController:

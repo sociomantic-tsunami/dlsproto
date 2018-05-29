@@ -58,3 +58,12 @@ that there are two ways to assign some requests:
    blocking manner -- the current task will be suspended until the assigned
    request is finished.
 
+Controlling Requests
+...................
+
+Once the request is started and the request id is stored, user may use
+``Controller`` to suspend/resume/stop the request (in case of ``GetRange``
+request). Note that ``stop`` will wait for the node to respond with the `Stopped`
+message for a reasonable time period (one minute). If node doesn't respond
+with the stop acknowledgment, the client will just end the request on that
+node.
