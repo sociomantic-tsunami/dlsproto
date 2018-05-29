@@ -813,7 +813,7 @@ template NeoSupport ()
         Neo.ConnectionNotifier conn_notifier )
     {
         this.neo = new Neo(auth_name, auth_key,
-                        Neo.Settings(conn_notifier, new SharedResources));
+                        Neo.Settings(conn_notifier, new SharedResources(this.epoll)));
         this.neo.enableSocketNoDelay();
         this.blocking = new TaskBlocking;
     }
@@ -838,7 +838,7 @@ template NeoSupport ()
     private void neoInit ( Neo.Config config,
         Neo.ConnectionNotifier conn_notifier )
     {
-        this.neo = new Neo(config, Neo.Settings(conn_notifier, new SharedResources));
+        this.neo = new Neo(config, Neo.Settings(conn_notifier, new SharedResources(this.epoll)));
         this.neo.enableSocketNoDelay();
         this.blocking = new TaskBlocking;
     }
