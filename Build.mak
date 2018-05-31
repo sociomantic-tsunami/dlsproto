@@ -13,7 +13,7 @@ endif
 
 $B/fakedls: $C/src/fakedls/main.d
 
-all += $B/fakedls
+all += $B/fakedls $B/neotest
 
 $O/test-fakedls: $B/fakedls
 
@@ -22,3 +22,7 @@ run-fakedls: $O/test-fakedls $B/fakedls
 
 debug-fakedls: $O/test-fakedls $B/fakedls
 	$(call exec, gdb --args $O/test-fakedls $(TURTLE_ARGS))
+
+$B/neotest: override LDFLAGS += -lebtree -llzo2 -lrt -lgcrypt -lglib-2.0 -lgpg-error
+$B/neotest: neotest/main.d
+neotest: $B/neotest
