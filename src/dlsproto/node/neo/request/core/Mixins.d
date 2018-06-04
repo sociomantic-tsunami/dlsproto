@@ -58,13 +58,13 @@ public template IRequestHandlerRequestCore ( )
     import dlsproto.node.neo.request.core.IRequestResources;
 
     /// Request-on-conn of this request handler.
-    private RequestOnConn connection;
+    protected RequestOnConn connection;
 
     /// Event dispatcher for this connection
-    private RequestOnConn.EventDispatcher ed;
+    protected RequestOnConn.EventDispatcher ed;
 
     /// Acquired resources of this request.
-    private IRequestResources resources;
+    protected IRequestResources resources;
 
     /***************************************************************************
 
