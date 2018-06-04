@@ -233,7 +233,7 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
             auto ed = this.ed;
             if (wait_for_data)
             {
-                auto event = ed.nextEvent(ed.NextEventFlags.Receive);
+                auto event = ed.nextEvent(ed.NextEventFlags.Receive | ed.NextEventFlags.Resume);
 
                 switch (event.active)
                 {
