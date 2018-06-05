@@ -209,7 +209,14 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
             this.saved_exception = this.resources.getException();
             this.lzo = this.resources.getLzo();
 
-            this.run();
+            try
+            {
+                this.run();
+            }
+            finally
+            {
+                this.requestFinished();
+            }
         }
     }
 
