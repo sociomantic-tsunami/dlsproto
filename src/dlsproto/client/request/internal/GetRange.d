@@ -90,7 +90,7 @@ public struct GetRange
 
     ***************************************************************************/
 
-    mixin BatchController!(typeof(this), IController);
+    mixin BatchController!(typeof((&this)), IController);
 
 
     /***************************************************************************
@@ -205,10 +205,10 @@ private scope class GetRangeHandler
     alias GetRange.BatchRequestSharedWorkingData.Signal ControllerSignal;
 
     /// Resumes the `RecordStream` fiber.
-    private const ubyte ResumeRecordStreamValue = ControllerSignal.max + 1;
+    private static immutable ubyte ResumeRecordStreamValue = ControllerSignal.max + 1;
 
     /// Signal to resume receiver on the Timeout
-    private const ubyte TimeoutSignal = ControllerSignal.max + 3;
+    private static immutable ubyte TimeoutSignal = ControllerSignal.max + 3;
 
     /// Request-on-conn event dispacher
     private RequestOnConn.EventDispatcherAllNodes conn;
@@ -368,7 +368,7 @@ private scope class GetRangeHandler
     private SharedResources.RequestResources.ITimer timer;
 
     /// Seconds to timeout the Stopped signal after
-    private const int seconds_stop_timeout = 60;
+    private static immutable int seconds_stop_timeout = 60;
 
     /**************************************************************************
 
@@ -431,8 +431,8 @@ private scope class GetRangeHandler
 
             private void init (void[]* delegate() getVoidBuffer)
             {
-                this.output = getVoidBuffer();
-                this.input = getVoidBuffer();
+                (&this).output = getVoidBuffer();
+                (&this).input = getVoidBuffer();
             }
 
            /********************************************************************
@@ -443,9 +443,9 @@ private scope class GetRangeHandler
 
             private void swap ()
             {
-                auto tmp = this.output;
-                this.output = this.input;
-                this.input = tmp;
+                auto tmp = (&this).output;
+                (&this).output = (&this).input;
+                (&this).input = tmp;
             }
 
             /*******************************************************************
@@ -457,7 +457,7 @@ private scope class GetRangeHandler
 
             private bool empty ()
             {
-                return !this.output.length && !this.input.length;
+                return !(&this).output.length && !(&this).input.length;
             }
 
             /*******************************************************************
