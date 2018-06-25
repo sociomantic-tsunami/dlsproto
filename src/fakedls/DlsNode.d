@@ -133,7 +133,7 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
             return;
 
         .log.warn("Ignoring exception: {} ({}:{})",
-            getMsg(exception), exception.file, exception.line);
+            exception.message(), exception.file, exception.line);
 
         // socket errors can be legitimate, for example if client has terminated
         // the connection early

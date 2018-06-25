@@ -70,9 +70,9 @@ private Dls _dls;
 
 public class Dls : Node!(DlsNode, "dls")
 {
+    import swarm.neo.AddrPort;
     public import dlsproto.client.legacy.DlsConst;
     static import swarm.util.Hash;
-    import swarm.neo.AddrPort;
 
     import ocean.core.Enforce;
     import ocean.text.convert.Formatter;
