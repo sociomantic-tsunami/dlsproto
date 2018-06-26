@@ -190,12 +190,11 @@ template NeoSupport ()
                     " Const!(void)[]");
 
             RequestContext context;
-            setupOptionalArgs!(options.length)(options,
-                    (RequestContext context_)
-                    {
-                        context = context_;
-                    }
-            );
+            scope parse_context = (RequestContext context_)
+            {
+                context = context_;
+            };
+            setupOptionalArgs!(options.length)(options, parse_context);
 
             auto params = Const!(Internals.Put.UserSpecifiedParams)(
                     Const!(Put.Args)(channel, timestamp, value),
@@ -239,16 +238,19 @@ template NeoSupport ()
             cstring filter_string;
             Filter.FilterMode filter_mode;
             RequestContext context;
-            setupOptionalArgs!(options.length)(options,
-                    (GetRange.Filter filter)
-                    {
-                        filter_string = filter.filter_string;
-                        filter_mode = filter.filter_mode;
-                    },
-                    (RequestContext context_)
-                    {
-                        context = context_;
-                    }
+
+            scope parse_context = (RequestContext context_)
+            {
+                context = context_;
+            };
+            scope parse_filter = (GetRange.Filter filter)
+            {
+                filter_string = filter.filter_string;
+                filter_mode = filter.filter_mode;
+            };
+
+            setupOptionalArgs!(options.length)(options, parse_filter,
+                    parse_context
             );
 
             auto params = Const!(Internals.GetRange.UserSpecifiedParams)(
@@ -435,6 +437,12 @@ template NeoSupport ()
             Neo.Put.Notifier user_notifier;
             FinishedStatus state;
 
+
+            scope parse_notifier = (Neo.Put.Notifier notifier)
+            {
+                user_notifier = notifier;
+            };
+
             setupOptionalArgs!(options.length)(options,
                     // explicit `delegate` is needed here,
                     // because in D2 this is a function, since it doesn't
@@ -443,13 +451,10 @@ template NeoSupport ()
                     {
                         // Unused here. Passed through to Neo.put()
                     },
-                    (Neo.Put.Notifier notifier)
-                    {
-                        user_notifier = notifier;
-                    }
+                    parse_notifier
             );
 
-            void notifier ( Neo.Put.Notification info, Const!(Neo.Put.Args) args )
+            scope notifier = ( Neo.Put.Notification info, Const!(Neo.Put.Args) args )
             {
                 if ( user_notifier )
                     user_notifier(info, args);
@@ -475,10 +480,10 @@ template NeoSupport ()
 
                     default: assert(false);
                 }
-            }
+            };
 
             this.outer.neo.put(channel, key, value,
-                    &notifier,
+                    notifier,
                     eraseFromArgs!(Neo.Put.Notifier, options));
 
             if ( state == state.None ) // if request not completed, suspend
@@ -718,19 +723,19 @@ template NeoSupport ()
             res.low = low;
             res.high = high;
 
+            scope parse_filter = (Neo.GetRange.Filter filter)
+            {
+                // Unused here. Passed through to Neo.getRange()
+                res.filter = filter;
+            };
+
+            scope parse_notifier = (Neo.GetRange.Notifier notifier)
+            {
+                res.user_notifier = notifier;
+            };
+
             setupOptionalArgs!(options.length)(options,
-                    // explicit `delegate` is needed here,
-                    // because in D2 this is a function, since it doesn't
-                    // use outer context
-                    delegate (Neo.GetRange.Filter filter)
-                    {
-                        // Unused here. Passed through to Neo.getRange()
-                        res.filter = filter;
-                    },
-                    (Neo.GetRange.Notifier notifier)
-                    {
-                        res.user_notifier = notifier;
-                    }
+                parse_filter, parse_notifier
             );
 
             return res;
