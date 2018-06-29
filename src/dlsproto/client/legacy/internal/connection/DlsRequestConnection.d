@@ -118,6 +118,7 @@ public class DlsRequestConnection :
         : RequestResources, IDlsRequestResources
     {
         import swarm.Const : NodeItem;
+        import swarm.util.RecordBatcher;
 
 
         /***********************************************************************
@@ -224,7 +225,7 @@ public class DlsRequestConnection :
 
         override protected mstring new_batch_buffer ( )
         {
-            return new char[RecordBatch.DefaultMaxBatchSize];
+            return new char[RecordBatcher.DefaultMaxBatchSize];
         }
 
 
