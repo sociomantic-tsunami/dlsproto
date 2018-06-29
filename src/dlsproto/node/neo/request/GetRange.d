@@ -13,6 +13,7 @@
 module dlsproto.node.neo.request.GetRange;
 
 import ocean.util.log.Logger;
+import ocean.core.VersionCheck;
 import swarm.neo.node.IRequestHandler;
 
 /*******************************************************************************
@@ -362,7 +363,11 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
         switch (event.active)
         {
             case event.active.sent:
-                this.ed.flush();
+                // deprecated, remove in next major
+                static if (!hasFeaturesFrom!("swarm", 5, 1))
+                {
+                    this.ed.flush();
+                }
                 // Records sent: wait for Continue/Stop feedback, ACK Stop
                 // stop and return true for Continue or false for stop
                 switch (this.ed.receiveValue!(MessageType_v2)())
@@ -438,7 +443,11 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
             }
         );
 
-        this.ed.flush();
+        // deprecated, remove in next major
+        static if (!hasFeaturesFrom!("swarm", 5, 1))
+        {
+            this.ed.flush();
+        }
     }
 
 

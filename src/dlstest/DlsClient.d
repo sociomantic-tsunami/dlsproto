@@ -21,6 +21,7 @@ module dlstest.DlsClient;
 
 import ocean.transition;
 import ocean.core.Verify;
+import ocean.core.VersionCheck;
 import ocean.util.log.Logger;
 
 /******************************************************************************
@@ -369,7 +370,11 @@ class DlsClient
         this.raw_client = new RawClient(theScheduler.epoll, auth_name,
             auth_key.content,
             &this.neo.connectionNotifier, max_connections);
-        this.raw_client.neo.enableSocketNoDelay();
+        // deprecated, remove in next major
+        static if (!hasFeaturesFrom!("swarm", 5, 1))
+        {
+            this.raw_client.neo.enableSocketNoDelay();
+        }
     }
 
     /**************************************************************************
