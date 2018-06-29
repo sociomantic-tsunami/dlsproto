@@ -21,6 +21,7 @@ module dlsproto.client.request.internal.GetRange;
 import core.stdc.time;
 
 import ocean.transition;
+import ocean.core.VersionCheck;
 import ocean.core.Verify;
 import ocean.util.log.Logger;
 
@@ -598,7 +599,11 @@ private scope class GetRangeHandler
                         }
                     );
 
-                    this.outer.conn.flush();
+                    // deprecated, remove in the next major
+                    static if (!hasFeaturesFrom!("swarm", 5, 1))
+                    {
+                        this.outer.conn.flush();
+                    }
                 }
 
                 Const!(void)[] remaining_batch = *this.buffers.output;
@@ -920,7 +925,11 @@ private scope class GetRangeHandler
                                 payload.addCopy(MessageType_v2.Stop);
                             }
                         );
-                        this.outer.conn.flush();
+                        // deprecated, remove in the next major
+                        static if (!hasFeaturesFrom!("swarm", 5, 1))
+                        {
+                            this.outer.conn.flush();
+                        }
                         this.outer.context.shared_working.stopped = true;
 
                         // set the timer to timeout if the node haven't responded
