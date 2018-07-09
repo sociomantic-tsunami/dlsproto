@@ -570,8 +570,11 @@ private scope class GetRangeHandler
                 this.outer.timer.cancel();
 
             this.stopped = true;
-            if (this.fiber_suspended == fiber_suspended.WaitingForRecords)
+            if (this.fiber_suspended == fiber_suspended.WaitingForRecords ||
+                this.fiber_suspended == fiber_suspended.RequestSuspended)
+            {
                 this.resumeFiber();
+            }
         }
 
         /**********************************************************************
