@@ -223,6 +223,9 @@ private scope class GetRangeHandler
     /// Request event dispatcher
     private RequestEventDispatcher request_event_dispatcher;
 
+    /// Indicator if the request started on this connection
+    private bool request_started;
+
     /***************************************************************************
 
         Constructor.
@@ -273,6 +276,12 @@ private scope class GetRangeHandler
 
     private bool connect ( )
     {
+        // if the request started already, don't restart upon reconnecting,
+        // since GetRange is not (yet) capable of resuming from the interruption
+        // point, leading to the duplicate data received by the client
+        if (this.request_started)
+            return false;
+
         return batchRequestConnector(this.conn);
     }
 
@@ -339,6 +348,8 @@ private scope class GetRangeHandler
                 GetRange.notify(this.context.user_params, n);
                 return;
         }
+
+        this.request_started = true;
 
         scope record_stream = this.new RecordStream;
         scope reader = this.new Reader(record_stream);
