@@ -184,7 +184,7 @@ template NeoSupport ()
         ***********************************************************************/
 
         public RequestId put (C, Options...)( cstring channel,
-                time_t timestamp, C value, Put.Notifier notifier,
+                time_t timestamp, C value, scope Put.Notifier notifier,
                 Options options )
         {
             static assert(is(C: Const!(void)[]),"value must be implicitly castable to" ~
@@ -234,7 +234,7 @@ template NeoSupport ()
         ***********************************************************************/
 
         public RequestId getRange (Options...) ( cstring channel, time_t low, time_t high,
-            GetRange.Notifier notifier, Options options )
+            scope GetRange.Notifier notifier, Options options )
         {
             cstring filter_string;
             Filter.FilterMode filter_mode;
@@ -322,7 +322,7 @@ template NeoSupport ()
         ***********************************************************************/
 
         public bool control ( ControllerInterface ) ( RequestId id,
-            void delegate ( ControllerInterface ) dg )
+            scope void delegate ( ControllerInterface ) dg )
         {
             alias Request!(ControllerInterface) R;
 
@@ -577,27 +577,27 @@ template NeoSupport ()
             private void notifier ( DlsClient.Neo.GetRange.Notification info,
                 Const!(DlsClient.Neo.GetRange.Args) args )
             {
-                if (this.user_notifier)
+                if ((&this).user_notifier)
                 {
-                    this.user_notifier(info, args);
+                    (&this).user_notifier(info, args);
                 }
 
                 with ( info.Active ) switch ( info.active )
                 {
                     case received:
                         // Ignore all received value on user break
-                        if (this.state == State.Stopped)
+                        if ((&this).state == State.Stopped)
                             break;
 
                         // Store the received value
-                        this.record_key = info.received.key;
+                        (&this).record_key = info.received.key;
 
-                        copy(*this.record_value, info.received.value);
-                        enableStomping(*this.record_value);
+                        copy(*(&this).record_value, info.received.value);
+                        enableStomping(*(&this).record_value);
 
-                        if (this.task.suspended())
+                        if ((&this).task.suspended())
                         {
-                            this.task.resume();
+                            (&this).task.resume();
                         }
 
                         break;
@@ -606,18 +606,18 @@ template NeoSupport ()
                     case finished:
                         // Even if the user has requested stopping,
                         // but finished arrived, we will just finish and exit
-                        this.state = State.Finished;
-                        this.task.resume();
+                        (&this).state = State.Finished;
+                        (&this).task.resume();
                         break;
 
                     case node_disconnected:
                     case node_error:
                     case unsupported:
                         // Ignore all errors on user break
-                        if (this.state == State.Stopped)
+                        if ((&this).state == State.Stopped)
                             break;
 
-                        this.error = true;
+                        (&this).error = true;
                         break;
 
                     default: assert(false);
@@ -630,32 +630,32 @@ template NeoSupport ()
 
             *******************************************************************/
 
-            public int opApply (int delegate(ref time_t key,
+            public int opApply (scope int delegate(ref time_t key,
                         ref void[] value) dg)
             {
                 int ret;
 
-                this.rq_id = this.neo.getRange(this.channel, this.low,
-                        this.high, &this.notifier,
-                        this.filter);
+                (&this).rq_id = (&this).neo.getRange((&this).channel, (&this).low,
+                        (&this).high, &(&this).notifier,
+                        (&this).filter);
 
-                while (this.state != State.Finished)
+                while ((&this).state != State.Finished)
                 {
                     Task.getThis().suspend();
 
                     // no more records
-                    if (this.state == State.Finished
-                            || this.state == State.Stopped
-                            || this.error)
+                    if ((&this).state == State.Finished
+                            || (&this).state == State.Stopped
+                            || (&this).error)
                         break;
 
-                    ret = dg(this.record_key, *this.record_value);
+                    ret = dg((&this).record_key, *(&this).record_value);
 
                     if (ret)
                     {
-                        this.state = State.Stopped;
+                        (&this).state = State.Stopped;
 
-                        this.neo.control(this.rq_id,
+                        (&this).neo.control((&this).rq_id,
                             ( DlsClient.Neo.GetRange.IController get_range )
                             {
                                 get_range.stop();
@@ -816,7 +816,7 @@ template NeoSupport ()
     ***************************************************************************/
 
     private void neoInit ( cstring auth_name, ubyte[] auth_key,
-        Neo.ConnectionNotifier conn_notifier )
+        scope Neo.ConnectionNotifier conn_notifier )
     {
         this.neo = new Neo(auth_name, auth_key,
                         Neo.Settings(conn_notifier, new SharedResources(this.epoll)));
@@ -846,7 +846,7 @@ template NeoSupport ()
     ***************************************************************************/
 
     private void neoInit ( Neo.Config config,
-        Neo.ConnectionNotifier conn_notifier )
+        scope Neo.ConnectionNotifier conn_notifier )
     {
         this.neo = new Neo(config, Neo.Settings(conn_notifier, new SharedResources(this.epoll)));
         // deprecated, remove in next major
