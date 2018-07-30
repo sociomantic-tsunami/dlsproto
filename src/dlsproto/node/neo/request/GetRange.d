@@ -103,7 +103,7 @@ public abstract scope class GetRangeProtocol_v0
 
     ***************************************************************************/
 
-    private const NodeFiberResumeCode = 1;
+    private static immutable NodeFiberResumeCode = 1;
 
     /***************************************************************************
 
