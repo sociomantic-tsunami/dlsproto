@@ -393,7 +393,8 @@ public final class SharedResources
         public void cancel ( )
         {
             this.enabled = false;
-            this.outer.epoll.unregister(this.timer);
+            // remove it from the client list as well as unregister it
+            this.outer.epoll.unregister(this.timer, true);
         }
 
         /***********************************************************************
