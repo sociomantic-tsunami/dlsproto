@@ -107,7 +107,7 @@ class RetryHandshake
     ***************************************************************************/
 
     public this ( EpollSelectDispatcher epoll, DlsClient dls,
-                  size_t wait_time, void delegate ( ) dg = null )
+                  size_t wait_time, scope void delegate ( ) dg = null )
     {
         this.wait_time = wait_time;
 
