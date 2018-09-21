@@ -24,12 +24,13 @@ module turtle.env.Dls;
 import ocean.transition;
 import ocean.core.Verify;
 
-import turtle.env.model.Node;
+import turtle.env.model.TestNode;
 
 import ocean.transition;
 
 import fakedls.DlsNode;
 import fakedls.Storage;
+import fakedls.ConnectionHandler;
 
 /*******************************************************************************
 
@@ -68,27 +69,69 @@ private Dls _dls;
 
 *******************************************************************************/
 
-public class Dls : Node!(DlsNode, "dls")
+public class Dls : TestNode!(DlsConnectionHandler)
 {
     import swarm.neo.AddrPort;
     public import dlsproto.client.legacy.DlsConst;
     static import swarm.util.Hash;
+    import swarm.node.connection.ConnectionHandler;
 
     import ocean.core.Enforce;
     import ocean.text.convert.Formatter;
     import ocean.task.Scheduler;
     import swarm.Const: NodeItem;
 
+    import fakedls.neo.RequestHandlers;
+    import fakedls.neo.SharedResources;
+
     /***************************************************************************
 
         Prepares DLS singleton for usage from tests
 
+TODO
+
     ***************************************************************************/
 
-    public static void initialize ( )
+    public static void initialize ( cstring addr, ushort port,
+        EpollSelectDispatcher epoll )
     {
         if ( !_dls )
-            _dls = new Dls();
+        {
+            AddrPort node;
+            node.setAddress(addr);
+            node.port = port;
+            _dls = new Dls(node, epoll);
+        }
+    }
+
+    /***************************************************************************
+
+        Constructor.
+
+        Params:
+            node = node addres & port
+            TODO
+
+    ***************************************************************************/
+
+    public this ( AddrPort node, EpollSelectDispatcher epoll )
+    {
+        auto setup = new ConnectionSetupParams;
+        setup.epoll = epoll;
+        setup.node_info = this;
+
+        Options options;
+        options.epoll = epoll;
+        options.credentials_map["test"] = Key.init;
+        options.requests = requests;
+        options.no_delay = true; // favour network turn-around over packet
+                                 // efficiency
+
+        // TODO: compare with old code in fakedls.DlsNode
+        ushort neo_port = node.port + 1;
+        int backlog = 1024;
+
+        super(node, neo_port, setup, options, backlog);
     }
 
     /***************************************************************************
@@ -195,61 +238,6 @@ public class Dls : Node!(DlsNode, "dls")
 
     /***************************************************************************
 
-        Creates a fake node at the specified address/port.
-
-        Params:
-            node_addrport = address/port
- 
-     ***************************************************************************/
-
-    override protected DlsNode createNode ( AddrPort node_addrport )
-    {
-         auto epoll = theScheduler.epoll();
-
-        auto addr = node_addrport.address_bytes();
-        auto node_item = NodeItem(
-            format("{}.{}.{}.{}", addr[0], addr[1], addr[2], addr[3]).dup,
-            node_addrport.port());
-
-        auto node = new DlsNode(node_item, epoll);
-        node.register(epoll);
-
-        return node;
-    }
-
-    /***************************************************************************
-
-        Returns:
-            address/port on which node is listening
-
-    ***************************************************************************/
-
-    override public AddrPort node_addrport ( )
-    {
-        verify(this.node !is null);
-
-        AddrPort addrport;
-        addrport.setAddress(this.node.node_item.Address);
-        addrport.port = cast(ushort)this.node.node_item.Port;
-
-        return addrport;
-     }
-
-    /***************************************************************************
-
-        Stops the fake DLS service. The node may be started again on the same
-        port via restart().
-
-    ***************************************************************************/
-
-    override protected void stopImpl ( )
-    {
-        this.node.stopListener(theScheduler.epoll);
-        this.node.shutdown();
-    }
-
-    /***************************************************************************
-
         Removes all data from the fake node service.
 
     ***************************************************************************/
@@ -261,28 +249,45 @@ public class Dls : Node!(DlsNode, "dls")
 
     /***************************************************************************
 
-        Suppresses/allows log output from the fake node if used version of node
-        proto supports it.
-
-        Params:
-            log = true to log errors, false to stop logging errors
+        Returns:
+            identifier string for this node
 
     ***************************************************************************/
 
-    override public void log_errors ( bool log )
+    protected override cstring id ( )
     {
-        this.node.log_errors = log;
+        return "dls";
+    }
+
+    /***************************************************************************
+
+        Scope allocates a request resource acquirer instance and passes it to
+        the provided delegate for use in a request.
+
+        Params:
+            handle_request_dg = delegate that receives a resources acquirer and
+                initiates handling of a request
+
+    ***************************************************************************/
+
+    override protected void getResourceAcquirer (
+        void delegate ( Object request_resources ) handle_request_dg )
+    {
+        // In the fake node, we don't actually store a shared resources
+        // instance; a new one is simply passed to each request.
+        handle_request_dg(new SharedResources);
     }
 }
 
 version (UnitTest)
 {
     import ocean.core.Test;
+    import ocean.io.select.EpollSelectDispatcher;
 
     void initDls ( )
     {
         global_storage.clear();
-        Dls.initialize();
+        Dls.initialize("127.0.0.1", 10000, new EpollSelectDispatcher);
     }
 }
 

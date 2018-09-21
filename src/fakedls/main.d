@@ -21,7 +21,7 @@ module fakedls.main;
 
 import ocean.transition;
 
-import fakedls.DlsNode;
+import turtle.env.Dls;
 
 import dlsproto.client.legacy.DlsConst;
 
@@ -55,11 +55,11 @@ else
 void main ( )
 {
     auto epoll = new EpollSelectDispatcher;
-    auto node = new DlsNode(DlsConst.NodeItem("127.0.0.1".dup, 10000), epoll);
+    Dls.initialize("127.0.0.1", 10000, epoll);
 
     auto log = Log.lookup("fakedls.main");
     log.info("Registering fake node");
-    node.register(epoll);
+    dls.register(epoll);
 
     log.info(
         "Starting infinite event loop, kill the process if not needed anymore");
