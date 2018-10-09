@@ -26,6 +26,7 @@ import ocean.core.Verify;
 
 import turtle.env.model.Node;
 
+import ocean.task.util.Timer;
 import ocean.transition;
 
 import fakedls.DlsNode;
@@ -195,11 +196,57 @@ public class Dls : Node!(DlsNode, "dls")
 
     /***************************************************************************
 
+        Waits until at least `count` records can be found in specified DLS
+        channel or until timeout is hit.
+
+        Params:
+            op = the condition to use, e.g. '==' if an exact match is required
+                 set to '>=' by default
+            channel = DMQ channel to check
+            count = expected amount of records
+            timeout = max time allowed to wait
+            check_interval = time between polling channel state
+
+        Throws:
+            TestException if timeout has been hit
+
+    ***************************************************************************/
+
+    public void waitTotalRecords ( istring op = ">=" ) ( cstring channel,
+        size_t count, double timeout = 1.0, double check_interval = 0.05 )
+    {
+        size_t recordCount ( cstring channel )
+        {
+            return this.getSize(channel).records;
+        }
+
+        auto total_wait = 0.0;
+
+        do
+        {
+            if (mixin("recordCount(channel)" ~ op ~ "count"))
+                return;
+            .wait(cast(uint) (check_interval * 1_000_000));
+            total_wait += check_interval;
+        }
+        while (total_wait < timeout);
+
+        throw new TestException(format(
+            "Expected {} records in channel '{}', got only {} during {} seconds",
+            count,
+            channel,
+            recordCount(channel),
+            timeout
+        ));
+    }
+
+    /***************************************************************************
+
         Creates a fake node at the specified address/port.
 
         Params:
             node_addrport = address/port
- 
+
      ***************************************************************************/
 
     override protected DlsNode createNode ( AddrPort node_addrport )
@@ -278,6 +325,7 @@ public class Dls : Node!(DlsNode, "dls")
 version (UnitTest)
 {
     import ocean.core.Test;
+    import ocean.time.MicrosecondsClock;
 
     void initDls ( )
     {
@@ -356,5 +404,27 @@ unittest
 
         test!("==")(s[123].length, 2);
         test!("==")(s[345].length, 1);
+    }
+}
+
+
+
+/*******************************************************************************
+
+    waitTotalRecords() test
+
+*******************************************************************************/
+
+unittest
+{
+    {
+        initDls();
+        dls.put("unittest_channel", 123, "abcd");
+        dls.put("unittest_channel", 123, "efgh");
+        dls.put("unittest_channel", 345, "test");
+
+        dls.waitTotalRecords("unittest_channel", 3, 0, 0);
+
+        testThrown!(TestException)(dls.waitTotalRecords("unittest_channel", 4, 0, 0));
     }
 }
