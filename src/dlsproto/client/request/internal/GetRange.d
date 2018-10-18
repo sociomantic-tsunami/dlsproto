@@ -298,6 +298,9 @@ private scope class GetRangeHandler
 
     private void disconnected (Exception e)
     {
+        .log.info("[{}]:[{}] Raising disconnected notification.",
+            this.context.request_id, cast(void*)(this));
+
         // Notify the user of the disconnection. The user may use the controller
         // at this point, but as the request is not active
         // on this connection, no special behaviour is needed.
@@ -357,6 +360,9 @@ private scope class GetRangeHandler
 
         this.request_event_dispatcher.eventLoop(this.conn);
 
+        .log.info("[{}]:[{}] RequestEventDispatcher event loop exited.",
+            this.context.request_id, cast(void*)(this));
+
         with (record_stream.fiber) verify(state == state.TERM);
         with (reader.fiber) verify(state == state.TERM);
         with (controller.fiber) verify(state == state.TERM);
@@ -406,6 +412,9 @@ private scope class GetRangeHandler
 
     private void forceStopRequest ()
     {
+        .log.info("[{}]:[{}] Forcefully stopping the request after stop timeout.",
+            this.context.request_id, cast(void*)(this));
+
         this.request_event_dispatcher.signal(this.conn, TimeoutSignal);
     }
 
@@ -563,6 +572,8 @@ private scope class GetRangeHandler
         {
             if (this.fiber_suspended == fiber_suspended.RequestSuspended)
             {
+                .log.info("[{}]:[{}][RecordStream] Resuming the suspended RecordStream fiber.",
+                    this.outer.context.request_id, cast(void*)(this.outer));
                 this.resumeFiber();
             }
         }
@@ -584,6 +595,8 @@ private scope class GetRangeHandler
             if (this.fiber_suspended == fiber_suspended.WaitingForRecords ||
                 this.fiber_suspended == fiber_suspended.RequestSuspended)
             {
+                .log.info("[{}]:[{}][RecordStream] Resuming the suspended RecordStream fiber due to stop.",
+                    this.outer.context.request_id, cast(void*)(this.outer));
                 this.resumeFiber();
             }
         }
@@ -633,6 +646,8 @@ private scope class GetRangeHandler
                     if (this.outer.context.shared_working.suspendable_control.suspended)
                     {
                         yield_count = 0;
+                        .log.info("[{}]:[{}][RecordStream] Suspending the fiber due to suspend command.",
+                            this.outer.context.request_id, cast(void*)(this.outer));
                         this.suspendFiber(FiberSuspended.RequestSuspended);
                     }
 
@@ -651,6 +666,8 @@ private scope class GetRangeHandler
                     break;
             }
 
+            .log.info("[{}]:[{}][RecordStream] RecordStream exiting, stopping the controller fiber.",
+                        this.outer.context.request_id, cast(void*)(this.outer));
             this.outer.request_event_dispatcher.signal(this.outer.conn,
                 FiberSignal.StopController);
         }
@@ -836,10 +853,14 @@ private scope class GetRangeHandler
                                 break;
 
                             case MessageType_v2.Stopped:
+                                .log.info("[{}]:[{}][Reader] Got stopped ACK from the node.",
+                                    this.outer.context.request_id, cast(void*)(this.outer));
                                 this.record_stream.stop();
                                 return;
 
                             case MessageType_v2.Finished:
+                                .log.info("[{}]:[{}][Reader] Got Finished message from the node.",
+                                    this.outer.context.request_id, cast(void*)(this.outer));
                                 finished = true;
                                 break;
 
@@ -853,6 +874,8 @@ private scope class GetRangeHandler
                         // to unregister itself from epoll, before this RoC
                         // exits (the timer will be destroyed when this
                         // happens).
+                        .log.info("[{}]:[{}][Reader] Got TimeoutSignal message.",
+                            this.outer.context.request_id, cast(void*)(this.outer));
                         this.outer.request_event_dispatcher.yield(this.fiber);
                         this.record_stream.stop();
                         finished = true;
@@ -865,6 +888,8 @@ private scope class GetRangeHandler
             while (!finished);
 
             /// Ack finished
+            .log.info("[{}]:[{}][Reader] ACKing the finished/stop message.",
+                this.outer.context.request_id, cast(void*)(this.outer));
             this.outer.request_event_dispatcher.send(this.fiber,
                     (RequestOnConnBase.EventDispatcher.Payload payload)
                     {
@@ -928,10 +953,14 @@ private scope class GetRangeHandler
                 switch (event.signal.code)
                 {
                     case ControllerSignal.Resume:
+                        .log.info("[{}]:[{}][Controller] User resuming the suspended request.",
+                            this.outer.context.request_id, cast(void*)(this.outer));
                         this.record_stream.resume();
                         break;
 
                     case ControllerSignal.Stop:
+                        .log.info("[{}]:[{}][Controller] User stopping the request.",
+                            this.outer.context.request_id, cast(void*)(this.outer));
                         this.outer.request_event_dispatcher.send(
                             this.fiber,
                             (conn.Payload payload)
@@ -952,6 +981,8 @@ private scope class GetRangeHandler
                         break;
 
                     case FiberSignal.StopController:
+                        .log.info("[{}]:[{}][Controller] Controller fiber is stopped.",
+                            this.outer.context.request_id, cast(void*)(this.outer));
                         return;
 
                     default:
