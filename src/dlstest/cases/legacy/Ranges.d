@@ -207,7 +207,7 @@ class GetRangePCREMatching : DlsTestCase
 
     public override void run ( )
     {
-        const logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
+        static immutable logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
 
 
         // Put some records to the storage channel.
@@ -222,7 +222,7 @@ class GetRangePCREMatching : DlsTestCase
             foreach (v; vals)
                 this.dls.put(this.test_channel, k, v);
 
-        const pcre =
+        static immutable pcre =
             "(aid=google)";
 
         auto start = 0;
@@ -270,8 +270,8 @@ class GetRangePCREHalfMatching : DlsTestCase
 
     public override void run ( )
     {
-        const logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
-        const bad_logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=facebook&fpc=7161999584528497855&aaid=bbc&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
+        static immutable logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
+        static immutable bad_logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=facebook&fpc=7161999584528497855&aaid=bbc&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
 
 
         // Put some records to the storage channel.
@@ -286,7 +286,7 @@ class GetRangePCREHalfMatching : DlsTestCase
             foreach (v; vals)
                 this.dls.put(this.test_channel, k, v);
 
-        const pcre =
+        static immutable pcre =
             "(aid=google.*(aaid=zalando|aaid=zalando-fr|aaid=zalando-uk))|((aaid=zalando|aaid=zalando-fr|aaid=zalando-uk).*aid=google)";
 
         auto start = 0;
@@ -333,7 +333,7 @@ class GetRangePCREMalformed : DlsTestCase
 
     public override void run ( )
     {
-        const logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
+        static immutable logline = "http://eu-sonar.sociomantic.com/js/2010-07-01/action/click?&aid=google&fpc=7161999584528497855&aaid=zalando&size=3&cid=445&ao=%5B%7B%22id%22%3A%2216880840621970542745%22%2C%22fsize%22%3A22%7D%5D";
 
 
         // Put some records to the storage channel.
@@ -348,7 +348,7 @@ class GetRangePCREMalformed : DlsTestCase
             foreach (v; vals)
                 this.dls.put(this.test_channel, k, v);
 
-        const pcre =
+        static immutable pcre =
             "*vw=1&";
 
         auto start = 0;
