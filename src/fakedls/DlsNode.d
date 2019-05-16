@@ -93,8 +93,6 @@ public class DlsNode : NodeBase!(DlsConnectionHandler)
         Options neo_options;
         neo_options.requests = requests;
         neo_options.epoll = epoll;
-        neo_options.no_delay = true; // favour network turn-around over packet
-                                     // efficiency
         neo_options.credentials_map["test"] = Key.init;
 
         ushort neo_port = node_item.Port;

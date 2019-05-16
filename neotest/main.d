@@ -56,7 +56,7 @@ abstract class DlsTest
         case error_while_connecting:
             with (info.error_while_connecting)
             {
-                Stderr.formatln("Connection error: {}", getMsg(e));
+                Stderr.formatln("Connection error: {}", e.message);
                 return;
             }
         default:
@@ -122,7 +122,7 @@ class GetRangeTest : DlsTest
             case node_disconnected:
                 Stdout.formatln("GetRange {} failed due to connection error {} on {}:{}",
                     args.channel,
-                    getMsg(info.node_disconnected.e),
+                    info.node_disconnected.e.message,
                     info.node_disconnected.node_addr.address_bytes,
                     info.node_disconnected.node_addr.port);
                 break;

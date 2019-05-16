@@ -14,7 +14,7 @@ module dlsproto.node.neo.request.GetRange;
 
 import ocean.util.log.Logger;
 import ocean.core.VersionCheck;
-import swarm.neo.node.IRequestHandler;
+import swarm.neo.node.IRequest;
 
 /*******************************************************************************
 
@@ -34,7 +34,7 @@ static this ( )
 
 *******************************************************************************/
 
-public abstract class GetRangeProtocol_v2: IRequestHandler
+public abstract class GetRangeProtocol_v2: IRequest
 {
     import dlsproto.node.neo.request.core.Mixins;
     import swarm.neo.connection.RequestOnConnBase;
@@ -127,39 +127,37 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
 
     private Lzo lzo;
 
-    /// Indicator if the request is initialized well
-    bool initialised_ok;
-
     /***************************************************************************
 
+        Called by the connection handler after the request code and version have
+        been parsed from a message received over the connection, and the
+        request-supported code sent in response.
 
-        Called by the connection handler immediately after the request code and
-        version have been parsed from a message received over the connection.
-        Allows the request handler to process the remainder of the incoming
-        message, before the connection handler sends the supported code back to
-        the client.
-
-        Note: the initial payload is a slice of the connection's read buffer.
-        This means that when the request-on-conn fiber suspends, the contents of
-        the buffer (hence the slice) may change. It is thus *absolutely
-        essential* that this method does not suspend the fiber. (This precludes
-        all I/O operations on the connection.)
+        Note: the initial payload passed to this method is a slice of a buffer
+        owned by the RequestOnConn. It is thus safe to assume that the contents
+        of the buffer will not change over the lifetime of the request.
 
         Params:
+            connection = request-on-conn in which the request handler is called
+            resources = request resources acquirer
             init_payload = initial message payload read from the connection
 
     ***************************************************************************/
 
-    public void preSupportedCodeSent ( Const!(void)[] msg_payload )
+    void handle ( RequestOnConn connection, Object resources,
+        Const!(void)[] init_payload )
     {
+        this.initialise(connection, resources);
+
         cstring channel_name;
         cstring filter_string;
         time_t low, high;
         Filter.FilterMode filter_mode;
 
+        bool initialised_ok;
         try
         {
-            this.ed.message_parser.parseBody(msg_payload, channel_name, low, high,
+            this.ed.message_parser.parseBody(init_payload, channel_name, low, high,
                     filter_string, filter_mode);
 
             if ( !this.prepareChannel(channel_name) ||
@@ -169,23 +167,13 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
                 return;
             }
 
-            this.initialised_ok = true;
+            initialised_ok = true;
         }
         catch (Exception e)
         {
-            log.error("{}", getMsg(e));
+            log.error("{}", e.message);
         }
-    }
 
-    /***************************************************************************
-
-        Called by the connection handler after the supported code has been sent
-        back to the client.
-
-    ***************************************************************************/
-
-    public void postSupportedCodeSent ()
-    {
         if (!initialised_ok)
         {
             this.ed.send(
@@ -258,7 +246,7 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
                         return;
 
                     default:
-                        throw this.ed.shutdownWithProtocolError(
+                        this.ed.shutdownWithProtocolError(
                             "GetRange: Unexpected fiber resume code");
                 }
             }
@@ -380,10 +368,11 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
                         return false;
 
                     default:
-                        throw this.ed.shutdownWithProtocolError(
+                        this.ed.shutdownWithProtocolError(
                             "GetRange Expected Stopped or Continue message"
                         );
                 }
+                assert(false);
 
             case event.active.received:
                 // Received message before the records have been sent:
@@ -394,11 +383,12 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
                 return false;
 
             default:
-                throw this.ed.shutdownWithProtocolError(
+                this.ed.shutdownWithProtocolError(
                     "GetRange: unexpected fiber resume code"
                 );
-
         }
+
+        assert(false);
     }
 
 
@@ -420,7 +410,7 @@ public abstract class GetRangeProtocol_v2: IRequestHandler
 
         if (msg_type != msg_type.Stop)
         {
-            throw this.ed.shutdownWithProtocolError(
+            this.ed.shutdownWithProtocolError(
                 "GetRange: Message received from the client is not Stop as expected",
                 file, line
             );

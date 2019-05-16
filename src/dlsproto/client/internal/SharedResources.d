@@ -35,7 +35,7 @@ public final class SharedResources
     import ocean.io.select.EpollSelectDispatcher;
     import ocean.util.container.pool.FreeList;
     import ocean.core.TypeConvert: downcast;
-    import swarm.neo.util.AcquiredResources;
+    import ocean.util.container.pool.AcquiredResources;
     import swarm.util.RecordBatcher;
     import swarm.neo.util.MessageFiber;
     import swarm.neo.client.mixins.RequestCore;

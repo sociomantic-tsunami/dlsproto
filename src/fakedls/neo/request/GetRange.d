@@ -41,6 +41,12 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
     import ocean.text.regex.PCRE;
     import dlsproto.common.GetRange;
 
+    /// Request code / version. Required by ConnectionHandler.
+    static immutable Command command = Command(RequestCode.GetRange, 2);
+
+    /// Request name for stats tracking. Required by ConnectionHandler.
+    static immutable istring name = "GetRange";
+
     /***************************************************************************
 
         Array of remaining keys in AA to iterate
@@ -96,7 +102,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 

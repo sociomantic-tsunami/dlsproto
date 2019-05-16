@@ -252,7 +252,7 @@ class DlsClient
                 {
                     this.connection_error = true;
                     log.error("Neo connection error: {} (on {}:{})",
-                            getMsg(e),
+                            e.message,
                             node_addr.address_bytes, node_addr.port);
                 }
                 break;
