@@ -100,7 +100,7 @@ public class RequestParams : IChannelRequestParams
 
         public void hash ( hash_t h )
         {
-            this.range = Hash.HashRange(h, h);
+            (&this).range = Hash.HashRange(h, h);
         }
 
         /***********************************************************************
@@ -115,8 +115,8 @@ public class RequestParams : IChannelRequestParams
 
         public hash_t hash ( )
         {
-            verify(this.is_single_hash);
-            return this.range.min;
+            verify((&this).is_single_hash);
+            return (&this).range.min;
         }
 
         /***********************************************************************
@@ -130,7 +130,7 @@ public class RequestParams : IChannelRequestParams
 
         public bool is_single_hash ( )
         {
-            return this.range.min == this.range.max;
+            return (&this).range.min == (&this).range.max;
         }
     }
 
@@ -250,7 +250,7 @@ public class RequestParams : IChannelRequestParams
 
     ***************************************************************************/
 
-    override protected void notify_ ( void delegate ( IRequestNotification ) info_dg )
+    override protected void notify_ ( scope void delegate ( IRequestNotification ) info_dg )
     {
         scope info = new RequestNotification(cast(DlsConst.Command.E)this.command,
             this.context);
