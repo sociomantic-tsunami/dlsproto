@@ -46,7 +46,7 @@ public scope class GetRangeRegex : Protocol.GetRangeRegex
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 

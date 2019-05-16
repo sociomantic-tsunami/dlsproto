@@ -76,7 +76,7 @@ public template IRequestHandlerRequestCore ( )
 
     ***************************************************************************/
 
-    public void initialise ( RequestOnConn connection, Object resources_object )
+    private void initialise ( RequestOnConn connection, Object resources_object )
     {
         this.connection = connection;
         this.ed = this.connection.event_dispatcher;

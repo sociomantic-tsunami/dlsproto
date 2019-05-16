@@ -32,6 +32,11 @@ public class PutImpl_v1: PutProtocol_v1
     import fakedls.Storage;
     import core.stdc.time;
 
+    /// Request code / version. Required by ConnectionHandler.
+    static immutable Command command = Command(RequestCode.Put, 1);
+
+    /// Request name for stats tracking. Required by ConnectionHandler.
+    static immutable istring name = "Put";
 
     /***************************************************************************
 

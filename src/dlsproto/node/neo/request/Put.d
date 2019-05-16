@@ -12,9 +12,9 @@
 
 module dlsproto.node.neo.request.Put;
 
-import swarm.neo.node.IRequestHandler;
+import swarm.neo.node.IRequest;
 
-public abstract class PutProtocol_v1: IRequestHandler
+public abstract class PutProtocol_v1: IRequest
 {
     import dlsproto.node.neo.request.core.Mixins;
     import swarm.neo.connection.RequestOnConnBase;
@@ -32,48 +32,42 @@ public abstract class PutProtocol_v1: IRequestHandler
 
     mixin IRequestHandlerRequestCore!();
 
-    /// Response status code to send to client.
-    private RequestStatusCode response;
-
-    /**************************************************************************
-
-        Request handler
-
-        Params:
-            msg_payload = initial message read from client to begin
-                the request (the request code and version are
-                assumed to be extracted)
-
-    **************************************************************************/
-
-    public void preSupportedCodeSent ( Const!(void)[] msg_payload )
-    {
-        cstring channel;
-        time_t timestamp;
-        Const!(char)[] value;
-        this.ed.message_parser.parseBody(msg_payload, channel, timestamp, value);
-
-        // Store the extracted data in StorageEngine
-        if (this.prepareChannel(channel))
-        {
-            this.response = this.putInStorage(channel, timestamp, value)?
-                RequestStatusCode.Put : RequestStatusCode.Error;
-        }
-        else
-        {
-            this.response = RequestStatusCode.Error;
-        }
-    }
-
     /***************************************************************************
 
-        Called by the connection handler after the supported code has been sent
-        back to the client.
+        Called by the connection handler after the request code and version have
+        been parsed from a message received over the connection, and the
+        request-supported code sent in response.
+
+        Note: the initial payload passed to this method is a slice of a buffer
+        owned by the RequestOnConn. It is thus safe to assume that the contents
+        of the buffer will not change over the lifetime of the request.
+
+        Params:
+            connection = request-on-conn in which the request handler is called
+            resources = request resources acquirer
+            init_payload = initial message payload read from the connection
 
     ***************************************************************************/
 
-    public void postSupportedCodeSent ()
+    void handle ( RequestOnConn connection, Object resources,
+        Const!(void)[] init_payload )
     {
+        this.initialise(connection, resources);
+
+        cstring channel;
+        time_t timestamp;
+        Const!(char)[] value;
+        this.ed.message_parser.parseBody(init_payload, channel, timestamp, value);
+
+        // Store the extracted data in StorageEngine
+        RequestStatusCode response;
+        if (this.prepareChannel(channel))
+            response = this.putInStorage(channel, timestamp, value)?
+                RequestStatusCode.Put : RequestStatusCode.Error;
+        else
+            response = RequestStatusCode.Error;
+
+        // Send the response code.
         this.ed.send(
             ( RequestOnConnBase.EventDispatcher.Payload payload )
             {

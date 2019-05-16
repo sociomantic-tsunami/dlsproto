@@ -49,7 +49,7 @@ public scope class GetRangeFilter : Protocol.GetRangeFilter
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 

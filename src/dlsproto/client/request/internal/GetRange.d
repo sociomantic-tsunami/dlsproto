@@ -543,7 +543,7 @@ private scope class GetRangeHandler
         {
             if (record_batch.length == 0)
             {
-                throw this.outer.conn.shutdownWithProtocolError("Received empty batch from the node");
+                this.outer.conn.shutdownWithProtocolError("Received empty batch from the node");
             }
 
             this.buffers.append(record_batch);

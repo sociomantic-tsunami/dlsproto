@@ -192,6 +192,16 @@ public class RequestParams : IChannelRequestParams
 
     /***************************************************************************
 
+        Delegate which receives an ISuspendable interface when a suspendable
+        request has just finished.
+
+    ***************************************************************************/
+
+    public RegisterSuspendableDg suspend_unregister;
+
+
+    /***************************************************************************
+
         Delegate which receives an IStreamInfo interface when a stream request
         has just started.
 
@@ -276,7 +286,7 @@ public class RequestParams : IChannelRequestParams
     override protected void copy__ ( IRequestParams params )
     {
         auto dls_params = cast(RequestParams)params;
-        copyClassFields(this, dls_params);
+        this.tupleof[] = dls_params.tupleof[];
     }
 
 
