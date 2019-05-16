@@ -57,6 +57,6 @@ public interface IDlsNodeRegistryInfo : INodeRegistryInfo
 
     **************************************************************************/
 
-    public int opApply ( int delegate ( ref IDlsNodeConnectionPoolInfo ) dg );
+    public int opApply ( scope int delegate ( ref IDlsNodeConnectionPoolInfo ) dg );
 }
 

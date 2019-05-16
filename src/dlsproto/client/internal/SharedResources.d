@@ -264,7 +264,7 @@ public final class SharedResources
 
         **********************************************************************/
 
-        public MessageFiber getFiber ( void delegate ( ) fiber_method )
+        public MessageFiber getFiber ( scope void delegate ( ) fiber_method )
         {
             bool new_fiber;
 
@@ -294,7 +294,7 @@ public final class SharedResources
 
         **********************************************************************/
 
-        public ITimer getTimer ( uint period_ms, void delegate ( ) timer_dg )
+        public ITimer getTimer ( uint period_ms, scope void delegate ( ) timer_dg )
         {
             auto timer = this.acquired_timers.acquire(new Timer);
             timer.initialise(period_ms, timer_dg);
@@ -363,7 +363,7 @@ public final class SharedResources
         ***********************************************************************/
 
         private void initialise ( uint period_ms,
-            void delegate ( ) timer_dg )
+            scope void delegate ( ) timer_dg )
         {
             this.timer_dg = timer_dg;
             auto period_part_s = period_ms / 1000;

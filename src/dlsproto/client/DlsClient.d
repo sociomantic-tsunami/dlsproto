@@ -268,7 +268,7 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
 
     public this ( EpollSelectDispatcher epoll, Plugins plugin_instances,
             IClient.Config config, Neo.Config neo_config,
-            Neo.ConnectionNotifier conn_notifier,
+            scope Neo.ConnectionNotifier conn_notifier,
             size_t fiber_stack_size = IClient.default_fiber_stack_size )
     {
         this.setPlugins(plugin_instances);
@@ -304,7 +304,7 @@ public class ExtensibleDlsClient ( Plugins ... ) : DlsClient
 
     public this ( EpollSelectDispatcher epoll,
         cstring auth_name, ubyte[] auth_key, Plugins plugins,
-        Neo.ConnectionNotifier conn_notifier,
+        scope Neo.ConnectionNotifier conn_notifier,
         size_t conn_limit = IClient.Config.default_connection_limit,
         size_t queue_size = IClient.Config.default_queue_size,
         size_t fiber_stack_size = IClient.default_fiber_stack_size )
@@ -416,7 +416,7 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
 
     public this ( EpollSelectDispatcher epoll,
             SchedulingDlsClient.Config config, Neo.Config neo_config,
-            Neo.ConnectionNotifier conn_notifier,
+            scope Neo.ConnectionNotifier conn_notifier,
             size_t fiber_stack_size = IClient.default_fiber_stack_size)
     {
         this.setPlugins(plugin_instances);
@@ -455,7 +455,7 @@ public class SchedulingDlsClient : ExtensibleDlsClient!(RequestScheduler)
 
     public this ( EpollSelectDispatcher epoll,
         cstring auth_name, ubyte[] auth_key,
-        Neo.ConnectionNotifier conn_notifier,
+        scope Neo.ConnectionNotifier conn_notifier,
         size_t conn_limit = IClient.Config.default_connection_limit,
         size_t queue_size = IClient.Config.default_queue_size,
         size_t fiber_stack_size = IClient.default_fiber_stack_size,
@@ -554,7 +554,7 @@ public class DlsClient : IClient
 
         ***********************************************************************/
 
-        public void opCall ( RequestParams.GetBoolDg output,
+        public void opCall ( scope RequestParams.GetBoolDg output,
             NotifierDg user_notifier )
         {
             this.reset(output, user_notifier);
@@ -576,7 +576,7 @@ public class DlsClient : IClient
 
         ***********************************************************************/
 
-        private void reset ( RequestParams.GetBoolDg output,
+        private void reset ( scope RequestParams.GetBoolDg output,
             NotifierDg user_notifier )
         {
             this.output = output;
@@ -765,7 +765,7 @@ public class DlsClient : IClient
     ***************************************************************************/
 
     public this ( EpollSelectDispatcher epoll, Neo.Config neo_config,
-        Neo.ConnectionNotifier conn_notifier )
+        scope Neo.ConnectionNotifier conn_notifier )
     {
         this(epoll, IClient.Config.default_connection_limit,
             IClient.Config.default_queue_size,
@@ -800,7 +800,7 @@ public class DlsClient : IClient
 
     public this ( EpollSelectDispatcher epoll,
             IClient.Config config, Neo.Config neo_config,
-            Neo.ConnectionNotifier conn_notifier,
+            scope Neo.ConnectionNotifier conn_notifier,
             size_t fiber_stack_size = IClient.default_fiber_stack_size )
     {
         with ( config )
@@ -840,7 +840,7 @@ public class DlsClient : IClient
     ***************************************************************************/
 
     public this ( EpollSelectDispatcher epoll, cstring auth_name, ubyte[] auth_key,
-        Neo.ConnectionNotifier conn_notifier,
+        scope Neo.ConnectionNotifier conn_notifier,
         size_t conn_limit = IClient.Config.default_connection_limit,
         size_t queue_size = IClient.Config.default_queue_size,
         size_t fiber_stack_size = IClient.default_fiber_stack_size )
@@ -908,8 +908,8 @@ public class DlsClient : IClient
 
     ***************************************************************************/
 
-    public void nodeHandshake ( RequestParams.GetBoolDg output,
-        RequestNotification.Callback user_notifier )
+    public void nodeHandshake ( scope RequestParams.GetBoolDg output,
+        scope RequestNotification.Callback user_notifier )
     {
         (cast(DlsNodeRegistry)this.nodes).handshakeInitiated();
         this.node_handshake(output, user_notifier);
@@ -983,8 +983,8 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public Put put ( Key ) ( cstring channel, Key key, RequestParams.PutValueDg input,
-                             RequestNotification.Callback notifier )
+    public Put put ( Key ) ( cstring channel, Key key, scope RequestParams.PutValueDg input,
+                             scope RequestNotification.Callback notifier )
     {
         return *Put(DlsConst.Command.E.Put, notifier).channel(channel)
             .key(key).io(input).contextFromKey();
@@ -1033,7 +1033,7 @@ public class DlsClient : IClient
     }
 
     public GetRange getRange ( Key ) ( cstring channel, Key start_key, Key end_key,
-            RequestParams.GetPairDg output, RequestNotification.Callback notifier )
+            scope RequestParams.GetPairDg output, scope RequestNotification.Callback notifier )
     {
         return *GetRange(DlsConst.Command.E.GetRange, notifier).channel(channel)
             .range(start_key, end_key).io(output);
@@ -1078,8 +1078,8 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetAll getAll ( cstring channel, RequestParams.GetPairDg output,
-            RequestNotification.Callback notifier )
+    public GetAll getAll ( cstring channel, scope RequestParams.GetPairDg output,
+            scope RequestNotification.Callback notifier )
     {
         return *GetAll(DlsConst.Command.E.GetAll, notifier).channel(channel)
             .io(output);
@@ -1121,8 +1121,8 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetChannels getChannels ( RequestParams.GetNodeValueDg output,
-            RequestNotification.Callback notifier )
+    public GetChannels getChannels ( scope RequestParams.GetNodeValueDg output,
+            scope RequestNotification.Callback notifier )
     {
         return *GetChannels(DlsConst.Command.E.GetChannels, notifier).io(output);
     }
@@ -1162,7 +1162,7 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetSize getSize ( RequestParams.GetSizeInfoDg output, RequestNotification.Callback notifier )
+    public GetSize getSize ( scope RequestParams.GetSizeInfoDg output, scope RequestNotification.Callback notifier )
     {
         return *GetSize(DlsConst.Command.E.GetSize, notifier).io(output);
     }
@@ -1205,7 +1205,7 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetChannelSize getChannelSize ( cstring channel, RequestParams.GetChannelSizeInfoDg output, RequestNotification.Callback notifier )
+    public GetChannelSize getChannelSize ( cstring channel, scope RequestParams.GetChannelSizeInfoDg output, scope RequestNotification.Callback notifier )
     {
         return *GetChannelSize(DlsConst.Command.E.GetChannelSize, notifier)
             .channel(channel).io(output);
@@ -1239,7 +1239,7 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public RemoveChannel removeChannel ( cstring channel, RequestNotification.Callback notifier )
+    public RemoveChannel removeChannel ( cstring channel, scope RequestNotification.Callback notifier )
     {
         return *RemoveChannel(DlsConst.Command.E.RemoveChannel, notifier)
             .channel(channel);
@@ -1280,8 +1280,8 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetNumConnections getNumConnections ( RequestParams.GetNumConnectionsDg output,
-            RequestNotification.Callback notifier )
+    public GetNumConnections getNumConnections ( scope RequestParams.GetNumConnectionsDg output,
+            scope RequestNotification.Callback notifier )
     {
         return *GetNumConnections(DlsConst.Command.E.GetNumConnections, notifier)
             .io(output);
@@ -1324,8 +1324,8 @@ public class DlsClient : IClient
         mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
     }
 
-    public GetVersion getVersion ( RequestParams.GetNodeValueDg output,
-            RequestNotification.Callback notifier )
+    public GetVersion getVersion ( scope RequestParams.GetNodeValueDg output,
+            scope RequestNotification.Callback notifier )
     {
         return *GetVersion(DlsConst.Command.E.GetVersion, notifier).io(output);
     }
@@ -1347,7 +1347,7 @@ public class DlsClient : IClient
     ***************************************************************************/
 
     override protected void scopeRequestParams (
-        void delegate ( IRequestParams params ) dg )
+        scope void delegate ( IRequestParams params ) dg )
     {
         scope params = new RequestParams;
         dg(params);

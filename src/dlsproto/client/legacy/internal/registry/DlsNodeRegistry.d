@@ -75,7 +75,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
 
     ***************************************************************************/
 
-    private const expected_nodes = 100;
+    private static immutable expected_nodes = 100;
 
 
     /***************************************************************************
@@ -346,7 +346,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
 
     **************************************************************************/
 
-    public int opApply ( int delegate ( ref IDlsNodeConnectionPoolInfo ) dg )
+    public int opApply ( scope int delegate ( ref IDlsNodeConnectionPoolInfo ) dg )
     {
         int ret;
 
@@ -398,7 +398,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
 
     ***************************************************************************/
 
-    private int opApply ( int delegate ( ref DlsNodeConnectionPool ) dg )
+    private int opApply ( scope int delegate ( ref DlsNodeConnectionPool ) dg )
     {
         int res;
         foreach ( pool; this.nodes.list )
@@ -420,7 +420,7 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
 
     ***************************************************************************/
 
-    private int opApply ( int delegate ( ref size_t, ref DlsNodeConnectionPool ) dg )
+    private int opApply ( scope int delegate ( ref size_t, ref DlsNodeConnectionPool ) dg )
     {
         int res;
         size_t i;
