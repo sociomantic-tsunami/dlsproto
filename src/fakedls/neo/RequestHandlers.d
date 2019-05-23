@@ -33,6 +33,6 @@ public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
-    requests.addHandler!(PutImpl_v1)(true);
-    requests.addHandler!(GetRangeImpl_v2)(false);
+    requests.addHandler!(PutImpl_v1);
+    requests.addHandler!(GetRangeImpl_v2);
 }
