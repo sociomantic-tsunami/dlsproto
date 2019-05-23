@@ -40,7 +40,7 @@ public struct Record
     /// Compares two records, they are same if the key and value is the same
     equals_t opEquals (Record rhs)
     {
-        return (&this).key == rhs.key && (&this).val == rhs.val;
+        return this.key == rhs.key && this.val == rhs.val;
     }
 
     /***************************************************************************

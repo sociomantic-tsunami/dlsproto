@@ -48,7 +48,7 @@ struct LocalStore
 
     public void put ( hash_t key, cstring val )
     {
-        (&this).data[key] ~= val;
+        this.data[key] ~= val;
     }
 
     /***************************************************************************
@@ -62,7 +62,7 @@ struct LocalStore
 
     public void remove ( hash_t key )
     {
-        (&this).data.remove(key);
+        this.data.remove(key);
     }
 
     /***************************************************************************
@@ -85,7 +85,7 @@ struct LocalStore
         hash_t min = 0;
         hash_t max = 0;
 
-        foreach (k, v; (&this).data)
+        foreach (k, v; this.data)
         {
             if (k < min) { min = k; }
             else if (k > max) { max = k; }
@@ -96,29 +96,29 @@ struct LocalStore
 
         if (protocol_type & DlsClient.ProtocolType.Legacy)
         {
-            (&this).verifyGetAll(dls, channel);
-            (&this).verifyGetAllFilter(dls, channel);
+            this.verifyGetAll(dls, channel);
+            this.verifyGetAllFilter(dls, channel);
         }
 
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max);
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max - mid);
-        (&this).verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1);
-        (&this).verifyGetRange(dls, protocol_type, channel, max + 1, max + 2);
-        (&this).verifyGetRange(dls, protocol_type, channel, min / 2, max);
+        this.verifyGetRange(dls, protocol_type, channel, min, max);
+        this.verifyGetRange(dls, protocol_type, channel, min, max - mid);
+        this.verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1);
+        this.verifyGetRange(dls, protocol_type, channel, max + 1, max + 2);
+        this.verifyGetRange(dls, protocol_type, channel, min / 2, max);
 
         // tests including filter
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max, DlsClient.FilterType.StringFilter, "0");
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max - mid, DlsClient.FilterType.StringFilter, "0");
-        (&this).verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1, DlsClient.FilterType.StringFilter, "0");
-        (&this).verifyGetRange(dls, protocol_type, channel, max + 1, max + 2, DlsClient.FilterType.StringFilter, "0");
-        (&this).verifyGetRange(dls, protocol_type, channel, min / 2, max, DlsClient.FilterType.StringFilter, "0");
+        this.verifyGetRange(dls, protocol_type, channel, min, max, DlsClient.FilterType.StringFilter, "0");
+        this.verifyGetRange(dls, protocol_type, channel, min, max - mid, DlsClient.FilterType.StringFilter, "0");
+        this.verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1, DlsClient.FilterType.StringFilter, "0");
+        this.verifyGetRange(dls, protocol_type, channel, max + 1, max + 2, DlsClient.FilterType.StringFilter, "0");
+        this.verifyGetRange(dls, protocol_type, channel, min / 2, max, DlsClient.FilterType.StringFilter, "0");
 
         // tests including regex
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max, DlsClient.FilterType.PCRE, "^1.*");
-        (&this).verifyGetRange(dls, protocol_type, channel, min, max - mid, DlsClient.FilterType.PCRE, "^1.*");
-        (&this).verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1, DlsClient.FilterType.PCRE, "^1.*");
-        (&this).verifyGetRange(dls, protocol_type, channel, max + 1, max + 2, DlsClient.FilterType.PCRE, "^1.*");
-        (&this).verifyGetRange(dls, protocol_type, channel, min / 2, max, DlsClient.FilterType.PCRE, "^1.*");
+        this.verifyGetRange(dls, protocol_type, channel, min, max, DlsClient.FilterType.PCRE, "^1.*");
+        this.verifyGetRange(dls, protocol_type, channel, min, max - mid, DlsClient.FilterType.PCRE, "^1.*");
+        this.verifyGetRange(dls, protocol_type, channel, min + mid / 4, max + 1, DlsClient.FilterType.PCRE, "^1.*");
+        this.verifyGetRange(dls, protocol_type, channel, max + 1, max + 2, DlsClient.FilterType.PCRE, "^1.*");
+        this.verifyGetRange(dls, protocol_type, channel, min / 2, max, DlsClient.FilterType.PCRE, "^1.*");
     }
 
     /***************************************************************************
@@ -139,19 +139,19 @@ struct LocalStore
     {
         auto remote = dls.getAll(channel);
         log.trace("\tVerifying channel with GetAll: local:{}, remote:{}",
-            (&this).data.length, remote.length);
-        test!("==")((&this).data.length, remote.length);
+            this.data.length, remote.length);
+        test!("==")(this.data.length, remote.length);
 
         foreach ( k, v; remote )
         {
-            test!("==")((&this).data[k].length, remote[k].length);
-            test!("in")(k, (&this).data);
+            test!("==")(this.data[k].length, remote[k].length);
+            test!("in")(k, this.data);
 
             foreach (val; remote[k])
             {
                 auto found_record = false;
 
-                foreach (local_val; (&this).data[k])
+                foreach (local_val; this.data[k])
                 {
                     if (val == local_val)
                     {
@@ -187,7 +187,7 @@ struct LocalStore
 
         cstring[][hash_t] local;
 
-        foreach ( k, vals; (&this).data )
+        foreach ( k, vals; this.data )
         {
             foreach (v; vals)
             {
@@ -255,7 +255,7 @@ struct LocalStore
             regex.compile(filter, true);
         }
 
-        foreach ( k, vals; (&this).data )
+        foreach ( k, vals; this.data )
         {
             foreach (v; vals)
             {

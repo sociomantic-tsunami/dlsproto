@@ -62,7 +62,7 @@ struct DLS
 
     public Channel get (cstring channel_name)
     {
-        auto channel = channel_name in (&this).channels;
+        auto channel = channel_name in this.channels;
         if (channel is null)
             return null;
         return *channel;
@@ -83,7 +83,7 @@ struct DLS
 
     public Channel getVerify ( cstring channel_name )
     {
-        auto channel = channel_name in (&this).channels;
+        auto channel = channel_name in this.channels;
         enforce!(MissingChannelException)(channel !is null, idup(channel_name));
         return *channel;
     }
@@ -102,11 +102,11 @@ struct DLS
 
     public Channel getCreate (cstring channel_name)
     {
-        auto channel = channel_name in (&this).channels;
+        auto channel = channel_name in this.channels;
         if (channel is null)
         {
-            (&this).channels[idup(channel_name)] = new Channel;
-            channel = channel_name in (&this).channels;
+            this.channels[idup(channel_name)] = new Channel;
+            channel = channel_name in this.channels;
         }
         return *channel;
     }
@@ -122,10 +122,10 @@ struct DLS
 
     public void remove (cstring channel_name)
     {
-        auto channel = (&this).get(channel_name);
+        auto channel = this.get(channel_name);
         if (channel !is null)
         {
-            (&this).channels.remove(channel_name);
+            this.channels.remove(channel_name);
         }
     }
 
@@ -137,10 +137,10 @@ struct DLS
 
     public void clear ( )
     {
-        auto names = (&this).channels.keys;
+        auto names = this.channels.keys;
         foreach (name; names)
         {
-            (&this).getVerify(name).data = null;
+            this.getVerify(name).data = null;
         }
     }
 
@@ -155,7 +155,7 @@ struct DLS
     {
         cstring[] result;
 
-        foreach (key, value; (&this).channels)
+        foreach (key, value; this.channels)
             result ~= key;
 
         return result;
