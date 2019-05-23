@@ -91,7 +91,7 @@ public struct GetRange
 
     ***************************************************************************/
 
-    mixin BatchController!(typeof((&this)), IController);
+    mixin BatchController!(typeof(this), IController);
 
 
     /***************************************************************************
@@ -443,8 +443,8 @@ private scope class GetRangeHandler
 
             private void init (void[]* delegate() getVoidBuffer)
             {
-                (&this).output = getVoidBuffer();
-                (&this).input = getVoidBuffer();
+                this.output = getVoidBuffer();
+                this.input = getVoidBuffer();
             }
 
            /********************************************************************
@@ -455,9 +455,9 @@ private scope class GetRangeHandler
 
             private void swap ()
             {
-                auto tmp = (&this).output;
-                (&this).output = (&this).input;
-                (&this).input = tmp;
+                auto tmp = this.output;
+                this.output = this.input;
+                this.input = tmp;
             }
 
             /*******************************************************************
@@ -469,7 +469,7 @@ private scope class GetRangeHandler
 
             private bool empty ()
             {
-                return !(&this).output.length && !(&this).input.length;
+                return !this.output.length && !this.input.length;
             }
 
             /*******************************************************************
