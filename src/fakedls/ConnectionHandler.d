@@ -30,10 +30,8 @@ import fakedls.request.GetRangeRegex;
 import fakedls.request.GetAll;
 import fakedls.request.GetAllFilter;
 import fakedls.request.GetChannels;
-import fakedls.request.GetChannelSize;
 import fakedls.request.GetNumConnections;
 import fakedls.request.GetVersion;
-import fakedls.request.GetSize;
 import fakedls.request.Put;
 import fakedls.request.RemoveChannel;
 
@@ -281,30 +279,6 @@ public class DlsConnectionHandler :
     override protected void handleGetChannels ( )
     {
         this.handleCommand!(GetChannels);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetSize ( )
-    {
-        this.handleCommand!(GetSize);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetChannelSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetChannelSize ( )
-    {
-        this.handleCommand!(GetChannelSize);
     }
 
 

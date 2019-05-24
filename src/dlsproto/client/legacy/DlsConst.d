@@ -65,11 +65,6 @@ static:
         GetRange            = retrieve records with hashes in specified range
         GetAll              = get all records from a DLS node
         GetChannels         = get the channels in the DLS node
-        GetChannelSize      = get the total number of records and the
-                              total size (in bytes) in a specified channel
-        GetSize             = get the total number of records and the
-                              total size (in bytes) of all records in
-                              all channels
         RemoveChannel       = remove complete contents of a channel
         GetNumConnections   = gets the current number of active connections
                               from a DLS node
@@ -95,8 +90,8 @@ static:
         mixin EnumBase!([
             "Put"[]:                    3,  // 0x03
             "GetChannels":              17, // 0x11
-            "GetChannelSize":           18, // 0x12
-            "GetSize":                  19, // 0x13
+            // "GetChannelSize":           18, // 0x12
+            // "GetSize":                  19, // 0x13
             "RemoveChannel":            22, // 0x16
             "GetNumConnections":        23, // 0x17
             "GetVersion":               24, // 0x18

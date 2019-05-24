@@ -1130,90 +1130,6 @@ public class DlsClient : IClient
 
     /***************************************************************************
 
-        Creates a GetSize request, which will receive the number of records and
-        bytes which exist in each node in the DLS (a sum of the contents of all
-        channels stored in the node). The database sizes are sent to the
-        specified output delegate, which should be of the form:
-
-            void delegate ( RequestContext context, cstring address, ushort port, ulong records, ulong bytes )
-
-        This is a multi-node request which is executed in parallel over all
-        nodes in the DLS. The output delegate is called once per node.
-
-        Note that if there are no channels in the DLS, the output delegate will
-        not be called.
-
-        Params:
-            output = output delegate to send size information to
-            notifier = notification callback
-
-        Returns:
-            instance allowing optional settings to be set and then to be passed
-            to assign()
-
-    ***************************************************************************/
-
-    private struct GetSize
-    {
-        mixin RequestSetup.RequestBase;
-        mixin RequestSetup.IODelegate;       // io(T) method
-        mixin RequestSetup.Node;             // node(NodeItem) method
-
-        mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
-    }
-
-    public GetSize getSize ( scope RequestParams.GetSizeInfoDg output, scope RequestNotification.Callback notifier )
-    {
-        return *GetSize(DlsConst.Command.E.GetSize, notifier).io(output);
-    }
-
-
-    /***************************************************************************
-
-        Creates a GetChannelSize request, which will receive the number of
-        records and bytes which exist in the specified channel in each node of
-        the DLS. The channel sizes are sent to the specified output delegate,
-        which should be of the form:
-
-            void delegate ( RequestContext context, cstring address, ushort port,
-                    cstring channel, ulong records, ulong bytes )
-
-        This is a multi-node request which is executed in parallel over all
-        nodes in the DLS. The output delegate is called once per node.
-
-        Note that if there are no channels in the DLS, the output delegate will
-        not be called.
-
-        Params:
-            channel = database channel
-            output = output delegate to send size information to
-            notifier = notification callback
-
-        Returns:
-            instance allowing optional settings to be set and then to be passed
-            to assign()
-
-    ***************************************************************************/
-
-    private struct GetChannelSize
-    {
-        mixin RequestSetup.RequestBase;
-        mixin RequestSetup.Channel;          // channel(cstring) method
-        mixin RequestSetup.IODelegate;       // io(T) method
-        mixin RequestSetup.Node;             // node(NodeItem) method
-
-        mixin RequestSetup.RequestParamsSetup; // private setup() method, used by assign()
-    }
-
-    public GetChannelSize getChannelSize ( cstring channel, scope RequestParams.GetChannelSizeInfoDg output, scope RequestNotification.Callback notifier )
-    {
-        return *GetChannelSize(DlsConst.Command.E.GetChannelSize, notifier)
-            .channel(channel).io(output);
-    }
-
-
-    /***************************************************************************
-
         Creates a RemoveChannel request, which will delete all records from the
         specified channel in all nodes of the DLS.
 
@@ -1384,7 +1300,6 @@ public class DlsClient : IClient
             case Put:
             case GetRange:
             case GetAll:
-            case GetChannelSize:
             case RemoveChannel:
             case GetAllFilter:
             case GetRangeFilter:
