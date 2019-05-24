@@ -63,8 +63,6 @@ public class RequestParams : IChannelRequestParams
     public alias .GetBoolDg GetBoolDg;
     public alias .GetNumConnectionsDg GetNumConnectionsDg;
     public alias .GetNodeValueDg GetNodeValueDg;
-    public alias .GetSizeInfoDg GetSizeInfoDg;
-    public alias .GetChannelSizeInfoDg GetChannelSizeInfoDg;
     public alias .RegisterSuspendableDg RegisterSuspendableDg;
     public alias .RegisterStreamInfoDg RegisterStreamInfoDg;
     public alias .RedistributeDg RedistributeDg;
@@ -150,8 +148,6 @@ public class RequestParams : IChannelRequestParams
         GetValueDg get_value;
         GetPairDg get_pair;
         GetBoolDg get_bool;
-        GetSizeInfoDg get_size_info;
-        GetChannelSizeInfoDg get_channel_size;
         GetNumConnectionsDg get_num_connections;
         GetNodeValueDg get_node_value;
         RedistributeDg redistribute;

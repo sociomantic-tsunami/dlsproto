@@ -40,8 +40,6 @@ import dlsproto.client.legacy.internal.request.model.IDlsRequestResources;
 
 import swarm.client.request.GetChannelsRequest;
 import swarm.client.request.GetNumConnectionsRequest;
-import swarm.client.request.GetChannelSizeRequest;
-import swarm.client.request.GetSizeRequest;
 import swarm.client.request.RemoveChannelRequest;
 
 import dlsproto.client.legacy.internal.request.model.IDlsRequestResources;
@@ -73,14 +71,6 @@ private alias GetChannelsRequestTemplate!(IRequest,
 private alias GetNumConnectionsRequestTemplate!(IRequest,
     IDlsRequestResources, DlsConst.Command.E.GetNumConnections)
     GetNumConnectionsRequest;
-
-private alias GetChannelSizeRequestTemplate!(IChannelRequest,
-    IDlsRequestResources, DlsConst.Command.E.GetChannelSize)
-    GetChannelSizeRequest;
-
-private alias GetSizeRequestTemplate!(IRequest,
-    IDlsRequestResources, DlsConst.Command.E.GetSize)
-    GetSizeRequest;
 
 private alias RemoveChannelRequestTemplate!(IChannelRequest,
     IDlsRequestResources, DlsConst.Command.E.RemoveChannel)
@@ -459,32 +449,6 @@ public class DlsRequestConnection :
     {
         scope resources = new DlsRequestResources;
         this.handleCommand!(GetChannelsRequest)(resources);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetSize ( )
-    {
-        scope resources = new DlsRequestResources;
-        this.handleCommand!(GetSizeRequest)(resources);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetChannelSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetChannelSize ( )
-    {
-        scope resources = new DlsRequestResources;
-        this.handleCommand!(GetChannelSizeRequest)(resources);
     }
 
 

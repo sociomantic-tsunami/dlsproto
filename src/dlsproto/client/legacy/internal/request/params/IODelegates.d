@@ -138,28 +138,6 @@ public alias void delegate (RequestContext, Const!(char[]), ushort, Const!(char[
 
 /*******************************************************************************
 
-    Alias for delegate which gets a node's size info (as returned by
-    GetSize)
-
-*******************************************************************************/
-
-public alias void delegate (RequestContext, Const!(char[]), ushort, ulong, ulong)
-    GetSizeInfoDg;
-
-
-/*******************************************************************************
-
-    Alias for delegate which gets a node's size info (as returned by
-    GetChannelSize)
-
-*******************************************************************************/
-
-public alias void delegate (RequestContext, Const!(char[]), ushort, Const!(char[]), ulong, ulong)
-    GetChannelSizeInfoDg;
-
-
-/*******************************************************************************
-
     Alias for delegate which gets an ISuspendable interface for a request
 
 *******************************************************************************/

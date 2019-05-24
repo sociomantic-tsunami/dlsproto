@@ -234,8 +234,6 @@ public class DlsNodeRegistry : NodeRegistry, IDlsNodeRegistryInfo
             case GetAll:
             case GetAllFilter:
             case GetChannels:
-            case GetSize:
-            case GetChannelSize:
             case GetRange:
             case GetRangeFilter:
             case GetRangeRegex:
