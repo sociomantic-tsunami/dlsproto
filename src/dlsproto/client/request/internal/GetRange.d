@@ -67,7 +67,7 @@ public struct GetRange
 {
     import dlsproto.common.GetRange;
     import dlsproto.common.RequestCodes;
-    import dlsproto.client.request.GetRange;
+    public import dlsproto.client.request.GetRange;
     import dlsproto.client.internal.SharedResources;
 
     import ocean.io.select.protocol.generic.ErrnoIOException: IOError;
@@ -203,7 +203,7 @@ private scope class GetRangeHandler
     import swarm.neo.util.MessageFiber;
 
 
-    alias GetRange.BatchRequestSharedWorkingData.Signal ControllerSignal;
+    alias swarm.neo.client.mixins.BatchRequestCore.BatchRequestSharedWorkingData.Signal ControllerSignal;
 
     /// Resumes the `RecordStream` fiber.
     private static immutable ubyte ResumeRecordStreamValue = ControllerSignal.max + 1;
