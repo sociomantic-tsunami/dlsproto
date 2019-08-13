@@ -114,8 +114,8 @@ template NeoSupport ()
 
         private struct Internals
         {
-            import dlsproto.client.request.internal.Put;
-            import dlsproto.client.request.internal.GetRange;
+            public import dlsproto.client.request.internal.Put;
+            public import dlsproto.client.request.internal.GetRange;
         }
 
         /***********************************************************************
