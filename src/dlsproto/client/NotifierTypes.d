@@ -27,5 +27,5 @@ public struct RequestRecordInfo
 
     RequestId request_id;
     time_t key;
-    Const!(void)[] value;
+    const(void)[] value;
 }

@@ -620,7 +620,7 @@ private scope class GetRangeHandler
                     }
                 }
 
-                Const!(void)[] remaining_batch = *this.buffers.output;
+                const(void)[] remaining_batch = *this.buffers.output;
                 for (uint yield_count = 0; remaining_batch.length; yield_count++)
                 {
                     if (yield_count >= 10) //yield every 10 records
@@ -639,7 +639,7 @@ private scope class GetRangeHandler
                     this.passRecordToUser(
                         *this.outer.conn.message_parser.getValue!(time_t)(
                             remaining_batch),
-                        this.outer.conn.message_parser.getArray!(Const!(void))(
+                        this.outer.conn.message_parser.getArray!(const(void))(
                             remaining_batch
                         ));
 
@@ -819,7 +819,7 @@ private scope class GetRangeHandler
                         switch (msg.type)
                         {
                             case MessageType_v2.Records:
-                                Const!(void)[] received_record_batch;
+                                const(void)[] received_record_batch;
                                 size_t uncompressed_batch_size;
 
                                 this.outer.conn.message_parser.parseBody(

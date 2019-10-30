@@ -50,13 +50,13 @@ public abstract class PutProtocol_v1: IRequest
     ***************************************************************************/
 
     void handle ( RequestOnConn connection, Object resources,
-        Const!(void)[] init_payload )
+        const(void)[] init_payload )
     {
         this.initialise(connection, resources);
 
         cstring channel;
         time_t timestamp;
-        Const!(char)[] value;
+        const(char)[] value;
         this.ed.message_parser.parseBody(init_payload, channel, timestamp, value);
 
         // Store the extracted data in StorageEngine

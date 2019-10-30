@@ -133,7 +133,7 @@ public class Dls : Node!(DlsNode, "dls")
 
     ***************************************************************************/
 
-    public Const!(cstring[]) get ( cstring channel, size_t key )
+    public const(cstring[]) get ( cstring channel, size_t key )
     {
         // DLS protocol defines keys as strings but env.Dls tries to mimic
         // swarm client API which uses hash_t
@@ -158,7 +158,7 @@ public class Dls : Node!(DlsNode, "dls")
 
     ***************************************************************************/
 
-    public Const!(char[][])[hash_t] getAll ( cstring channel )
+    public const(char[][])[hash_t] getAll ( cstring channel )
     {
         return global_storage.getVerify(channel).getAll();
     }

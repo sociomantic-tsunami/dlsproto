@@ -99,7 +99,7 @@ class GetRangeTest : DlsTest
     }
 
     protected void getRangeNotifier ( DlsClient.Neo.GetRange.Notification info,
-        Const!(DlsClient.Neo.GetRange.Args) args )
+        const(DlsClient.Neo.GetRange.Args) args )
     {
         with ( info.Active ) switch ( info.active )
         {
