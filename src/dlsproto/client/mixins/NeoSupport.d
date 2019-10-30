@@ -187,8 +187,8 @@ template NeoSupport ()
                 time_t timestamp, C value, scope Put.Notifier notifier,
                 Options options )
         {
-            static assert(is(C: Const!(void)[]),"value must be implicitly castable to" ~
-                    " Const!(void)[]");
+            static assert(is(C: const(void)[]),"value must be implicitly castable to" ~
+                    " const(void)[]");
 
             RequestContext context;
             scope parse_context = (RequestContext context_)
@@ -197,8 +197,8 @@ template NeoSupport ()
             };
             setupOptionalArgs!(options.length)(options, parse_context);
 
-            auto params = Const!(Internals.Put.UserSpecifiedParams)(
-                    Const!(Put.Args)(channel, timestamp, value),
+            auto params = const(Internals.Put.UserSpecifiedParams)(
+                    const(Put.Args)(channel, timestamp, value),
                     notifier
                 );
 
@@ -254,8 +254,8 @@ template NeoSupport ()
                     parse_context
             );
 
-            auto params = Const!(Internals.GetRange.UserSpecifiedParams)(
-                        Const!(GetRange.Args)(channel, low, high,
+            auto params = const(Internals.GetRange.UserSpecifiedParams)(
+                        const(GetRange.Args)(channel, low, high,
                             filter_string, filter_mode, context),
                         notifier
                     );
@@ -421,7 +421,7 @@ template NeoSupport ()
             time_t key, C value,
             Options options)
         {
-            static assert(is(C: Const!(void)[]),"value must be implicitly castable to" ~
+            static assert(is(C: const(void)[]),"value must be implicitly castable to" ~
                     " void[]");
 
             auto task = Task.getThis();
@@ -455,7 +455,7 @@ template NeoSupport ()
                     parse_notifier
             );
 
-            scope notifier = ( Neo.Put.Notification info, Const!(Neo.Put.Args) args )
+            scope notifier = ( Neo.Put.Notification info, const(Neo.Put.Args) args )
             {
                 if ( user_notifier )
                     user_notifier(info, args);
@@ -575,7 +575,7 @@ template NeoSupport ()
             *******************************************************************/
 
             private void notifier ( DlsClient.Neo.GetRange.Notification info,
-                Const!(DlsClient.Neo.GetRange.Args) args )
+                const(DlsClient.Neo.GetRange.Args) args )
             {
                 if (this.user_notifier)
                 {
@@ -709,8 +709,8 @@ template NeoSupport ()
             time_t low, time_t high,
             Options options )
         {
-            static assert(is(C: Const!(void)[]),"value must be implicitly castable to" ~
-                    " Const!(void)[]");
+            static assert(is(C: const(void)[]),"value must be implicitly castable to" ~
+                    " const(void)[]");
 
             auto task = Task.getThis();
             verify(task !is null,
@@ -762,7 +762,7 @@ template NeoSupport ()
             }
 
             private void putNotifier ( DlsClient.Neo.Put.Notification info,
-                Const!(DlsClient.Neo.Put.Args) args )
+                const(DlsClient.Neo.Put.Args) args )
             {
             }
 

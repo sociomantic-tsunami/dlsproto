@@ -82,5 +82,5 @@ public abstract scope class GetChannels : DlsCommand
 
     ***************************************************************************/
 
-    abstract protected Const!(char[])[] getChannelsIds ( );
+    abstract protected const(char[])[] getChannelsIds ( );
 }

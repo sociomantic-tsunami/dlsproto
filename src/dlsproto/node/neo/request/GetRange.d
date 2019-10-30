@@ -145,7 +145,7 @@ public abstract class GetRangeProtocol_v2: IRequest
     ***************************************************************************/
 
     void handle ( RequestOnConn connection, Object resources,
-        Const!(void)[] init_payload )
+        const(void)[] init_payload )
     {
         this.initialise(connection, resources);
 

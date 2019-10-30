@@ -51,7 +51,7 @@ public scope class GetChannels : Protocol.GetChannels
 
     ***************************************************************************/
 
-    override protected Const!(char[])[] getChannelsIds ( )
+    override protected const(char[])[] getChannelsIds ( )
     {
         return global_storage.getChannelList();
     }

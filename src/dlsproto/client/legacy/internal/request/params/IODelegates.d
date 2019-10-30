@@ -55,7 +55,7 @@ import swarm.util.RecordBatcher;
 
 *******************************************************************************/
 
-public alias Const!(char[]) delegate (RequestContext) PutValueDg;
+public alias const(char[]) delegate (RequestContext) PutValueDg;
 
 
 /*******************************************************************************
@@ -82,7 +82,7 @@ public alias RedistributeInfo delegate (RequestContext) RedistributeDg;
 
 *******************************************************************************/
 
-public alias void delegate (RequestContext, Const!(char[])) GetValueDg;
+public alias void delegate (RequestContext, const(char[])) GetValueDg;
 
 
 /*******************************************************************************
@@ -91,7 +91,7 @@ public alias void delegate (RequestContext, Const!(char[])) GetValueDg;
 
 *******************************************************************************/
 
-public alias void delegate (RequestContext, Const!(char[]), Const!(char[]))
+public alias void delegate (RequestContext, const(char[]), const(char[]))
     GetPairDg;
 
 
@@ -110,7 +110,7 @@ public alias void delegate (RequestContext, bool) GetBoolDg;
 
 *******************************************************************************/
 
-public alias void delegate (RequestContext, Const!(char[]), ushort, HashRange)
+public alias void delegate (RequestContext, const(char[]), ushort, HashRange)
     GetResponsibleRangeDg;
 
 
@@ -121,7 +121,7 @@ public alias void delegate (RequestContext, Const!(char[]), ushort, HashRange)
 
 *******************************************************************************/
 
-public alias void delegate (RequestContext, Const!(char[]), ushort, size_t)
+public alias void delegate (RequestContext, const(char[]), ushort, size_t)
     GetNumConnectionsDg;
 
 
@@ -132,7 +132,7 @@ public alias void delegate (RequestContext, Const!(char[]), ushort, size_t)
 
 *******************************************************************************/
 
-public alias void delegate (RequestContext, Const!(char[]), ushort, Const!(char[]))
+public alias void delegate (RequestContext, const(char[]), ushort, const(char[]))
     GetNodeValueDg;
 
 
