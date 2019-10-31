@@ -4,8 +4,6 @@ override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0 -lpcre
 override DFLAGS += -w
 
 override DFLAGS += -de
-# Open source Makd uses dmd by default
-DC = dmd-transitional
 
 $B/fakedls: $C/src/fakedls/main.d
 
