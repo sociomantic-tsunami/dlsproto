@@ -3,6 +3,12 @@ export ASSERT_ON_STOMPING_PREVENTION=1
 override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0 -lpcre
 override DFLAGS += -w -de
 
+# Ubuntu bionic requires builds to use position independent code and
+# dmd-transitional does not set the flag -fPIC by default
+ifeq ($(DC),dmd-transitional)
+	override DFLAGS += -fPIC
+endif
+
 $B/fakedls: $C/src/fakedls/main.d
 
 all += $B/fakedls $B/neotest
