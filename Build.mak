@@ -1,9 +1,7 @@
 export ASSERT_ON_STOMPING_PREVENTION=1
 
 override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0 -lpcre
-override DFLAGS += -w
-
-override DFLAGS += -de
+override DFLAGS += -w -de
 
 $B/fakedls: $C/src/fakedls/main.d
 
