@@ -323,7 +323,7 @@ public class Dls : Node!(DlsNode, "dls")
     }
 }
 
-version (UnitTest)
+version ( unittest )
 {
     import ocean.core.Test;
     import ocean.time.MicrosecondsClock;

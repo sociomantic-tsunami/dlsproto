@@ -16,7 +16,7 @@ import dlstest.TestRunner;
 import turtle.runner.Runner;
 import ocean.transition;
 
-version ( UnitTest ) {}
+version ( unittest ) {}
 else
 int main ( istring[] args )
 {
