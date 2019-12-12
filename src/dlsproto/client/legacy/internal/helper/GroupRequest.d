@@ -72,7 +72,7 @@ import dlsproto.client.legacy.internal.request.notifier.RequestNotification;
 
 import dlsproto.client.legacy.internal.request.params.RequestParams;
 
-version (UnitTest)
+version ( unittest )
 {
     import ocean.io.select.EpollSelectDispatcher;
 }

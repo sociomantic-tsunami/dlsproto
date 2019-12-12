@@ -743,7 +743,7 @@ template NeoSupport ()
         }
     }
 
-    version ( UnitTest )
+    version ( unittest )
     {
         import ocean.task.Scheduler;
         import ocean.task.Task;

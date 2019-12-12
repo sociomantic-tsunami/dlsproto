@@ -50,7 +50,7 @@ static this ( )
 
 *******************************************************************************/
 
-version ( UnitTest ) {}
+version ( unittest ) {}
 else
 void main ( )
 {

@@ -12,7 +12,7 @@
 
 module dlsproto.client.UsageExamples;
 
-version (UnitTest)
+version ( unittest )
 {
     import ocean.transition;
 
@@ -30,7 +30,7 @@ version (UnitTest)
 }
 
 
-version (UnitTest)
+version ( unittest )
 {
     // DaemonApp class showing typical neo DLS client initialisation. The
     // class has a single abstract method -- example() -- which is implemented
