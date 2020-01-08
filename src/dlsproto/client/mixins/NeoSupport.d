@@ -593,7 +593,7 @@ template NeoSupport ()
                         this.record_key = info.received.key;
 
                         copy(*this.record_value, info.received.value);
-                        enableStomping(*this.record_value);
+                        assumeSafeAppend(*this.record_value);
 
                         if (this.task.suspended())
                         {

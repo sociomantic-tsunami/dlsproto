@@ -486,7 +486,7 @@ private scope class GetRangeHandler
                 // append record_batch to *this.input, which may or may not
                 // be empty.
                 if (!(*input).length)
-                    enableStomping(*input);
+                    assumeSafeAppend(*input);
 
                 // Note that the appending here is needed, since the node
                 // will send the remaining batch if received the Stop message
@@ -828,7 +828,7 @@ private scope class GetRangeHandler
                                 );
 
                                 (*uncompressed_batch).length = uncompressed_batch_size;
-                                enableStomping(*uncompressed_batch);
+                                assumeSafeAppend(*uncompressed_batch);
 
                                 this.lzo.uncompress(received_record_batch,
                                        *uncompressed_batch);

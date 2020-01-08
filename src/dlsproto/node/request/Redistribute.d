@@ -129,7 +129,7 @@ public abstract scope class Redistribute : DlsCommand
         this.reader.read(this.fraction_of_data_to_send);
 
         (*this.redistribute_node_buffer).length = 0;
-        enableStomping(*this.redistribute_node_buffer);
+        assumeSafeAppend(*this.redistribute_node_buffer);
 
         while (true)
         {
@@ -147,7 +147,7 @@ public abstract scope class Redistribute : DlsCommand
         // cut off final "eof" marker
         (*this.redistribute_node_buffer).length =
             (*this.redistribute_node_buffer).length - 1;
-        enableStomping(*this.redistribute_node_buffer);
+        assumeSafeAppend(*this.redistribute_node_buffer);
     }
 
     /**************************************************************************

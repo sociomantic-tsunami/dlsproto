@@ -329,19 +329,19 @@ public abstract class GetRangeProtocol_v2: IRequest
         scope (exit)
         {
             (*this.batch_buffer).length = 0;
-            enableStomping(*this.batch_buffer);
+            assumeSafeAppend(*this.batch_buffer);
         }
 
         // Compress the batch
         (*this.compressed_batch).length =
             this.lzo.maxCompressedLength((*this.batch_buffer).length);
-        enableStomping(*this.compressed_batch);
+        assumeSafeAppend(*this.compressed_batch);
 
         auto compressed_size = this.lzo.compress(*this.batch_buffer,
                 *this.compressed_batch);
 
         (*this.compressed_batch).length = compressed_size;
-        enableStomping(*this.compressed_batch);
+        assumeSafeAppend(*this.compressed_batch);
 
         // sends the records but be ready to potentially receive a Stop message.
         auto event = this.ed.nextEvent(
