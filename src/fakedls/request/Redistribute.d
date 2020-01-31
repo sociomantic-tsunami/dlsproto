@@ -18,7 +18,7 @@ module fakedls.request.Redistribute;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import Protocol = dlsproto.node.request.Redistribute;
 import dlsproto.client.legacy.DlsConst;

@@ -18,7 +18,7 @@ module fakedls.request.GetChannels;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import Protocol = dlsproto.node.request.GetChannels;
 

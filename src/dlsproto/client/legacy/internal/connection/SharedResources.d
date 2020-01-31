@@ -40,7 +40,7 @@ public import swarm.util.RecordBatcher : RecordBatch;
 
 import swarm.Const;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 /*******************************************************************************
 

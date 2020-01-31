@@ -20,7 +20,7 @@ module dlsproto.node.request.PutBatch;
 
 import dlsproto.node.request.model.SingleChannel;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 /*******************************************************************************
 

@@ -21,7 +21,7 @@ module dlsproto.client.legacy.internal.request.params.IODelegates;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import swarm.client.request.context.RequestContext;
 

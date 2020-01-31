@@ -18,7 +18,7 @@ module dlsproto.node.request.model.SingleChannel;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import dlsproto.node.request.model.DlsCommand;
 import ocean.text.convert.Formatter;

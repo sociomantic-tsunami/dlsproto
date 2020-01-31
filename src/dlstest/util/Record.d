@@ -19,7 +19,7 @@ public struct Record
 {
     import ocean.io.digest.Fnv1;
     import ocean.text.convert.Formatter;
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     /***************************************************************************
 

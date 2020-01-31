@@ -24,7 +24,7 @@ private import dlsproto.client.legacy.internal.request.model.IBulkGetRequest;
 
 private import ocean.io.select.client.FiberSelectEvent;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 
 /*******************************************************************************

@@ -20,7 +20,7 @@ module dlsproto.node.request.model.CompressedBatch;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.core.Verify;
 
 import dlsproto.node.request.model.SingleChannel;

@@ -24,7 +24,7 @@ module dlsproto.client.legacy.internal.request.PutRequest;
 
 import dlsproto.client.legacy.internal.request.model.IPutRequest;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 
 /*******************************************************************************

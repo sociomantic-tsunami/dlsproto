@@ -12,7 +12,7 @@
 
 module dlsproto.client.NotifierTypes;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import core.stdc.time;
 
 /*******************************************************************************

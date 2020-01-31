@@ -22,7 +22,7 @@ import swarm.neo.request.Command;
 import dlsproto.common.RequestCodes;
 import ocean.text.convert.Integer;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import fakedls.neo.SharedResources;
 
 

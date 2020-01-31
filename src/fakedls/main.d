@@ -19,7 +19,7 @@ module fakedls.main;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import fakedls.DlsNode;
 

@@ -48,7 +48,7 @@ public abstract class GetRangeProtocol_v2: IRequest
 
     import ocean.core.Enforce;
     import ocean.io.compress.Lzo;
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     /***************************************************************************
 

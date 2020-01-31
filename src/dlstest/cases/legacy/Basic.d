@@ -20,7 +20,7 @@ module dlstest.cases.legacy.Basic;
 
 import ocean.core.Array;
 import ocean.core.Test;
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import dlstest.DlsTestCase;
 
