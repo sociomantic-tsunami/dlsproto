@@ -64,10 +64,8 @@ public template IODelegate ( )
     public This* io ( T ) ( T io )
     {
         this.io_item = this.io_item(io);
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+
+        return &this;
     }
 
 
@@ -169,10 +167,7 @@ public template Filter ( )
                 assert(false, "filter method called on command which doesn't support filtering!");
         }
 
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+        return &this;
     }
 
 
@@ -215,10 +210,7 @@ public template Filter ( )
                 assert(false, "filter method called on command which doesn't support filtering!");
         }
 
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+        return &this;
     }
 
 
@@ -307,10 +299,7 @@ public template Key ( )
 
         this.hash = swarm.util.Hash.toHash(key);
 
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+        return &this;
     }
 
 
@@ -327,10 +316,7 @@ public template Key ( )
     {
         this.user_context = RequestContext(this.hash);
 
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+        return &this;
     }
 
 
@@ -401,10 +387,7 @@ public template Range ( )
             swarm.util.Hash.HashRange(swarm.util.Hash.toHash(start),
                     swarm.util.Hash.toHash(end));
 
-        version (D_Version2)
-            return &this;
-        else
-            return this;
+        return &this;
     }
 
 
