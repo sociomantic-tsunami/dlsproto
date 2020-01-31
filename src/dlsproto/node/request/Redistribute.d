@@ -18,8 +18,6 @@ module dlsproto.node.request.Redistribute;
 
 ******************************************************************************/
 
-import ocean.transition;
-
 import dlsproto.node.request.model.DlsCommand;
 import ocean.transition;
 import ocean.util.log.Logger;

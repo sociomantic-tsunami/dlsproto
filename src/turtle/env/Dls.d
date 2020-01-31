@@ -22,7 +22,6 @@ module turtle.env.Dls;
 *******************************************************************************/
 
 import ocean.core.Test : TestException;
-import ocean.transition;
 import ocean.core.Verify;
 
 import turtle.env.model.Node;
