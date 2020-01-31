@@ -18,7 +18,7 @@ module dlsproto.client.request.internal.Put;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.util.log.Logger;
 
 /*******************************************************************************

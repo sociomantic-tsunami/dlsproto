@@ -18,7 +18,7 @@ module dlsproto.client.request.Put;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.core.SmartUnion;
 public import swarm.neo.client.NotifierTypes;
 public import swarm.neo.client.request_options.RequestContext;

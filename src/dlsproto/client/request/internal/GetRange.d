@@ -20,7 +20,7 @@ module dlsproto.client.request.internal.GetRange;
 
 import core.stdc.time;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.core.VersionCheck;
 import ocean.core.Verify;
 import ocean.util.log.Logger;
@@ -71,7 +71,7 @@ public struct GetRange
     import dlsproto.client.internal.SharedResources;
 
     import ocean.io.select.protocol.generic.ErrnoIOException: IOError;
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     import swarm.neo.client.mixins.AllNodesRequestCore;
     import swarm.neo.client.mixins.BatchRequestCore;

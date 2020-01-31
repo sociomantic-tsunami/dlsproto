@@ -20,7 +20,7 @@ module dlsproto.client.legacy.internal.request.params.RequestParams;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import ocean.core.Verify;
 

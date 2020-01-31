@@ -18,7 +18,7 @@ module fakedls.request.RemoveChannel;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import Protocol = dlsproto.node.request.RemoveChannel;
 

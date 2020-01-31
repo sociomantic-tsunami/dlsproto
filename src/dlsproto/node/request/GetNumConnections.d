@@ -18,7 +18,7 @@ module dlsproto.node.request.GetNumConnections;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import dlsproto.node.request.model.DlsCommand;
 

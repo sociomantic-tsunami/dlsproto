@@ -18,7 +18,7 @@ module fakedls.ConnectionHandler;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import ocean.net.server.connection.IConnectionHandler;
 import swarm.node.connection.ConnectionHandler;

@@ -20,7 +20,7 @@ module dlstest.TestRunner;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import turtle.runner.Runner;
 

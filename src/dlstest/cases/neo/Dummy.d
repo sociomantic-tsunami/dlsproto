@@ -16,7 +16,7 @@
 
 module dlstest.cases.neo.Dummy;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import dlstest.DlsTestCase;
 

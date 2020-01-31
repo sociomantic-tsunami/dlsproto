@@ -12,7 +12,7 @@
 
 module fakedls.neo.SharedResources;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.util.ReusableException;
 
 import dlsproto.node.neo.request.core.IRequestResources;

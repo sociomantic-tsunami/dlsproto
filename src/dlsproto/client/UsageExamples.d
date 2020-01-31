@@ -14,7 +14,7 @@ module dlsproto.client.UsageExamples;
 
 version ( unittest )
 {
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     import dlsproto.client.DlsClient;
 

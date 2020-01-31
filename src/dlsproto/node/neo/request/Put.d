@@ -21,7 +21,7 @@ public abstract class PutProtocol_v1: IRequest
 
     import swarm.neo.node.RequestOnConn;
     import dlsproto.common.Put;
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
     import core.stdc.time;
 
     /***************************************************************************

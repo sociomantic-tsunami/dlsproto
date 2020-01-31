@@ -20,7 +20,7 @@ module fakedls.request.PutBatch;
 
 import Protocol = dlsproto.node.request.PutBatch;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import dlsproto.client.legacy.DlsConst;
 

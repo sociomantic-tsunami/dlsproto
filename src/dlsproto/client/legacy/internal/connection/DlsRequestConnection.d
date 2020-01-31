@@ -55,7 +55,7 @@ import dlsproto.client.legacy.internal.request.PutBatchRequest;
 
 import dlsproto.client.legacy.DlsConst;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.core.Enforce;
 
 /*******************************************************************************

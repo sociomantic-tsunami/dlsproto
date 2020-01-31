@@ -32,7 +32,7 @@ abstract class DlsTestCase : TestCase
 {
     import ocean.core.Test; // makes `test` available in derivatives
     import dlstest.DlsClient;
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     /***************************************************************************
 

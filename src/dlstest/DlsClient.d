@@ -19,7 +19,7 @@ module dlstest.DlsClient;
 
 ******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.core.Verify;
 import ocean.core.VersionCheck;
 import ocean.util.log.Logger;

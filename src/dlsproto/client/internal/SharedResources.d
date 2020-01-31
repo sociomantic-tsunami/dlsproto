@@ -19,7 +19,7 @@ module dlsproto.client.internal.SharedResources;
 
 *******************************************************************************/
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 
 import ocean.core.Verify;
 

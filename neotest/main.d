@@ -10,7 +10,7 @@
 
 module test.neotest.main;
 
-import ocean.transition;
+import ocean.meta.types.Qualifiers;
 import ocean.io.Stdout;
 
 import ocean.task.Scheduler;

@@ -27,7 +27,7 @@ public template ChannelIteration ( alias predicate = alwaysTrue )
 {
     import fakedls.Storage;
 
-    import ocean.transition;
+    import ocean.meta.types.Qualifiers;
 
     /***************************************************************************
 
