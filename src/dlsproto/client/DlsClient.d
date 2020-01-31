@@ -115,8 +115,6 @@ module dlsproto.client.DlsClient;
 
 *******************************************************************************/
 
-import ocean.transition;
-
 import ocean.core.Verify;
 
 import swarm.util.ExtensibleClass;
