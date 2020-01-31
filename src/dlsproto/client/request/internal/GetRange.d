@@ -80,7 +80,7 @@ public struct GetRange
     import swarm.neo.client.RequestOnConn;
     import swarm.neo.client.IRequestSet;
 
-    mixin TypeofThis!();
+    alias typeof(this) This;
 
 
     /***************************************************************************

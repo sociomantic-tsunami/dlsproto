@@ -37,7 +37,7 @@ public template IODelegate ( )
     import ocean.transition;
     import ocean.core.TypeConvert : downcast;
 
-    mixin TypeofThis;
+    alias typeof(this) This;
     static assert (is(This == struct));
 
     /***************************************************************************
@@ -103,7 +103,7 @@ public template Filter ( )
     import ocean.transition;
     import ocean.core.TypeConvert : downcast;
 
-    mixin TypeofThis;
+    alias typeof(this) This;
     static assert (is(This == struct));
 
     /***************************************************************************
@@ -273,7 +273,7 @@ public template Key ( )
     import ocean.core.TypeConvert : downcast;
     static import swarm.util.Hash;
 
-    mixin TypeofThis;
+    alias typeof(this) This;
     static assert (is(This == struct));
 
     /***************************************************************************
@@ -367,7 +367,7 @@ public template Range ( )
     import ocean.core.TypeConvert : downcast;
     static import swarm.util.Hash;
 
-    mixin TypeofThis;
+    alias typeof(this) This;
     static assert (is(This == struct));
 
     /***************************************************************************
