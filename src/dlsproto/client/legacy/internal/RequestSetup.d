@@ -61,7 +61,7 @@ public template IODelegate ( )
 
     ***************************************************************************/
 
-    public This* io ( T ) ( T io )
+    public This* io ( T ) ( T io ) return
     {
         this.io_item = this.io_item(io);
 
@@ -135,7 +135,7 @@ public template Filter ( )
 
     ***************************************************************************/
 
-    public This* filter ( cstring filter )
+    public This* filter ( cstring filter ) return
     {
         verify(this.command_code != DlsConst.Command.E.GetAllFilter
             && this.command_code != DlsConst.Command.E.GetRangeFilter
@@ -185,7 +185,7 @@ public template Filter ( )
 
     ***************************************************************************/
 
-    public This* pcre ( cstring filter, bool case_sensitive = true )
+    public This* pcre ( cstring filter, bool case_sensitive = true ) return
     {
         verify(this.command_code != DlsConst.Command.E.GetAllFilter
             && this.command_code != DlsConst.Command.E.GetRangeFilter
@@ -292,7 +292,7 @@ public template Key ( )
 
     ***************************************************************************/
 
-    public This* key ( Key ) ( Key key )
+    public This* key ( Key ) ( Key key ) return
     {
         version (X86_64) static assert(!is( Key == uint),
             "Please use hash_t instead of uint.");
@@ -312,7 +312,7 @@ public template Key ( )
 
     ***************************************************************************/
 
-    public This* contextFromKey ( )
+    public This* contextFromKey ( ) return
     {
         this.user_context = RequestContext(this.hash);
 
@@ -381,7 +381,7 @@ public template Range ( )
 
     ***************************************************************************/
 
-    public This* range ( Key ) ( Key start, Key end )
+    public This* range ( Key ) ( Key start, Key end ) return
     {
         this.hash_range =
             swarm.util.Hash.HashRange(swarm.util.Hash.toHash(start),
