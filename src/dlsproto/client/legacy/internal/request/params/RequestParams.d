@@ -43,7 +43,6 @@ import Hash = swarm.util.Hash;
 import dlsproto.client.legacy.internal.request.notifier.RequestNotification;
 
 import ocean.core.SmartUnion;
-import ocean.core.Traits;
 
 
 
@@ -269,10 +268,6 @@ public class RequestParams : IChannelRequestParams
         Copies the fields of this instance from another.
 
         All fields are copied by value. (i.e. all arrays are sliced.)
-
-        Note that the copyFields template used by this method relies on the fact
-        that all the class' fields are non-private. (See template documentation
-        in ocean.core.Traits for further info.)
 
         Params:
             params = instance to copy fields from
