@@ -31,11 +31,6 @@ jobs:
           script: beaver dlang make
     include:
         # Test matrix
-
-        - <<: *test-matrix
-          env: DMD=2.071.2.s* F=production
-        - <<: *test-matrix
-          env: DMD=2.071.2.s* F=devel
         - <<: *test-matrix
           env: DMD=2.078.3.s* F=production
         - <<: *test-matrix
@@ -50,4 +45,3 @@ jobs:
           env: DMD=2.078.3.s* F=devel
           install: beaver dlang install
           script: ci/closures.sh
-
