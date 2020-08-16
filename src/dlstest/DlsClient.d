@@ -370,11 +370,6 @@ class DlsClient
         this.raw_client = new RawClient(theScheduler.epoll, auth_name,
             auth_key.content,
             &this.neo.connectionNotifier, max_connections);
-        // deprecated, remove in next major
-        static if (!hasFeaturesFrom!("swarm", 5, 1))
-        {
-            this.raw_client.neo.enableSocketNoDelay();
-        }
     }
 
     /**************************************************************************

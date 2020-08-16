@@ -612,12 +612,6 @@ private scope class GetRangeHandler
                             payload.addCopy(MessageType_v2.Continue);
                         }
                     );
-
-                    // deprecated, remove in the next major
-                    static if (!hasFeaturesFrom!("swarm", 5, 1))
-                    {
-                        this.outer.conn.flush();
-                    }
                 }
 
                 const(void)[] remaining_batch = *this.buffers.output;
@@ -939,11 +933,6 @@ private scope class GetRangeHandler
                                 payload.addCopy(MessageType_v2.Stop);
                             }
                         );
-                        // deprecated, remove in the next major
-                        static if (!hasFeaturesFrom!("swarm", 5, 1))
-                        {
-                            this.outer.conn.flush();
-                        }
                         this.outer.context.shared_working.stopped = true;
 
                         // set the timer to timeout if the node haven't responded
