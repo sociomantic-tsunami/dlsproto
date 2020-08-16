@@ -351,11 +351,6 @@ public abstract class GetRangeProtocol_v2: IRequest
         switch (event.active)
         {
             case event.active.sent:
-                // deprecated, remove in next major
-                static if (!hasFeaturesFrom!("swarm", 5, 1))
-                {
-                    this.ed.flush();
-                }
                 // Records sent: wait for Continue/Stop feedback, ACK Stop
                 // stop and return true for Continue or false for stop
                 switch (this.ed.receiveValue!(MessageType_v2)())
@@ -432,12 +427,6 @@ public abstract class GetRangeProtocol_v2: IRequest
                 payload.addCopy(MessageType_v2.Stopped);
             }
         );
-
-        // deprecated, remove in next major
-        static if (!hasFeaturesFrom!("swarm", 5, 1))
-        {
-            this.ed.flush();
-        }
     }
 
 
