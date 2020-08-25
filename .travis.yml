@@ -18,8 +18,8 @@ env:
     global:
         # Make sure beaver is in the PATH
         - PATH="$(git config -f .gitmodules submodule.beaver.path)/bin:$PATH"
-        - DIST=xenial
-        - COV=1
+        - DIST=bionic
+        - COV=0
 
 # Basic config is inherited from the global scope
 jobs:
@@ -32,24 +32,16 @@ jobs:
     include:
         # Test matrix
         - <<: *test-matrix
-          env: DMD=2.078.3.s* F=production
+          env: DMD=2.092.* F=production
         - <<: *test-matrix
-          env: DMD=2.078.3.s* F=devel
+          env: DMD=2.092.* F=devel
         - <<: *test-matrix
-          env: DMD=2.088.* F=production
+          env: DMD=2.093.* F=production COV=1
         - <<: *test-matrix
-          env: DMD=2.088.* F=devel
-        - <<: *test-matrix
-          env: DIST=bionic DMD=2.092.* F=production
-        - <<: *test-matrix
-          env: DIST=bionic DMD=2.092.* F=devel
-        - <<: *test-matrix
-          env: DIST=bionic DMD=2.093.* F=production
-        - <<: *test-matrix
-          env: DIST=bionic DMD=2.093.* F=devel
+          env: DMD=2.093.* F=devel COV=1
 
         # Extra sanity check
         - stage: Closure allocation check
-          env: DMD=2.078.3.s* F=devel
+          env: DMD=2.093.* F=devel
           install: beaver dlang install
           script: ci/closures.sh
