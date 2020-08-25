@@ -28,7 +28,7 @@ import ocean.meta.types.Qualifiers;
 
 *******************************************************************************/
 
-public abstract scope class PutBatch : SingleChannel
+public abstract class PutBatch : SingleChannel
 {
     import dlsproto.node.request.model.DlsCommand;
 

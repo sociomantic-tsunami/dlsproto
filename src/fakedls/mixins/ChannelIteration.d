@@ -35,7 +35,7 @@ public template ChannelIteration ( alias predicate = alwaysTrue )
 
     ***************************************************************************/
 
-    private istring[] remaining_keys;
+    private string[] remaining_keys;
 
     /***************************************************************************
 
@@ -43,7 +43,7 @@ public template ChannelIteration ( alias predicate = alwaysTrue )
 
     ***************************************************************************/
 
-    private istring current_key;
+    private string current_key;
 
     /***************************************************************************
 
@@ -51,7 +51,7 @@ public template ChannelIteration ( alias predicate = alwaysTrue )
 
     ***************************************************************************/
 
-    private istring[] values_for_key;
+    private string[] values_for_key;
 
     /***************************************************************************
 

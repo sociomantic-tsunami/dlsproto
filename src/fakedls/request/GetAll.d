@@ -26,7 +26,7 @@ import Protocol = dlsproto.node.request.GetAll;
 
 *******************************************************************************/
 
-public scope class GetAll : Protocol.GetAll
+public class GetAll : Protocol.GetAll
 {
     import fakedls.mixins.RequestConstruction;
     import fakedls.mixins.ChannelIteration;

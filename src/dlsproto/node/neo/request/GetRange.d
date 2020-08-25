@@ -398,7 +398,7 @@ public abstract class GetRangeProtocol_v2: IRequest
     ***************************************************************************/
 
     private void verifyReceivedMessageIsStop ( in void[] msg_payload,
-        istring file = __FILE__, int line = __LINE__ )
+        string file = __FILE__, int line = __LINE__ )
     {
         MessageType_v2 msg_type;
         this.ed.message_parser.parseBody(msg_payload, msg_type);

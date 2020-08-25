@@ -208,7 +208,7 @@ abstract private class IBulkGetRequest : IChannelRequest, IStreamInfo
 
 *******************************************************************************/
 
-abstract public scope class IBulkGetPairsRequest : IBulkGetRequest
+abstract public class IBulkGetPairsRequest : IBulkGetRequest
 {
     /***************************************************************************
 
@@ -274,7 +274,7 @@ abstract public scope class IBulkGetPairsRequest : IBulkGetRequest
 
 *******************************************************************************/
 
-abstract public scope class IBulkGetValuesRequest : IBulkGetRequest
+abstract public class IBulkGetValuesRequest : IBulkGetRequest
 {
     /***************************************************************************
 

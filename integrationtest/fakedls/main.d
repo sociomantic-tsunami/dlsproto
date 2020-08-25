@@ -14,11 +14,10 @@ module integrationtest.fakedls.main;
 
 import dlstest.TestRunner;
 import turtle.runner.Runner;
-import ocean.meta.types.Qualifiers;
 
 version ( unittest ) {}
 else
-int main ( istring[] args )
+int main ( string[] args )
 {
     auto runner = new TurtleRunner!(DlsTestRunner)("fakedls", "dlstest.cases.neo");
     return runner.main(args);

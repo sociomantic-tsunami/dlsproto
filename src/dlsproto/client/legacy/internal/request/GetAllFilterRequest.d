@@ -35,7 +35,7 @@ import ocean.meta.types.Qualifiers;
 
 *******************************************************************************/
 
-public scope class GetAllFilterRequest : IBulkGetPairsRequest
+public class GetAllFilterRequest : IBulkGetPairsRequest
 {
     /**************************************************************************
 

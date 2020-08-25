@@ -28,7 +28,7 @@ import dlsproto.node.request.model.DlsCommand;
 
 *******************************************************************************/
 
-public abstract scope class GetVersion : DlsCommand
+public abstract class GetVersion : DlsCommand
 {
     import dlsproto.client.legacy.DlsConst;
 

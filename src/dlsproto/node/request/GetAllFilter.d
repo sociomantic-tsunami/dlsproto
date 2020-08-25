@@ -28,7 +28,7 @@ import dlsproto.node.request.model.CompressedBatch;
 
 *******************************************************************************/
 
-public abstract scope class GetAllFilter : CompressedBatch!(cstring, cstring)
+public abstract class GetAllFilter : CompressedBatch!(cstring, cstring)
 {
     import dlsproto.node.request.model.DlsCommand;
 

@@ -33,7 +33,7 @@ import dlsproto.client.legacy.internal.request.model.IRequest;
 
 ******************************************************************************/
 
-public scope class GetVersionRequest : IRequest
+public class GetVersionRequest : IRequest
 {
     /**************************************************************************
 

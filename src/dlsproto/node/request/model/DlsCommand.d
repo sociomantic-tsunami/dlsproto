@@ -29,7 +29,7 @@ import swarm.node.protocol.Command;
 
 *******************************************************************************/
 
-public abstract scope class DlsCommand : Command
+public abstract class DlsCommand : Command
 {
     import swarm.util.RecordBatcher;
     import swarm.Const: NodeItem;

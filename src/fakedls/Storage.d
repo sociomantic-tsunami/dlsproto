@@ -176,7 +176,7 @@ class Channel
 
     ***************************************************************************/
 
-    private istring[][istring] data;
+    private string[][string] data;
 
     /***************************************************************************
 
@@ -185,9 +185,9 @@ class Channel
 
     ***************************************************************************/
 
-    public istring[] getKeys ( )
+    public string[] getKeys ( )
     {
-        istring[] result;
+        string[] result;
 
         foreach (key, value; this.data)
             result ~= key;
@@ -205,7 +205,7 @@ class Channel
 
     ***************************************************************************/
 
-    public istring[] get ( cstring key )
+    public string[] get ( cstring key )
     {
         auto value = key in this.data;
         return (value is null) ? null : *value;
@@ -218,9 +218,9 @@ class Channel
 
     ***************************************************************************/
 
-    public istring[][hash_t] getAll ( )
+    public string[][hash_t] getAll ( )
     {
-        istring[][hash_t] result;
+        string[][hash_t] result;
 
         foreach (key, values; this.data)
         {
@@ -243,7 +243,7 @@ class Channel
 
     ***************************************************************************/
 
-    public istring[] getVerify ( cstring key )
+    public string[] getVerify ( cstring key )
     {
         auto value = key in this.data;
         enforce!(MissingRecordException)(value !is null, idup(key));
@@ -301,7 +301,7 @@ class Channel
 
 class MissingChannelException : Exception
 {
-    this ( cstring name, istring file = __FILE__, int line = __LINE__ )
+    this ( cstring name, string file = __FILE__, int line = __LINE__ )
     {
         super("Trying to work with non-existent channel " ~ idup(name), file, line);
     }
@@ -315,7 +315,7 @@ class MissingChannelException : Exception
 
 class MissingRecordException : Exception
 {
-    this ( cstring key, istring file = __FILE__, int line = __LINE__ )
+    this ( cstring key, string file = __FILE__, int line = __LINE__ )
     {
         super("Trying to work with non-existent record (key = " ~ idup(key) ~ ")",
             file, line);

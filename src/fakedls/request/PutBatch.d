@@ -33,7 +33,7 @@ else:
 
 *******************************************************************************/
 
-public scope class PutBatch : Protocol.PutBatch
+public class PutBatch : Protocol.PutBatch
 {
     import fakedls.mixins.RequestConstruction;
 

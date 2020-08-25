@@ -70,7 +70,7 @@ abstract class DlsTestCase : TestCase
 
     ***************************************************************************/
 
-    protected istring test_channel;
+    protected string test_channel;
 
     /***************************************************************************
 

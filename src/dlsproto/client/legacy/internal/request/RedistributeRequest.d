@@ -29,7 +29,7 @@ import dlsproto.client.legacy.internal.request.model.IRequest;
 
 ******************************************************************************/
 
-public scope class RedistributeRequest: IRequest
+public class RedistributeRequest: IRequest
 {
     /**************************************************************************
 
