@@ -51,7 +51,7 @@ static this ( )
 
 *******************************************************************************/
 
-public abstract scope class CompressedBatch(T...) : SingleChannel
+public abstract class CompressedBatch(T...) : SingleChannel
 {
     import dlsproto.node.request.model.DlsCommand;
 

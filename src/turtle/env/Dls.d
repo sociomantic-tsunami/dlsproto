@@ -212,7 +212,7 @@ public class Dls : Node!(DlsNode, "dls")
 
     ***************************************************************************/
 
-    public void waitTotalRecords ( istring op = ">=" ) ( cstring channel,
+    public void waitTotalRecords ( string op = ">=" ) ( cstring channel,
         size_t count, double timeout = 1.0, double check_interval = 0.05 )
     {
         size_t recordCount ( cstring channel )

@@ -28,7 +28,7 @@ import dlsproto.node.request.model.SingleChannel;
 
 *******************************************************************************/
 
-public abstract scope class RemoveChannel : SingleChannel
+public abstract class RemoveChannel : SingleChannel
 {
     import dlsproto.node.request.model.DlsCommand;
 

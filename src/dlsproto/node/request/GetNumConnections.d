@@ -28,7 +28,7 @@ import dlsproto.node.request.model.DlsCommand;
 
 *******************************************************************************/
 
-public abstract scope class GetNumConnections : DlsCommand
+public abstract class GetNumConnections : DlsCommand
 {
     import dlsproto.client.legacy.DlsConst;
 

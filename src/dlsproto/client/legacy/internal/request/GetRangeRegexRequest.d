@@ -33,7 +33,7 @@ import ocean.meta.types.Qualifiers;
 
 *******************************************************************************/
 
-public scope class GetRangeRegexRequest : IBulkGetPairsRequest
+public class GetRangeRegexRequest : IBulkGetPairsRequest
 {
     /**************************************************************************
 

@@ -28,7 +28,7 @@ import Protocol = dlsproto.node.request.GetChannels;
 
 *******************************************************************************/
 
-public scope class GetChannels : Protocol.GetChannels
+public class GetChannels : Protocol.GetChannels
 {
     import fakedls.mixins.RequestConstruction;
     import fakedls.Storage;

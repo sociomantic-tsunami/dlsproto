@@ -104,7 +104,7 @@ public class DlsRequestConnection :
 
     ***************************************************************************/
 
-    private scope class DlsRequestResources
+    private class DlsRequestResources
         : RequestResources, IDlsRequestResources
     {
         import swarm.Const : NodeItem;

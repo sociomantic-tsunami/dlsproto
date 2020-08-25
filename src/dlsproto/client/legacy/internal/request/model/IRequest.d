@@ -37,7 +37,7 @@ import dlsproto.client.legacy.internal.request.model.IDlsRequestResources;
 
 *******************************************************************************/
 
-public scope class IRequest : Core.IRequest
+public class IRequest : Core.IRequest
 {
     /***************************************************************************
 

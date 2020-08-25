@@ -26,7 +26,7 @@ import Protocol = dlsproto.node.request.GetVersion;
 
 *******************************************************************************/
 
-public scope class GetVersion : Protocol.GetVersion
+public class GetVersion : Protocol.GetVersion
 {
     import fakedls.mixins.RequestConstruction;
 

@@ -38,7 +38,7 @@ import dlsproto.client.legacy.internal.request.params.RequestParams;
 
 *******************************************************************************/
 
-public scope class IKeyRequest : IChannelRequest
+public class IKeyRequest : IChannelRequest
 {
     /***************************************************************************
 

@@ -104,7 +104,7 @@ class GetRangeEmpty : DlsTestCase
     public override void run ( )
     {
         // Put some records to the storage channel.
-        istring[][hash_t] records =
+        string[][hash_t] records =
         [
             0x0000000000000000: ["record 0"],
             0x0000000000000001: ["record 1"],

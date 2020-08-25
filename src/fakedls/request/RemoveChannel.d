@@ -28,7 +28,7 @@ import Protocol = dlsproto.node.request.RemoveChannel;
 
 *******************************************************************************/
 
-public scope class RemoveChannel : Protocol.RemoveChannel
+public class RemoveChannel : Protocol.RemoveChannel
 {
     import fakedls.mixins.RequestConstruction;
     import fakedls.Storage;

@@ -28,7 +28,7 @@ import dlsproto.node.request.model.SingleChannel;
 
 *******************************************************************************/
 
-public abstract scope class Put : SingleChannel
+public abstract class Put : SingleChannel
 {
     import dlsproto.node.request.model.DlsCommand;
 

@@ -187,7 +187,7 @@ public struct GetRange
 
 *******************************************************************************/
 
-private scope class GetRangeHandler
+private class GetRangeHandler
 {
     import dlsproto.common.GetRange;
     import dlsproto.common.RequestCodes;

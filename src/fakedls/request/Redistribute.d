@@ -32,7 +32,7 @@ else:
 
 *******************************************************************************/
 
-public scope class Redistribute : Protocol.Redistribute
+public class Redistribute : Protocol.Redistribute
 {
     import fakedls.mixins.RequestConstruction;
 

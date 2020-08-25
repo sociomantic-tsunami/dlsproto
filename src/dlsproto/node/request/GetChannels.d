@@ -28,7 +28,7 @@ import dlsproto.node.request.model.DlsCommand;
 
 *******************************************************************************/
 
-public abstract scope class GetChannels : DlsCommand
+public abstract class GetChannels : DlsCommand
 {
     import dlsproto.client.legacy.DlsConst;
 

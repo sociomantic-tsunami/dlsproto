@@ -45,7 +45,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
     static immutable Command command = Command(RequestCode.GetRange, 2);
 
     /// Request name for stats tracking. Required by ConnectionHandler.
-    static immutable istring name = "GetRange";
+    static immutable string name = "GetRange";
 
     /// Flag indicating whether timing stats should be gathered for requests of
     /// this type.
@@ -61,7 +61,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
 
     ***************************************************************************/
 
-    private istring[] remaining_keys;
+    private string[] remaining_keys;
 
     /***************************************************************************
 
@@ -69,7 +69,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
 
     ***************************************************************************/
 
-    private istring current_key;
+    private string current_key;
 
     /***************************************************************************
 
@@ -77,7 +77,7 @@ public class GetRangeImpl_v2: GetRangeProtocol_v2
 
     ***************************************************************************/
 
-    private istring[] values_for_key;
+    private string[] values_for_key;
 
 
     /***************************************************************************

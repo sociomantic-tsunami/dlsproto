@@ -28,7 +28,7 @@ import Protocol = dlsproto.node.request.GetRange;
 
 *******************************************************************************/
 
-public scope class GetRange : Protocol.GetRange
+public class GetRange : Protocol.GetRange
 {
     import fakedls.mixins.RequestConstruction;
     import fakedls.mixins.ChannelIteration;

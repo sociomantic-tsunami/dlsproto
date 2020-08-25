@@ -28,7 +28,7 @@ import Protocol = dlsproto.node.request.GetRangeRegex;
 
 *******************************************************************************/
 
-public scope class GetRangeRegex : Protocol.GetRangeRegex
+public class GetRangeRegex : Protocol.GetRangeRegex
 {
     import ocean.text.regex.PCRE;
     import ocean.text.Search;

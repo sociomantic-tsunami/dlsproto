@@ -28,7 +28,7 @@ import dlsproto.node.request.model.CompressedBatch;
 
 *******************************************************************************/
 
-public abstract scope class GetRange : CompressedBatch!(cstring, cstring)
+public abstract class GetRange : CompressedBatch!(cstring, cstring)
 {
     import dlsproto.node.request.model.DlsCommand;
 

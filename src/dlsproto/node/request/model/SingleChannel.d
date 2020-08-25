@@ -29,7 +29,7 @@ import ocean.text.convert.Formatter;
 
 *******************************************************************************/
 
-public abstract scope class SingleChannel : DlsCommand
+public abstract class SingleChannel : DlsCommand
 {
     import dlsproto.client.legacy.DlsConst;
     import swarm.Const : validateChannelName;

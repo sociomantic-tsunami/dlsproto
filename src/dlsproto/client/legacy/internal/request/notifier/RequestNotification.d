@@ -36,7 +36,7 @@ import dlsproto.client.legacy.DlsConst;
 
 *******************************************************************************/
 
-public scope class RequestNotification : IRequestNotification
+public class RequestNotification : IRequestNotification
 {
     /***************************************************************************
 
